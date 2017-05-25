@@ -27,6 +27,12 @@
 
 // Generated includes:
 #include "config.h"
+#ifdef SCOREP_USER_ENABLE
+#include "scorep/SCOREP_User.h"
+#else
+#define SCOREP_USER_FUNC_BEGIN()
+#define SCOREP_USER_FUNC_END()
+#endif
 
 // Includes from libnestutil:
 #include "compose.hpp"
@@ -195,6 +201,7 @@ GenericConnectorModel< ConnectionT >::add_connection_5g( Node& src,
   const double delay,
   const double weight )
 {
+  SCOREP_USER_FUNC_BEGIN();
   if ( not numerics::is_nan( delay ) && has_delay_ )
   {
     kernel().connection_manager.get_delay_checker().assert_valid_delay_ms(
@@ -216,6 +223,7 @@ GenericConnectorModel< ConnectionT >::add_connection_5g( Node& src,
     // tell the connector model, that we used the default delay
     used_default_delay();
   }
+  SCOREP_USER_FUNC_END();
   add_connection_5g_( src, tgt, hetconn, syn_id, c, receptor_type_ );
 }
 
@@ -236,6 +244,7 @@ GenericConnectorModel< ConnectionT >::add_connection_5g( Node& src,
   const double delay,
   const double weight )
 {
+  SCOREP_USER_FUNC_BEGIN();
   if ( not numerics::is_nan( delay ) )
   {
     if ( has_delay_ )
@@ -294,8 +303,9 @@ GenericConnectorModel< ConnectionT >::add_connection_5g( Node& src,
   // We allow music_channel as alias for receptor_type during connection setup
   updateValue< long >( p, names::music_channel, actual_receptor_type );
 #endif
-  updateValue< long >( p, names::receptor_type, actual_receptor_type );
 
+  updateValue< long >( p, names::receptor_type, actual_receptor_type );
+  SCOREP_USER_FUNC_END();
   add_connection_5g_( src, tgt, hetconn, syn_id, c, actual_receptor_type );
 }
 
@@ -309,6 +319,7 @@ GenericConnectorModel< ConnectionT >::add_connection_5g_( Node& src,
   ConnectionT& c,
   const rport receptor_type )
 {
+  SCOREP_USER_FUNC_BEGIN();
   assert( syn_id != invalid_synindex );
 
   if ( ( *hetconn )[ syn_id ] == NULL )
@@ -320,7 +331,6 @@ GenericConnectorModel< ConnectionT >::add_connection_5g_( Node& src,
   ConnectorBase* conn = ( *hetconn )[ syn_id ];
   // the following line will throw an exception, if it does not work
   c.check_connection( src, tgt, receptor_type, get_common_properties() );
-
   assert( conn != 0 );
 
   Connector< ConnectionT >* vc =
@@ -328,6 +338,7 @@ GenericConnectorModel< ConnectionT >::add_connection_5g_( Node& src,
   conn = &vc->push_back( c );
 
   ( *hetconn )[ syn_id ] = conn;
+  SCOREP_USER_FUNC_END();
 }
 
 template < typename ConnectionT >
