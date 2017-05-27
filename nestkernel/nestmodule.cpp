@@ -468,9 +468,9 @@ NestModule::SimulateFunction::execute( SLIInterpreter* i ) const
   i->assert_stack_load( 1 );
 
   const double time = i->OStack.top();
-
+  SCOREP_USER_FUNC_BEGIN();
   simulate( time );
-
+  SCOREP_USER_FUNC_END();
   // successful end of simulate
   i->OStack.pop();
   i->EStack.pop();

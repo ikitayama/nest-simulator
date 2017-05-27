@@ -42,6 +42,13 @@
 #include "dictutils.h"
 #include "psignal.h"
 
+#ifdef SCOREP_USER_ENABLE
+#include "scorep/SCOREP_User.h"
+#else
+#define SCOREP_USER_FUNC_BEGIN()
+#define SCOREP_USER_FUNC_END()
+#endif
+
 nest::SimulationManager::SimulationManager()
   : clock_( Time::tic( 0L ) )
   , slice_( 0L )
@@ -476,7 +483,9 @@ void
 nest::SimulationManager::simulate( Time const& t )
 {
   prepare();
+  SCOREP_USER_FUNC_BEGIN();
   run( t );
+  SCOREP_USER_FUNC_END();
   cleanup();
 }
 

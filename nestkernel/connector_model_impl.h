@@ -201,7 +201,7 @@ GenericConnectorModel< ConnectionT >::add_connection_5g( Node& src,
   const double delay,
   const double weight )
 {
-  SCOREP_USER_FUNC_BEGIN();
+  //SCOREP_USER_FUNC_BEGIN();
   if ( not numerics::is_nan( delay ) && has_delay_ )
   {
     kernel().connection_manager.get_delay_checker().assert_valid_delay_ms(
@@ -223,7 +223,7 @@ GenericConnectorModel< ConnectionT >::add_connection_5g( Node& src,
     // tell the connector model, that we used the default delay
     used_default_delay();
   }
-  SCOREP_USER_FUNC_END();
+  //SCOREP_USER_FUNC_END();
   add_connection_5g_( src, tgt, hetconn, syn_id, c, receptor_type_ );
 }
 
@@ -244,7 +244,7 @@ GenericConnectorModel< ConnectionT >::add_connection_5g( Node& src,
   const double delay,
   const double weight )
 {
-  SCOREP_USER_FUNC_BEGIN();
+  //SCOREP_USER_FUNC_BEGIN();
   if ( not numerics::is_nan( delay ) )
   {
     if ( has_delay_ )
@@ -305,7 +305,7 @@ GenericConnectorModel< ConnectionT >::add_connection_5g( Node& src,
 #endif
 
   updateValue< long >( p, names::receptor_type, actual_receptor_type );
-  SCOREP_USER_FUNC_END();
+  //SCOREP_USER_FUNC_END();
   add_connection_5g_( src, tgt, hetconn, syn_id, c, actual_receptor_type );
 }
 
