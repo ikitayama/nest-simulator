@@ -468,9 +468,9 @@ NestModule::SimulateFunction::execute( SLIInterpreter* i ) const
   i->assert_stack_load( 1 );
 
   const double time = i->OStack.top();
-  SCOREP_USER_FUNC_BEGIN();
+
   simulate( time );
-  SCOREP_USER_FUNC_END();
+
   // successful end of simulate
   i->OStack.pop();
   i->EStack.pop();
@@ -621,9 +621,7 @@ NestModule::Create_l_iFunction::execute( SLIInterpreter* i ) const
 
   const std::string modname = getValue< std::string >( i->OStack.pick( 1 ) );
  
-  SCOREP_USER_FUNC_BEGIN();
   const long last_node_id = create( modname, n_nodes );
-  SCOREP_USER_FUNC_END();
 
   i->OStack.pop( 2 );
   i->OStack.push( last_node_id );
