@@ -42,6 +42,13 @@
 #include "dictutils.h"
 #include "psignal.h"
 
+#ifdef SCOREP_USER_ENABLE
+#include "scorep/SCOREP_User.h"
+#else
+#define SCOREP_USER_FUNC_BEGIN()
+#define SCOREP_USER_FUNC_END()
+#endif
+
 nest::SimulationManager::SimulationManager()
   : clock_( Time::tic( 0L ) )
   , slice_( 0L )
@@ -379,6 +386,7 @@ nest::SimulationManager::get_status( DictionaryDatum& d )
 void
 nest::SimulationManager::prepare()
 {
+  SCOREP_USER_FUNC_BEGIN();
   assert( kernel().is_initialized() );
 
   if ( inconsistent_state_ )
@@ -469,15 +477,17 @@ nest::SimulationManager::prepare()
               << kernel().event_delivery_manager.comm_rounds_target_data << ")"
               << std::endl;
   }
-
+  SCOREP_USER_FUNC_END();
 }
 
 void
 nest::SimulationManager::simulate( Time const& t )
 {
+  SCOREP_USER_FUNC_BEGIN();
   prepare();
   run( t );
   cleanup();
+  SCOREP_USER_FUNC_END();
 }
 
 void
@@ -525,6 +535,7 @@ nest::SimulationManager::assert_valid_simtime( Time const& t )
 void
 nest::SimulationManager::run( Time const& t )
 {
+  SCOREP_USER_FUNC_BEGIN();
   assert_valid_simtime( t );
 
   Stopwatch sw_simulate;
@@ -582,6 +593,7 @@ nest::SimulationManager::run( Time const& t )
     sw_simulate.stop();
     sw_simulate.print( "0] Simulate time: " );
   }
+  SCOREP_USER_FUNC_END();
 }
 
 void
@@ -592,6 +604,7 @@ nest::SimulationManager::cleanup()
     return;
   }
 
+  SCOREP_USER_FUNC_BEGIN();
   // Check for synchronicity of global rngs over processes
   if ( kernel().mpi_manager.get_num_processes() > 1 )
   {
@@ -606,6 +619,7 @@ nest::SimulationManager::cleanup()
   }
 
   kernel().node_manager.finalize_nodes();
+  SCOREP_USER_FUNC_END();
 }
 
 void

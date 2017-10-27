@@ -620,7 +620,7 @@ NestModule::Create_l_iFunction::execute( SLIInterpreter* i ) const
   }
 
   const std::string modname = getValue< std::string >( i->OStack.pick( 1 ) );
-
+ 
   const long last_node_id = create( modname, n_nodes );
 
   i->OStack.pop( 2 );

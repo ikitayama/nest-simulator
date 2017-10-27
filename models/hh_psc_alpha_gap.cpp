@@ -631,7 +631,7 @@ nest::hh_psc_alpha_gap::update_( Time const& origin,
   B_.sumj_g_ij_ = 0.0;
   B_.interpolation_coefficients.clear();
   B_.interpolation_coefficients.resize( quantity, 0.0 );
-
+  //SCOREP_USER_FUNC_END();
   return done;
 }
 
