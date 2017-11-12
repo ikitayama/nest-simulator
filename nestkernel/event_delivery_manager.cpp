@@ -472,7 +472,9 @@ EventDeliveryManager::gather_spike_data_( const thread tid,
     // communicate spikes using a single thread
 #pragma omp single
     {
+#ifndef DISABLE_TIMING
       sw_collocate_spike_data.stop();
+#endif
       ++comm_rounds_spike_data;
 #ifndef DISABLE_TIMING
       kernel().mpi_manager.synchronize(); // to get an accurate time measurement across ranks
@@ -487,8 +489,8 @@ EventDeliveryManager::gather_spike_data_( const thread tid,
                                                  send_recv_count_in_int );
 #ifndef DISABLE_TIMING
       sw_communicate_spike_data.stop();
-#endif
       sw_deliver_spike_data.start();
+#endif
     } // of omp single; implicit barrier
 
     // deliver spikes from receive buffer to ring buffers
