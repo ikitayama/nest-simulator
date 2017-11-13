@@ -390,6 +390,7 @@ EventDeliveryManager::gather_spike_data_( const thread tid,
                                           std::vector< SpikeDataT >& send_buffer,
                                           std::vector< SpikeDataT >& recv_buffer )
 {
+  SCOREP_USER_FUNC_BEGIN();
 #pragma omp single
   {
     ++comm_steps_spike_data;
@@ -421,7 +422,9 @@ EventDeliveryManager::gather_spike_data_( const thread tid,
         resize_send_recv_buffers_spike_data_();
         buffer_size_spike_data_has_changed_ = false;
       }
+#ifndef DISABLE_TIMING
       sw_collocate_spike_data.start();
+#endif
     } // of omp single; implicit barrier
 
     // need to get new positions in case buffer size has changed
@@ -504,7 +507,9 @@ EventDeliveryManager::gather_spike_data_( const thread tid,
 
     #pragma omp single
     {
+#ifndef DISABLE_TIMING
       sw_deliver_spike_data.stop();
+#endif
     } // of omp single; implicit barrier
 
     if ( completed_count == max_completed_count )
@@ -525,6 +530,7 @@ EventDeliveryManager::gather_spike_data_( const thread tid,
   } // of while( true )
 
   reset_spike_register_5g_( tid );
+  SCOREP_USER_FUNC_END();
 }
 
 template < typename TargetT, typename SpikeDataT >
