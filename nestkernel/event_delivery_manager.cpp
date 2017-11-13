@@ -542,6 +542,7 @@ EventDeliveryManager::collocate_spike_data_buffers_( const thread tid,
     spike_register,
   std::vector< SpikeDataT >& send_buffer )
 {
+  SCOREP_USER_FUNC_BEGIN();
   // reset complete marker
   for ( thread rank = assigned_ranks.begin; rank < assigned_ranks.end; ++rank )
   {
@@ -602,6 +603,7 @@ EventDeliveryManager::collocate_spike_data_buffers_( const thread tid,
   }
 
   return is_spike_register_empty;
+  SCOREP_USER_FUNC_END();
 }
 
 template < typename SpikeDataT >
@@ -611,6 +613,7 @@ EventDeliveryManager::set_end_and_invalid_markers_(
   const SendBufferPosition& send_buffer_position,
   std::vector< SpikeDataT >& send_buffer )
 {
+  SCOREP_USER_FUNC_BEGIN();
   for ( thread rank = assigned_ranks.begin; rank < assigned_ranks.end; ++rank )
   {
     // thread-local index of (global) rank
@@ -638,6 +641,7 @@ EventDeliveryManager::set_end_and_invalid_markers_(
       send_buffer[ send_buffer_position.begin[ lr_idx ] ].set_invalid_marker();
     }
   }
+  SCOREP_USER_FUNC_END();
 }
 
 template < typename SpikeDataT >
@@ -646,6 +650,7 @@ EventDeliveryManager::set_complete_marker_spike_data_(
   const AssignedRanks& assigned_ranks,
   std::vector< SpikeDataT >& send_buffer )
 {
+  SCOREP_USER_FUNC_BEGIN();
   for ( thread target_rank = assigned_ranks.begin;
         target_rank < assigned_ranks.end;
         ++target_rank )
@@ -656,6 +661,7 @@ EventDeliveryManager::set_complete_marker_spike_data_(
       ( target_rank + 1 ) * send_recv_count_spike_data_per_rank_ - 1;
     send_buffer[ idx ].set_complete_marker();
   }
+  SCOREP_USER_FUNC_END();
 }
 
 template < typename SpikeDataT >
@@ -663,6 +669,7 @@ bool
 EventDeliveryManager::deliver_events_5g_( const thread tid,
   const std::vector< SpikeDataT >& recv_buffer )
 {
+  SCOREP_USER_FUNC_BEGIN();
   bool are_others_completed = true;
 
   // deliver only at end of time slice
@@ -720,6 +727,7 @@ EventDeliveryManager::deliver_events_5g_( const thread tid,
   }
 
   return are_others_completed;
+  SCOREP_USER_FUNC_END();
 }
 
 // TODO@5g: documentation
