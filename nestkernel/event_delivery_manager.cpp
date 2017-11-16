@@ -542,7 +542,7 @@ EventDeliveryManager::collocate_spike_data_buffers_( const thread tid,
     spike_register,
   std::vector< SpikeDataT >& send_buffer )
 {
-  SCOREP_USER_FUNC_BEGIN();
+  SCOREP_USER_REGION( "collocate_spike_data_buffers_", SCOREP_USER_REGION_TYPE_LOOP )
   // reset complete marker
   for ( thread rank = assigned_ranks.begin; rank < assigned_ranks.end; ++rank )
   {
@@ -601,9 +601,7 @@ EventDeliveryManager::collocate_spike_data_buffers_( const thread tid,
       }
     }
   }
-
   return is_spike_register_empty;
-  SCOREP_USER_FUNC_END();
 }
 
 template < typename SpikeDataT >
@@ -669,7 +667,7 @@ bool
 EventDeliveryManager::deliver_events_5g_( const thread tid,
   const std::vector< SpikeDataT >& recv_buffer )
 {
-  SCOREP_USER_FUNC_BEGIN();
+  SCOREP_USER_REGION_DEFINE( handle )
   bool are_others_completed = true;
 
   // deliver only at end of time slice
@@ -680,6 +678,7 @@ EventDeliveryManager::deliver_events_5g_( const thread tid,
   // prepare Time objects for every possible time stamp within min_delay_
   std::vector< Time > prepared_timestamps(
     kernel().connection_manager.get_min_delay() );
+  SCOREP_USER_REGION_BEGIN( handle , "deliver_events_5g_", SCOREP_USER_REGION_TYPE_LOOP )
   for ( size_t lag = 0;
         lag < ( size_t ) kernel().connection_manager.get_min_delay();
         lag++ )
@@ -725,9 +724,8 @@ EventDeliveryManager::deliver_events_5g_( const thread tid,
       }
     }
   }
-
+  SCOREP_USER_REGION_END( handle )
   return are_others_completed;
-  SCOREP_USER_FUNC_END();
 }
 
 // TODO@5g: documentation
