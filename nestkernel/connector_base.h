@@ -49,6 +49,8 @@
 #include "arraydatum.h"
 #include "dictutils.h"
 
+#include "scorep/SCOREP_User.h"
+
 namespace nest
 {
 
@@ -415,6 +417,7 @@ public:
     Event& e,
     const std::vector< ConnectorModel* >& cm )
   {
+    SCOREP_USER_FUNC_BEGIN();
     e.set_port( lcid ); // TODO@5g: does this make sense?
     if ( not C_[ lcid ].is_disabled() )
     {
@@ -422,6 +425,7 @@ public:
       C_[ lcid ].send( e, tid, cp );
       send_weight_event( tid, syn_id, lcid, e, cp );
     }
+    SCOREP_USER_FUNC_END();
     return C_[ lcid ].has_source_subsequent_targets();
   }
 
