@@ -43,6 +43,10 @@
 // Includes from sli:
 #include "dictutils.h"
 
+//#include <scorep/SCOREP_User.h>
+//#include <typeinfo>
+//#include <boost/core/demangle.hpp>
+
 namespace nest
 {
 EventDeliveryManager::EventDeliveryManager()
@@ -542,15 +546,12 @@ EventDeliveryManager::collocate_spike_data_buffers_( const thread tid,
     spike_register,
   std::vector< SpikeDataT >& send_buffer )
 {
-  //SCOREP_USER_REGION_DEFINE(handle_loop)
-  //SCOREP_USER_REGION_BEGIN(handle_loop, "loop collocate_spike_data_buffers_", SCOREP_USER_REGION_TYPE_LOOP )
   // reset complete marker
   for ( thread rank = assigned_ranks.begin; rank < assigned_ranks.end; ++rank )
   {
     const thread lr_idx = rank % assigned_ranks.max_size;
     send_buffer[ send_buffer_position.end[ lr_idx ] - 1 ].reset_marker();
   }
-  //SCOREP_USER_REGION_END(handle_loop)
   // whether all spike-register entries have been read
   bool is_spike_register_empty = true;
 
@@ -602,7 +603,6 @@ EventDeliveryManager::collocate_spike_data_buffers_( const thread tid,
       }
     }
   }
-  //SCOREP_USER_REGION_END(handle_loop);
   return is_spike_register_empty;
 }
 
