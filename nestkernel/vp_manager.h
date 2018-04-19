@@ -93,12 +93,12 @@ public:
   index gid_to_lid( const index gid ) const;
 
   /**
-   * Returns the global id of a given local index
+   * Returns the global id of a given local index.
    */
   index lid_to_gid( const index lid ) const;
 
   /**
-   * Returns virtual process index
+   * Returns virtual process index.
    */
   thread get_vp() const;
 
@@ -111,16 +111,6 @@ public:
    * if the user has not specified anything.
    */
   thread suggest_vp_for_gid( const index gid ) const;
-
-  /**
-   * Return a thread number for a given global recording node id.
-   * Each node has a default thread on which it will run.
-   * The thread is defined by the relation:
-   * t = (gid div P) mod T, where P is the number of recording processes and
-   * T the number of threads. This may be used by Network::add_node()
-   * if the user has not specified anything.
-   */
-  thread suggest_rec_vp_for_gid( const index gid ) const;
 
   /**
    * Convert a given VP ID to the corresponding thread ID
@@ -149,7 +139,7 @@ public:
 
   /**
    * Returns the number of processes that are taken care of by a single thread
-   * while processing MPI buffers in a multithreaded environment
+   * while processing MPI buffers in a multithreaded environment.
    */
   thread get_num_assigned_ranks_per_thread() const;
 
@@ -159,7 +149,7 @@ public:
     const thread num_assigned_ranks_per_thread ) const;
 
   /**
-   * Returns assigned ranks per thread to fill MPI buffers. thread tid
+   * Returns assigned ranks per thread to fill MPI buffers. Thread tid
    * is responsible for all ranks in [assigned_ranks.begin,
    * assigned_ranks.end), which are in total assigned_ranks.size and
    * at most assigned_ranks.max_size

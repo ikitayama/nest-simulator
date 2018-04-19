@@ -80,8 +80,6 @@ nest::ConnectionManager::~ConnectionManager()
   // back to the system anyway. Hence, why bother cleaning up our highly
   // scattered connection infrastructure? They do not have any open files, which
   // need to be closed or similar.
-  // source_table_.finalize();
-  // delete_connections_5g_();
 }
 
 void
@@ -452,8 +450,6 @@ nest::ConnectionManager::update_delay_extrema_()
   }
 }
 
-//TODO@5g: check why pointers and references are mixed and which can be consts -> Jakob
-//TODO@5g: compare to other connect function -> same logic? -> Jakob
 // gid node thread syn_id dict delay weight
 void
 nest::ConnectionManager::connect( const index sgid,
@@ -492,7 +488,6 @@ nest::ConnectionManager::connect( const index sgid,
     }
 
     // make sure source is on this MPI rank and on this thread
-    //TODO@5g: make sure this logic is correct -> Jakob
     if ( source->is_proxy() or ( not source->is_proxy() and source->get_thread() != tid ) )
     {
       return;
@@ -520,8 +515,7 @@ nest::ConnectionManager::connect( const index sgid,
         *source, *target, suggested_thread, syn_id, params, delay, weight );
     }
   }
-  // globally receiving devices
-  // e.g., volume transmitter
+  // globally receiving devices, e.g. volume transmitter
   else if ( not target->has_proxies() and not target->local_receiver() )
   {
     // we do not allow to connect a device to a global receiver at the moment
@@ -556,9 +550,8 @@ nest::ConnectionManager::connect( const index sgid,
     return false;
   }
 
-  // TODO@5g: could be const? -> Jakob
   Node* target = kernel().node_manager.get_node( tgid, tid );
-  thread target_thread = target->get_thread();
+  const thread target_thread = target->get_thread();
   Node* source = kernel().node_manager.get_node( sgid, target_thread );
 
   // normal nodes and devices with proxies -> normal nodes and devices with
@@ -570,6 +563,17 @@ nest::ConnectionManager::connect( const index sgid,
   // normal nodes and devices with proxies -> normal devices
   else if ( source->has_proxies() and not target->has_proxies() and target->local_receiver() )
   {
+    // Connections to nodes with one node per process (MUSIC proxies
+    // or similar devices) have to be established by the thread of the
+    // target if the source is on the local process even though the
+    // source may be a proxy on target_thread.
+    if ( target->one_node_per_process() and not source->is_proxy() )
+    {
+      connect_to_device_(
+	  *source, *target, sgid, target_thread, syn_id, params );
+      return true;
+    }
+
     // make sure source is on this MPI rank
     if ( source->is_proxy() or ( not source->is_proxy() and source->get_thread() != tid ) )
     {
@@ -587,16 +591,15 @@ nest::ConnectionManager::connect( const index sgid,
   else if ( not source->has_proxies() and not target->has_proxies() )
   {
     // create connection only on suggested thread of target
-    target_thread = kernel().vp_manager.vp_to_thread(
+    const thread suggested_thread = kernel().vp_manager.vp_to_thread(
       kernel().vp_manager.suggest_vp_for_gid( target->get_gid() ) );
-    if ( target_thread == tid )
+    if ( suggested_thread == tid )
     {
       connect_from_device_(
-        *source, *target, target_thread, syn_id, params );
+        *source, *target, suggested_thread, syn_id, params );
     }
   }
-  // globally receiving devices
-  // e.g., volume transmitter
+  // globally receiving devices, e.g. volume transmitter
   else if ( not target->has_proxies() and not target->local_receiver() )
   {
     // we do not allow to connect a device to a global receiver at the moment
@@ -636,11 +639,7 @@ nest::ConnectionManager::connect_( Node& s,
     s_gid,
     is_primary );
 
-  if ( num_connections_[ tid ].size() <= syn_id )
-  {
-    num_connections_[ tid ].resize( syn_id + 1 );
-  }
-  ++num_connections_[ tid ][ syn_id ];
+  increase_connection_count( tid, syn_id );
 
   if ( is_primary )
   {
@@ -666,11 +665,7 @@ nest::ConnectionManager::connect_to_device_( Node& s,
   target_table_devices_.add_connection_to_device(
     s, r, s_gid, tid, syn_id, params, delay, weight );
 
-  if ( num_connections_[ tid ].size() <= syn_id )
-  {
-    num_connections_[ tid ].resize( syn_id + 1 );
-  }
-  ++num_connections_[ tid ][ syn_id ];
+  increase_connection_count( tid, syn_id );
 }
 
 void
@@ -685,7 +680,13 @@ nest::ConnectionManager::connect_from_device_( Node& s,
   // create entries in connections vector of devices
   target_table_devices_.add_connection_from_device(
     s, r, tid, syn_id, params, delay, weight );
+  increase_connection_count( tid, syn_id );
+}
 
+void
+nest::ConnectionManager::increase_connection_count( const thread tid,
+  const synindex syn_id )
+{
   if ( num_connections_[ tid ].size() <= syn_id )
   {
     num_connections_[ tid ].resize( syn_id + 1 );
@@ -970,22 +971,6 @@ nest::ConnectionManager::data_connect_single( const index source_id,
   }
 }
 
-/**
- * Connect, using a dictionary with arrays.
- * The connection rule is based on the details of the dictionary entries source
- * and target.
- * If source and target are both either a GID or a list of GIDs with equal size,
- * then source and target are connected one-to-one.
- * If source is a gid and target is a list of GIDs then the sources is
- * connected to all targets.
- * If source is a list of GIDs and target is a GID, then all sources are
- * connected to the target.
- * At this stage, the task of connect is to separate the dictionary into one
- * for each thread and then to forward the connect call to the connectors who
- * can then deal with the details of the connection.
- *
- * @note This method is used only by DataConnect.
- */
 bool
 nest::ConnectionManager::data_connect_connectome( const ArrayDatum& connectome )
 {
@@ -1502,7 +1487,6 @@ nest::ConnectionManager::compute_compressed_secondary_recv_buffer_positions( con
 
   const size_t chunk_size_secondary_events_in_int = kernel().mpi_manager.get_chunk_size_secondary_events_in_int();
 
-  // TODO@5g: loop over source_table_, not over connections_ -> but why?
   const synindex syn_id_end = connections_5g_[ tid ]->size();
   for ( synindex syn_id = 0; syn_id < syn_id_end; ++syn_id )
   {
