@@ -253,8 +253,8 @@ ModelsModule::init( SLIInterpreter* )
   //kernel().model_manager.register_node_model< dc_generator >( "dc_generator" );
   //kernel().model_manager.register_node_model< spike_generator >(
   //  "spike_generator" );
-  //kernel().model_manager.register_node_model< poisson_generator >(
-  //  "poisson_generator" );
+  kernel().model_manager.register_node_model< poisson_generator >(
+    "poisson_generator" );
   //kernel().model_manager.register_node_model< pulsepacket_generator >(
   //  "pulsepacket_generator" );
   //kernel().model_manager.register_node_model< noise_generator >(
