@@ -69,15 +69,18 @@
 % define all relevant parameters: changes should be made here
 % all data is placed in the userdict dictionary
 
-/nvp 1 def              % total number of virtual processes
-/scale 1.0 def          % scaling factor of the network size, 
+%/nvp 1 def              % total number of virtual processes
+%/scale 1.0 def          % scaling factor of the network size, 
                         % total network size = scale*11250 neurons
-/simtime 250. def       % total simulation time in ms
-/presimtime 50. ms def % simulation time until reaching equilibrium
-/dt 0.1 ms def          % simulation step
-/record_spikes true def % switch to record spikes of excitatory neurons to file
-/path_name (.) def      % path where all files will have to be written
-/log_file (log) def     % naming scheme for the log files
+%/simtime 250. def       % total simulation time in ms
+%/presimtime 50. ms def % simulation time until reaching equilibrium
+%/dt 0.1 ms def          % simulation step
+%/record_spikes true def % switch to record spikes of excitatory neurons to file
+%/path_name (.) def      % path where all files will have to be written
+%/log_file (log) def     % naming scheme for the log files
+
+(params) run
+params using
 
 % -------------------------------------------------------------------------------------
 
@@ -394,6 +397,23 @@ Aborting the simulation!) message
 
   memory_thisjob cvs ( # virt_mem_after_sim) join logger /log call
   SimCPUTime cvs ( # sim_time) join logger /log call
+
+    0 GetStatus /status_dict Set
+  status_dict /local_num_threads get cvs ( # local_num_threads) join logger /log call
+  status_dict /num_processes get cvs ( # num_processes) join logger /log call
+  status_dict /network_size get cvs ( # network_size) join logger /log call
+  status_dict /num_connections get cvs ( # num_connections) join logger /log call
+  status_dict /local_spike_counter get cvs ( # num_local_spikes) join logger /log call
+
+  status_dict /buffer_size_target_data known not
+  {
+    status_dict /send_buffer_size get cvs ( # send_buffer_size ) join logger /log call
+    status_dict /receive_buffer_size get cvs ( # receive_buffer_size ) join logger /log call
+  }
+  {
+    status_dict /buffer_size_target_data get cvs ( # buffer_size_target_data) join logger /log call
+    status_dict /buffer_size_spike_data get cvs ( # buffer_size_spike_data) join logger /log call
+  } ifelse
 
   record_spikes true eq
   {
