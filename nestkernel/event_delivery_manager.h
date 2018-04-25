@@ -219,7 +219,8 @@ public:
 
   void gather_secondary_events( const bool done );
 
-  bool deliver_secondary_events( const thread tid, const bool called_from_wfr_update );
+  bool deliver_secondary_events( const thread tid,
+    const bool called_from_wfr_update );
 
   /**
    * Update table of fixed modulos, including slice-based.
@@ -239,7 +240,6 @@ public:
    */
   virtual void reset_timers_counters();
 
-#ifndef DISABLE_TIMING
   Stopwatch sw_communicate_secondary_events;
   Stopwatch sw_collocate_spike_data;
   Stopwatch sw_communicate_spike_data;
@@ -247,9 +247,7 @@ public:
   Stopwatch sw_collocate_target_data;
   Stopwatch sw_communicate_target_data;
   Stopwatch sw_distribute_target_data;
-#endif
 
-#ifndef DISABLE_COUNTS
   unsigned int comm_steps_target_data;
   unsigned int comm_rounds_target_data;
   unsigned int comm_steps_spike_data;
@@ -257,12 +255,12 @@ public:
   unsigned int comm_steps_secondary_events;
 
   std::vector< unsigned int > call_count_deliver_events_5g;
-#endif
 
 private:
-
-  template< typename SpikeDataT >
-  void gather_spike_data_( const thread tid, std::vector< SpikeDataT >& send_buffer, std::vector< SpikeDataT >& recv_buffer );
+  template < typename SpikeDataT >
+  void gather_spike_data_( const thread tid,
+    std::vector< SpikeDataT >& send_buffer,
+    std::vector< SpikeDataT >& recv_buffer );
 
   void resize_send_recv_buffers_spike_data_();
 
@@ -292,7 +290,7 @@ private:
    */
   template < typename SpikeDataT >
   void set_complete_marker_spike_data_( const AssignedRanks& assigned_ranks,
-   const SendBufferPosition& send_buffer_position,
+    const SendBufferPosition& send_buffer_position,
     std::vector< SpikeDataT >& send_buffer );
 
   /**
@@ -449,15 +447,15 @@ private:
   std::vector< OffGridSpikeData > send_buffer_off_grid_spike_data_;
   std::vector< OffGridSpikeData > recv_buffer_off_grid_spike_data_;
 
-  std::vector<TargetData> send_buffer_target_data_;
-  std::vector<TargetData> recv_buffer_target_data_;
+  std::vector< TargetData > send_buffer_target_data_;
+  std::vector< TargetData > recv_buffer_target_data_;
 
   bool buffer_size_target_data_has_changed_; //!< whether size of MPI buffer for
-                                             //communication of connections was
-                                             //changed
-  bool buffer_size_spike_data_has_changed_;  //!< whether size of MPI buffer for
-                                             //communication of spikes was
-                                             //changed
+  // communication of connections was
+  // changed
+  bool buffer_size_spike_data_has_changed_; //!< whether size of MPI buffer for
+  // communication of spikes was
+  // changed
 
   std::vector< unsigned int > completed_count_; // TODO@5g: rename? -> Jakob
 };
