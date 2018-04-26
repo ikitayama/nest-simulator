@@ -50,6 +50,7 @@
 #include "dictutils.h"
 
 #include "scorep/SCOREP_User.h"
+#include <typeinfo>
 
 namespace nest
 {
@@ -418,7 +419,8 @@ public:
     const std::vector< ConnectorModel* >& cm )
   {
     SCOREP_USER_REGION_DEFINE(region_handle)
-    SCOREP_USER_REGION_BEGIN(region_handle, "send", SCOREP_USER_REGION_TYPE_COMMON)
+    const char* region_name = typeid(*this).name();
+    SCOREP_USER_REGION_BEGIN(region_handle, region_name, SCOREP_USER_REGION_TYPE_COMMON)
     SCOREP_USER_PARAMETER_UINT64("syn_id", syn_id)
     e.set_port( lcid ); // TODO@5g: does this make sense?
     if ( not C_[ lcid ].is_disabled() )
