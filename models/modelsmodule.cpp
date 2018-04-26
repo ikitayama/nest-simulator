@@ -58,18 +58,18 @@
 #include "hh_psc_alpha.h"
 #include "hh_psc_alpha_gap.h"
 //#include "ht_neuron.h"
-#include "iaf_chs_2007.h"
-#include "iaf_chxk_2008.h"
-#include "iaf_cond_alpha.h"
-#include "iaf_cond_alpha_mc.h"
+//#include "iaf_chs_2007.h"
+//#include "iaf_chxk_2008.h"
+//#include "iaf_cond_alpha.h"
+//#include "iaf_cond_alpha_mc.h"
 #include "iaf_cond_exp.h"
-#include "iaf_cond_exp_sfa_rr.h"
+//#include "iaf_cond_exp_sfa_rr.h"
 #include "iaf_psc_alpha.h"
-#include "iaf_psc_alpha_multisynapse.h"
-#include "iaf_psc_delta.h"
-#include "iaf_psc_exp.h"
-#include "iaf_psc_exp_multisynapse.h"
-#include "iaf_tum_2000.h"
+//#include "iaf_psc_alpha_multisynapse.h"
+//#include "iaf_psc_delta.h"
+//#include "iaf_psc_exp.h"
+//#include "iaf_psc_exp_multisynapse.h"
+//#include "iaf_tum_2000.h"
 //#include "izhikevich.h"
 //#include "lin_rate.h"
 //#include "tanh_rate.h"
@@ -223,17 +223,17 @@ ModelsModule::init( SLIInterpreter* )
   //kernel().model_manager.register_node_model< rate_transformer_threshold_lin >(
   //  "rate_transformer_threshold_lin" );
 
-  kernel().model_manager.register_node_model< iaf_chs_2007 >( "iaf_chs_2007" );
+  //kernel().model_manager.register_node_model< iaf_chs_2007 >( "iaf_chs_2007" );
   kernel().model_manager.register_node_model< iaf_psc_alpha >(
     "iaf_psc_alpha" );
-  kernel().model_manager.register_node_model< iaf_psc_alpha_multisynapse >(
-    "iaf_psc_alpha_multisynapse" );
-  kernel().model_manager.register_node_model< iaf_psc_delta >(
-    "iaf_psc_delta" );
-  kernel().model_manager.register_node_model< iaf_psc_exp >( "iaf_psc_exp" );
-  kernel().model_manager.register_node_model< iaf_psc_exp_multisynapse >(
-    "iaf_psc_exp_multisynapse" );
-  kernel().model_manager.register_node_model< iaf_tum_2000 >( "iaf_tum_2000" );
+  //kernel().model_manager.register_node_model< iaf_psc_alpha_multisynapse >(
+  //  "iaf_psc_alpha_multisynapse" );
+  //kernel().model_manager.register_node_model< iaf_psc_delta >(
+  //  "iaf_psc_delta" );
+  //kernel().model_manager.register_node_model< iaf_psc_exp >( "iaf_psc_exp" );
+  //kernel().model_manager.register_node_model< iaf_psc_exp_multisynapse >(
+  //  "iaf_psc_exp_multisynapse" );
+  //kernel().model_manager.register_node_model< iaf_tum_2000 >( "iaf_tum_2000" );
   //kernel().model_manager.register_node_model< amat2_psc_exp >(
   //  "amat2_psc_exp" );
   //kernel().model_manager.register_node_model< mat2_psc_exp >( "mat2_psc_exp" );
@@ -366,22 +366,22 @@ ModelsModule::init( SLIInterpreter* )
     name, vmdict, false );
 
 #ifdef HAVE_GSL
-  kernel().model_manager.register_node_model< iaf_chxk_2008 >(
-    "iaf_chxk_2008" );
-  kernel().model_manager.register_node_model< iaf_cond_alpha >(
-    "iaf_cond_alpha" );
+  //kernel().model_manager.register_node_model< iaf_chxk_2008 >(
+  //  "iaf_chxk_2008" );
+  //kernel().model_manager.register_node_model< iaf_cond_alpha >(
+  //  "iaf_cond_alpha" );
   kernel().model_manager.register_node_model< iaf_cond_exp >( "iaf_cond_exp" );
-  kernel().model_manager.register_node_model< iaf_cond_exp_sfa_rr >(
-    "iaf_cond_exp_sfa_rr" );
-  kernel().model_manager.register_node_model< iaf_cond_alpha_mc >(
-    "iaf_cond_alpha_mc" );
-  kernel().model_manager.register_node_model< hh_psc_alpha >( "hh_psc_alpha" );
-  kernel().model_manager.register_node_model< hh_psc_alpha_gap >(
-    "hh_psc_alpha_gap" );
+  //kernel().model_manager.register_node_model< iaf_cond_exp_sfa_rr >(
+  //  "iaf_cond_exp_sfa_rr" );
+  //kernel().model_manager.register_node_model< iaf_cond_alpha_mc >(
+  //  "iaf_cond_alpha_mc" );
+  //kernel().model_manager.register_node_model< hh_psc_alpha >( "hh_psc_alpha" );
+  //kernel().model_manager.register_node_model< hh_psc_alpha_gap >(
+  //  "hh_psc_alpha_gap" );
   //kernel().model_manager.register_node_model< hh_cond_exp_traub >(
   //  "hh_cond_exp_traub" );
-  kernel().model_manager.register_node_model< sinusoidal_gamma_generator >(
-    "sinusoidal_gamma_generator" );
+  //kernel().model_manager.register_node_model< sinusoidal_gamma_generator >(
+  //  "sinusoidal_gamma_generator" );
   //kernel().model_manager.register_node_model< gif_cond_exp >( "gif_cond_exp" );
   //kernel().model_manager.register_node_model< gif_cond_exp_multisynapse >(
   //  "gif_cond_exp_multisynapse" );
