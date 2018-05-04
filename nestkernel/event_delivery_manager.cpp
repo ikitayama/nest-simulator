@@ -44,6 +44,10 @@
 // Includes from sli:
 #include "dictutils.h"
 
+//#include <scorep/SCOREP_User.h>
+//#include <typeinfo>
+//#include <boost/core/demangle.hpp>
+
 namespace nest
 {
 EventDeliveryManager::EventDeliveryManager()
@@ -366,6 +370,7 @@ EventDeliveryManager::gather_spike_data_( const thread tid,
   std::vector< SpikeDataT >& send_buffer,
   std::vector< SpikeDataT >& recv_buffer )
 {
+  SCOREP_USER_FUNC_BEGIN();
 #ifndef DISABLE_COUNTS
 #pragma omp single
   {
@@ -401,6 +406,9 @@ EventDeliveryManager::gather_spike_data_( const thread tid,
         resize_send_recv_buffers_spike_data_();
         buffer_size_spike_data_has_changed_ = false;
       }
+#ifndef DISABLE_TIMING
+      sw_collocate_spike_data.start();
+#endif
     } // of omp single; implicit barrier
 
 #ifndef DISABLE_TIMING
@@ -459,6 +467,9 @@ EventDeliveryManager::gather_spike_data_( const thread tid,
 #pragma omp single
     {
 #ifndef DISABLE_COUNTS
+#ifndef DISABLE_TIMING
+      sw_collocate_spike_data.stop();
+#endif
       ++comm_rounds_spike_data;
 #endif
 #ifndef DISABLE_TIMING
@@ -498,6 +509,7 @@ EventDeliveryManager::gather_spike_data_( const thread tid,
       sw_deliver_spike_data.stop();
     }
 #endif
+    } // of omp single; implicit barrier
 
     if ( completed_count == max_completed_count )
     {
@@ -517,6 +529,7 @@ EventDeliveryManager::gather_spike_data_( const thread tid,
   } // of while( true )
 
   reset_spike_register_5g_( tid );
+  SCOREP_USER_FUNC_END();
 }
 
 template < typename TargetT, typename SpikeDataT >
@@ -587,7 +600,6 @@ EventDeliveryManager::collocate_spike_data_buffers_( const thread tid,
       }
     }
   }
-
   return is_spike_register_empty;
 }
 
@@ -598,6 +610,7 @@ EventDeliveryManager::set_end_and_invalid_markers_(
   const SendBufferPosition& send_buffer_position,
   std::vector< SpikeDataT >& send_buffer )
 {
+  SCOREP_USER_FUNC_BEGIN();
   for ( thread rank = assigned_ranks.begin; rank < assigned_ranks.end; ++rank )
   {
     // thread-local index of (global) rank TODO@5g: [see above]
@@ -622,6 +635,7 @@ EventDeliveryManager::set_end_and_invalid_markers_(
       send_buffer[ send_buffer_position.begin( rank ) ].set_invalid_marker();
     }
   }
+  SCOREP_USER_FUNC_END();
 }
 
 template < typename SpikeDataT >
@@ -631,6 +645,7 @@ EventDeliveryManager::set_complete_marker_spike_data_(
   const SendBufferPosition& send_buffer_position,
   std::vector< SpikeDataT >& send_buffer )
 {
+  SCOREP_USER_FUNC_BEGIN();
   for ( thread target_rank = assigned_ranks.begin;
         target_rank < assigned_ranks.end;
         ++target_rank )
@@ -640,6 +655,7 @@ EventDeliveryManager::set_complete_marker_spike_data_(
     const thread idx = send_buffer_position.end( target_rank ) - 1;
     send_buffer[ idx ].set_complete_marker();
   }
+  SCOREP_USER_FUNC_END();
 }
 
 template < typename SpikeDataT >
@@ -655,6 +671,7 @@ EventDeliveryManager::deliver_events_5g_( const thread tid,
   const std::vector< ConnectorModel* >& cm =
     kernel().model_manager.get_synapse_prototypes( tid );
 
+  SCOREP_USER_REGION_DEFINE( handle )
   bool are_others_completed = true;
 
   // deliver only at end of time slice
@@ -666,6 +683,7 @@ EventDeliveryManager::deliver_events_5g_( const thread tid,
   // prepare Time objects for every possible time stamp within min_delay_
   std::vector< Time > prepared_timestamps(
     kernel().connection_manager.get_min_delay() );
+  SCOREP_USER_REGION_BEGIN( handle , "deliver_events_5g_", SCOREP_USER_REGION_TYPE_LOOP )
   for ( size_t lag = 0;
         lag < ( size_t ) kernel().connection_manager.get_min_delay();
         ++lag )
@@ -712,7 +730,7 @@ EventDeliveryManager::deliver_events_5g_( const thread tid,
       }
     }
   }
-
+  SCOREP_USER_REGION_END( handle )
   return are_others_completed;
 }
 

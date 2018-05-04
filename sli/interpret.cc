@@ -60,6 +60,13 @@
 #include "tokenutils.h"
 #include "triedatum.h"
 
+#ifdef SCOREP_USER_ENABLE
+#include "scorep/SCOREP_User.h"
+#else
+#define SCOREP_USER_FUNC_BEGIN()
+#define SCOREP_USER_FUNC_END()
+#endif
+
 // This function is the only interface to the driver program
 extern void init_slidict( SLIInterpreter* );
 extern void init_slicontrol( SLIInterpreter* );
@@ -1288,6 +1295,7 @@ SLIInterpreter::startup()
 int
 SLIInterpreter::execute( const std::string& cmdline )
 {
+  SCOREP_USER_FUNC_BEGIN();
   int exitcode = startup();
   if ( exitcode != EXIT_SUCCESS )
   {
@@ -1296,6 +1304,7 @@ SLIInterpreter::execute( const std::string& cmdline )
 
   OStack.push( new StringDatum( cmdline ) );
   EStack.push( new NameDatum( "::evalstring" ) );
+  SCOREP_USER_FUNC_END();
   return execute_(); // run the interpreter
 }
 

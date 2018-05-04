@@ -27,6 +27,12 @@
 
 // Generated includes:
 #include "config.h"
+#ifdef SCOREP_USER_ENABLE
+#include "scorep/SCOREP_User.h"
+#else
+#define SCOREP_USER_FUNC_BEGIN()
+#define SCOREP_USER_FUNC_END()
+#endif
 
 // Includes from libnestutil:
 #include "compose.hpp"
@@ -189,6 +195,7 @@ GenericConnectorModel< ConnectionT >::add_connection_5g( Node& src,
   const double delay,
   const double weight )
 {
+  //SCOREP_USER_FUNC_BEGIN();
   if ( not numerics::is_nan( delay ) )
   {
     if ( has_delay_ )
@@ -252,7 +259,6 @@ GenericConnectorModel< ConnectionT >::add_connection_5g( Node& src,
   // We allow music_channel as alias for receptor_type during connection setup
   updateValue< long >( p, names::music_channel, actual_receptor_type );
 #endif
-  updateValue< long >( p, names::receptor_type, actual_receptor_type );
 
   add_connection_5g_( src,
     tgt,
@@ -272,6 +278,7 @@ GenericConnectorModel< ConnectionT >::add_connection_5g_( Node& src,
   ConnectionT& connection,
   const rport receptor_type )
 {
+  SCOREP_USER_FUNC_BEGIN();
   assert( syn_id != invalid_synindex );
 
   if ( ( *thread_local_connectors )[ syn_id ] == NULL )
@@ -294,6 +301,7 @@ GenericConnectorModel< ConnectionT >::add_connection_5g_( Node& src,
   connector = &vc->push_back( connection );
 
   ( *thread_local_connectors )[ syn_id ] = connector;
+  SCOREP_USER_FUNC_END();
 }
 
 template < typename ConnectionT >

@@ -42,6 +42,12 @@
 #include "ring_buffer.h"
 #include "recordables_map.h"
 #include "universal_data_logger.h"
+#ifdef SCOREP_USER_ENABLE
+#include "scorep/SCOREP_User.h"
+#else
+#define SCOREP_USER_FUNC_BEGIN()
+#define SCOREP_USER_FUNC_END()
+#endif
 
 namespace nest
 {
@@ -385,11 +391,11 @@ hh_psc_alpha_gap::wfr_update( Time const& origin,
   const long from,
   const long to )
 {
-  State_ old_state = S_; // save state before wfr_update
-  const bool wfr_tol_exceeded = update_( origin, from, to, true );
-  S_ = old_state; // restore old state
+  SCOREP_USER_FUNC_BEGIN();
+  bool done = false;
 
   return not wfr_tol_exceeded;
+  SCOREP_USER_FUNC_END();
 }
 
 inline port

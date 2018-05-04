@@ -41,6 +41,13 @@
 // Includes from sli:
 #include "name.h"
 
+#ifdef SCOREP_USER_ENABLE
+#include <scorep/SCOREP_User.h>
+#else
+#define SCOREP_USER_FUNC_BEGIN()
+#define SCOREP_USER_FUNC_END()
+#endif
+
 namespace nest
 {
 
@@ -917,6 +924,7 @@ template < typename T >
 void
 read_from_comm_buffer( T& d, std::vector< unsigned int >::iterator& pos )
 {
+  //SCOREP_USER_FUNC_BEGIN();
   // there is no aliasing problem here, since cast to char* invalidate strict
   // aliasing assumptions
   char* const c = reinterpret_cast< char* >( &d );
@@ -933,6 +941,7 @@ read_from_comm_buffer( T& d, std::vector< unsigned int >::iterator& pos )
   }
 
   pos += num_uints;
+  //SCOREP_USER_FUNC_END();
 }
 
 /**

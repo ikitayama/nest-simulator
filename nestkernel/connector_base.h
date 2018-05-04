@@ -50,6 +50,9 @@
 #include "arraydatum.h"
 #include "dictutils.h"
 
+#include "scorep/SCOREP_User.h"
+#include <typeinfo>
+
 namespace nest
 {
 
@@ -433,6 +436,12 @@ public:
 
     index lcid_offset = 0;
     while ( true )
+    SCOREP_USER_REGION_DEFINE(region_handle)
+    const char* region_name = typeid(*this).name();
+    SCOREP_USER_REGION_BEGIN(region_handle, region_name, SCOREP_USER_REGION_TYPE_COMMON)
+    SCOREP_USER_PARAMETER_UINT64("syn_id", syn_id)
+    e.set_port( lcid ); // TODO@5g: does this make sense?
+    if ( not C_[ lcid ].is_disabled() )
     {
       const bool is_disabled = C_[ lcid + lcid_offset ].is_disabled();
       const bool has_source_subsequent_targets =
@@ -452,6 +461,7 @@ public:
     }
 
     return 1 + lcid_offset; // event was delivered at least to one target
+    SCOREP_USER_REGION_END(region_handle);
   }
 
   // implemented in connector_base_impl.h

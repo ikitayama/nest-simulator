@@ -463,6 +463,7 @@ private:
 inline void
 EventDeliveryManager::reset_spike_register_5g_( const thread tid )
 {
+  SCOREP_USER_FUNC_BEGIN();
   for ( std::vector< std::vector< std::vector< Target > > >::iterator it =
           ( *spike_register_5g_[ tid ] ).begin();
         it < ( *spike_register_5g_[ tid ] ).end();
@@ -490,6 +491,7 @@ EventDeliveryManager::reset_spike_register_5g_( const thread tid )
       ( *iit ).clear();
     }
   }
+  SCOREP_USER_FUNC_END();
 }
 
 inline bool
