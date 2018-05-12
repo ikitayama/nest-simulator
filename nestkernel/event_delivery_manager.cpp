@@ -41,6 +41,14 @@
 #include "send_buffer_position.h"
 #include "source.h"
 
+#ifdef SCOREP_USER_ENABLE
+#include "scorep/SCOREP_User.h"
+#include <typeinfo>
+#else
+#define SCOREP_USER_FUNC_BEGIN()
+#define SCOREP_USER_FUNC_END()
+#endif
+
 // Includes from sli:
 #include "dictutils.h"
 
@@ -670,7 +678,7 @@ EventDeliveryManager::deliver_events_( const thread tid,
   // prepare Time objects for every possible time stamp within min_delay_
   std::vector< Time > prepared_timestamps(
     kernel().connection_manager.get_min_delay() );
-  SCOREP_USER_REGION_BEGIN( handle, "deliver_evets_", SCOREP_USER_REGION_TYPE_LOOP )
+  SCOREP_USER_REGION_BEGIN( handle, "deliver_events_", SCOREP_USER_REGION_TYPE_LOOP )
   for ( size_t lag = 0;
         lag < ( size_t ) kernel().connection_manager.get_min_delay();
         ++lag )
