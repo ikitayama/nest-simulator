@@ -50,7 +50,13 @@
 #include "arraydatum.h"
 #include "dictutils.h"
 
+#ifdef SCOREP_USER_ENABLE
 #include "scorep/SCOREP_User.h"
+#else
+#define SCOREP_USER_FUNC_BEGIN()
+#define SCOREP_USER_FUNC_END()
+#endif
+
 #include <typeinfo>
 
 namespace nest
