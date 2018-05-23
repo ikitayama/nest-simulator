@@ -462,8 +462,6 @@ EventDeliveryManager::gather_spike_data_( const thread tid,
     }
 
 // communicate spikes using a single thread
-#pragma omp single
-    {
 #ifndef DISABLE_COUNTS
       ++comm_rounds_spike_data;
 #endif
@@ -487,7 +485,6 @@ EventDeliveryManager::gather_spike_data_( const thread tid,
       sw_communicate_spike_data.stop();
       sw_deliver_spike_data.start();
 #endif
-    } // of omp single; implicit barrier
 
     // deliver spikes from receive buffer to ring buffers
     others_completed_tid = deliver_events_( tid, recv_buffer );
