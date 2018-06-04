@@ -375,8 +375,6 @@ EventDeliveryManager::gather_spike_data_( const thread tid,
   std::vector< SpikeDataT >& recv_buffer )
 {
   SCOREP_USER_FUNC_BEGIN();
-#pragma omp parallel num_threads(8)
-{
 #ifndef DISABLE_COUNTS
 #pragma omp single
   {
@@ -464,7 +462,7 @@ EventDeliveryManager::gather_spike_data_( const thread tid,
     }
 
 // communicate spikes using a single thread
-#pragma omp single
+#pragma omp nowait 
     {
 #ifndef DISABLE_COUNTS
       ++comm_rounds_spike_data;
@@ -489,7 +487,9 @@ EventDeliveryManager::gather_spike_data_( const thread tid,
       sw_communicate_spike_data.stop();
       sw_deliver_spike_data.start();
 #endif
-    } // of omp single; impicit barrier
+    } // of omp single
+
+#pragma omp barrier
 
     // deliver spikes from receive buffer to ring buffers
     others_completed_tid = deliver_events_( tid, recv_buffer );
@@ -525,7 +525,6 @@ EventDeliveryManager::gather_spike_data_( const thread tid,
   } // of while( true )
 
   reset_spike_register_( tid );
-}
   SCOREP_USER_FUNC_END();
 }
 
