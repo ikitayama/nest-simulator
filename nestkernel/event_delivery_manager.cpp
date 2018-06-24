@@ -472,8 +472,8 @@ EventDeliveryManager::gather_spike_data_( const thread tid,
       }
       else
       {
-        //kernel().mpi_manager.communicate_spike_data_Alltoall(
-        //  send_buffer, recv_buffer );
+        kernel().mpi_manager.communicate_spike_data_Alltoall(
+          send_buffer, recv_buffer );
       }
     } // of omp single; implicit barrier
 
