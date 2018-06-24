@@ -460,36 +460,22 @@ EventDeliveryManager::gather_spike_data_( const thread tid,
         assigned_ranks, send_buffer_position, send_buffer );
 #pragma omp barrier
     }
-
+#pragma omp barrier
 // communicate spikes using a single thread
-#pragma omp nowait 
+#pragma omp single
     {
-#ifndef DISABLE_COUNTS
-      ++comm_rounds_spike_data;
-#endif
-#ifndef DISABLE_TIMING
-      sw_collocate_spike_data.stop();
-      kernel().mpi_manager.synchronize(); // to get an accurate time measurement
-                                          // across ranks
-      sw_communicate_spike_data.start();
-#endif
       if ( off_grid_spiking_ )
       {
+        std::cout << "off_grid_spiking" << std::endl;
         kernel().mpi_manager.communicate_off_grid_spike_data_Alltoall(
           send_buffer, recv_buffer );
       }
       else
       {
-        kernel().mpi_manager.communicate_spike_data_Alltoall(
-          send_buffer, recv_buffer );
+        //kernel().mpi_manager.communicate_spike_data_Alltoall(
+        //  send_buffer, recv_buffer );
       }
-#ifndef DISABLE_TIMING
-      sw_communicate_spike_data.stop();
-      sw_deliver_spike_data.start();
-#endif
-    } // of omp single
-
-#pragma omp barrier
+    } // of omp single; implicit barrier
 
     // deliver spikes from receive buffer to ring buffers
     others_completed_tid = deliver_events_( tid, recv_buffer );
