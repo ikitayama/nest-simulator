@@ -462,7 +462,7 @@ EventDeliveryManager::gather_spike_data_( const thread tid,
     }
 #pragma omp barrier
 // communicate spikes using a single thread
-#pragma omp single
+#pragma omp master
     {
       if ( off_grid_spiking_ )
       {
@@ -475,7 +475,9 @@ EventDeliveryManager::gather_spike_data_( const thread tid,
         kernel().mpi_manager.communicate_spike_data_Alltoall(
           send_buffer, recv_buffer );
       }
-    } // of omp single; implicit barrier
+    }
+
+#pragma omp barrier
 
     // deliver spikes from receive buffer to ring buffers
     others_completed_tid = deliver_events_( tid, recv_buffer );
