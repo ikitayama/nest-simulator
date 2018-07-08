@@ -33,6 +33,7 @@
 #include "stopwatch.h"
 
 // Includes from nestkernel:
+#include "completed_checker.h"
 #include "mpi_manager.h" // OffGridSpike
 #include "event.h"
 #include "nest_time.h"
@@ -64,7 +65,6 @@ public:
   virtual void set_status( const DictionaryDatum& );
   virtual void get_status( DictionaryDatum& );
 
-  // TODO@5g: check documentation of send functions
   /**
    * Standard routine for sending events. This method decides if
    * the event has to be delivered locally or globally. It exists
@@ -217,6 +217,8 @@ public:
    */
   void gather_secondary_target_data();
 
+  void write_done_marker_secondary_events_( const bool done );
+
   void gather_secondary_events( const bool done );
 
   bool deliver_secondary_events( const thread tid,
@@ -239,22 +241,6 @@ public:
    * and for communication to zero; set local spike counter to zero.
    */
   virtual void reset_timers_counters();
-
-  Stopwatch sw_communicate_secondary_events;
-  Stopwatch sw_collocate_spike_data;
-  Stopwatch sw_communicate_spike_data;
-  Stopwatch sw_deliver_spike_data;
-  Stopwatch sw_collocate_target_data;
-  Stopwatch sw_communicate_target_data;
-  Stopwatch sw_distribute_target_data;
-
-  unsigned int comm_steps_target_data;
-  unsigned int comm_rounds_target_data;
-  unsigned int comm_steps_spike_data;
-  unsigned int comm_rounds_spike_data;
-  unsigned int comm_steps_secondary_events;
-
-  std::vector< unsigned int > call_count_deliver_events;
 
 private:
   template < typename SpikeDataT >
@@ -285,13 +271,22 @@ private:
     std::vector< SpikeDataT >& send_buffer );
 
   /**
+   * Resets marker in MPI buffer that signals end of communication
+   * across MPI ranks.
+   */
+  template < typename SpikeDataT >
+  void reset_complete_marker_spike_data_( const AssignedRanks& assigned_ranks,
+    const SendBufferPosition& send_buffer_position,
+    std::vector< SpikeDataT >& send_buffer ) const;
+
+  /**
    * Sets marker in MPI buffer that signals end of communication
    * across MPI ranks.
    */
   template < typename SpikeDataT >
   void set_complete_marker_spike_data_( const AssignedRanks& assigned_ranks,
     const SendBufferPosition& send_buffer_position,
-    std::vector< SpikeDataT >& send_buffer );
+    std::vector< SpikeDataT >& send_buffer ) const;
 
   /**
    * Reads spikes from MPI buffers and delivers them to ringbuffer of
@@ -457,7 +452,7 @@ private:
   // communication of spikes was
   // changed
 
-  std::vector< unsigned int > completed_count_; // TODO@5g: rename? -> Jakob
+  CompletedChecker gather_completed_checker_;
 };
 
 inline void

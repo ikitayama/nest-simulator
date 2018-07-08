@@ -101,18 +101,6 @@ function( NEST_PROCESS_WITH_DEFINES )
   endif ()
 endfunction()
 
-function( NEST_PROCESS_DISABLE_TIMING )
-  if ( disable-timing )
-    add_definitions( "-DDISABLE_TIMING" )
-  endif ()
-endfunction()
-
-function( NEST_PROCESS_DISABLE_COUNTS )
-  if ( disable-counts )
-    add_definitions( "-DDISABLE_COUNTS" )
-  endif ()
-endfunction()
-
 function( NEST_PROCESS_K_COMPUTER )
   # is set in the Fujitsu-Sparc64.cmake file
   if ( k-computer )
@@ -365,7 +353,7 @@ function( NEST_PROCESS_WITH_PYTHON )
       set( PYTHONINTERP_FOUND "${PYTHONINTERP_FOUND}" PARENT_SCOPE )
       set( PYTHON_EXECUTABLE ${PYTHON_EXECUTABLE} PARENT_SCOPE )
       set( PYTHON ${PYTHON_EXECUTABLE} PARENT_SCOPE )
-      set( PYTHON_VERSION ${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR} PARENT_SCOPE )
+      set( PYTHON_VERSION ${PYTHON_VERSION_STRING} PARENT_SCOPE )
 
       # Localize Python lib/header files and make sure that their version matches 
       # the Python interpreter version !

@@ -25,6 +25,7 @@
 
 // Includes from nestkernel:
 #include "connection_manager_impl.h"
+#include "connection_manager.h"
 #include "kernel_manager.h"
 #include "mpi_manager_impl.h"
 #include "source_table.h"
@@ -48,7 +49,6 @@ nest::SourceTable::initialize()
   saved_entry_point_.resize( num_threads );
   current_positions_.resize( num_threads );
   saved_positions_.resize( num_threads );
-  last_sorted_source_.resize( num_threads );
 
 #pragma omp parallel
   {
@@ -60,7 +60,6 @@ nest::SourceTable::initialize()
     saved_positions_[ tid ] = new SourceTablePosition();
     is_cleared_[ tid ] = false;
     saved_entry_point_[ tid ] = false;
-    last_sorted_source_[ tid ] = new std::vector< size_t >( 0 );
   } // of omp parallel
 }
 
@@ -99,15 +98,6 @@ nest::SourceTable::finalize()
     delete *it;
   }
   saved_positions_.clear();
-
-  for ( std::vector< std::vector< size_t >* >::iterator it =
-          last_sorted_source_.begin();
-        it != last_sorted_source_.end();
-        ++it )
-  {
-    delete *it;
-  }
-  last_sorted_source_.clear();
 }
 
 bool
@@ -224,6 +214,19 @@ nest::SourceTable::reserve( const thread tid,
 }
 
 nest::index
+nest::SourceTable::get_gid( const thread tid,
+  const synindex syn_id,
+  const index lcid ) const
+{
+  if ( not kernel().connection_manager.get_keep_source_table() )
+  {
+    throw KernelException(
+      "Cannot use SourceTable::get_gid when get_keep_source_table is false" );
+  }
+  return ( *( *sources_[ tid ] )[ syn_id ] )[ lcid ].get_gid();
+}
+
+nest::index
 nest::SourceTable::remove_disabled_sources( const thread tid,
   const synindex syn_id )
 {
@@ -239,7 +242,10 @@ nest::SourceTable::remove_disabled_sources( const thread tid,
     return invalid_index;
   }
 
-  index lcid = max_size - 1;
+  // lcid needs to be signed, to allow lcid >= 0 check in while loop
+  // to fail; afterwards we can be certain that it is non-negative and
+  // we can static_cast it to index
+  long lcid = max_size - 1;
   while ( mysources[ lcid ].is_disabled() && lcid >= 0 )
   {
     --lcid;
@@ -248,33 +254,11 @@ nest::SourceTable::remove_disabled_sources( const thread tid,
           // exits if lcid points at a not disabled element, hence we
           // need to increase it by one again
   mysources.erase( mysources.begin() + lcid, mysources.end() );
-  if ( lcid == max_size )
+  if ( static_cast< index >( lcid ) == max_size )
   {
     return invalid_index;
   }
-  return lcid;
-}
-
-void
-nest::SourceTable::print_sources( const thread tid,
-  const synindex syn_id ) const
-{
-  index prev_gid = 0;
-  std::cout << "-------------SOURCES-------------------\n";
-  for ( std::vector< Source >::const_iterator it =
-          ( *( *sources_[ tid ] )[ syn_id ] ).begin();
-        it != ( *( *sources_[ tid ] )[ syn_id ] ).end();
-        ++it )
-  {
-    if ( prev_gid != it->get_gid() )
-    {
-      std::cout << std::endl;
-      prev_gid = it->get_gid();
-    }
-    std::cout << "(" << it->get_gid() << ", " << it->is_disabled() << ")";
-  }
-  std::cout << std::endl;
-  std::cout << "---------------------------------------\n";
+  return static_cast< index >( lcid );
 }
 
 void
@@ -388,25 +372,6 @@ nest::SourceTable::get_next_target_data( const thread tid,
     if ( current_position.is_at_end() )
     {
       return false; // reached the end of the sources table
-    }
-
-    // if structural plasticity has created connections that have not
-    // been sorted, stop reading after reaching first source that was
-    // sorted; assumes that presynaptic structure for sorted sources
-    // still exists and information about unsorted sources can be
-    // incrementally added
-    // TODO@5g: currently not used -> can be removed?
-    if ( current_position.lcid
-        < static_cast< long >(
-            ( *last_sorted_source_[ current_position.tid ] )[ current_position
-                                                                .syn_id ] )
-      and ( *last_sorted_source_[ current_position.tid ] )[ current_position
-                                                              .syn_id ]
-        < ( *( *sources_[ current_position.tid ] )[ current_position.syn_id ] )
-            .size() )
-    {
-      assert( false );
-      return false;
     }
 
     // the current position contains an entry, so we retrieve it

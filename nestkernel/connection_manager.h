@@ -140,12 +140,7 @@ public:
     const DictionaryDatum& params,
     const synindex syn_id );
 
-  index find_connection_sorted( const thread tid,
-    const synindex syn_id,
-    const index sgid,
-    const index tgid );
-
-  index find_connection_unsorted( const thread tid,
+  index find_connection( const thread tid,
     const synindex syn_id,
     const index sgid,
     const index tgid );
@@ -154,13 +149,6 @@ public:
     const synindex syn_id,
     const index sgid,
     const index tgid );
-
-  void print_source_table( const thread tid ) const;
-
-  void print_connections( const thread tid ) const;
-
-  void print_targets( const thread tid ) const;
-  void print_send_buffer_pos( const thread tid ) const;
 
   void subnet_connect( Subnet&, Subnet&, int, index syn );
 
@@ -447,6 +435,15 @@ private:
     const synindex syn_id,
     const index tgid,
     std::vector< index >& sources );
+
+  /**
+   * Splits a TokenArray of GIDs to two vectors containing GIDs of neurons and
+   * GIDs of devices.
+   */
+  void split_to_neuron_device_vectors_( const thread tid,
+    TokenArray const* gid_token_array,
+    std::vector< index >& neuron_gids,
+    std::vector< index >& device_gids ) const;
 
   /**
    * Update delay extrema to current values.

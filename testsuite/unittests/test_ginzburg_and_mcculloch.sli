@@ -1,5 +1,5 @@
 /*
- *  run_all.cpp
+ *  test_ginzburg_and_mcculloch.sli
  *
  *  This file is part of NEST.
  *
@@ -19,11 +19,38 @@
  *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+ 
+ 
+/* BeginDocumentation
+ Name: testsuite::test_ginzburg_and_mcculloch
+  
+ Synopsis: (test_ginzburg_and_mcculloch) run -> NEST exits if test fails
+  
+ Description:
+ This test ensures that we are able to connect a ginzburg_neuron with a
+ mcculloch_pitts_neuron and that we can then run a simulation.
+  
+ Author: Stine B. Vennemo
+ FirstVersion: May 2018
+ SeeAlso:
+*/
 
-#define BOOST_TEST_MODULE cpptests
-#define BOOST_TEST_DYN_LINK
-#include <boost/test/unit_test.hpp>
+(unittest) run
+/unittest using
 
-// Includes from cpptests
-#include "test_sort.h"
-#include "test_target_fields.h"
+M_ERROR setverbosity
+
+ResetKernel
+
+/ginzburg /ginzburg_neuron Create def
+/mcculloch /mcculloch_pitts_neuron Create def
+
+ginzburg mcculloch Connect
+
+0 GetStatus /num_connections get 1 eq assert_or_die
+
+100. Simulate
+
+0 GetStatus /local_spike_counter get 1 geq assert_or_die
+
+endusing
