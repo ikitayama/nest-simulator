@@ -51,6 +51,13 @@
 // Includes from sli:
 #include "dictdatum.h"
 
+#ifdef SCOREP_USER_ENABLE
+#include "scorep/SCOREP_User.h"
+#else
+#define SCOREP_USER_FUNC_BEGIN()
+#define SCOREP_USER_FUNC_END()
+#endif
+
 namespace nest
 {
 
@@ -747,10 +754,12 @@ MPIManager::communicate_Alltoall( std::vector< D >& send_buffer,
   std::vector< D >& recv_buffer,
   const unsigned int send_recv_count )
 {
+  SCOREP_USER_FUNC_BEGIN();
   void* send_buffer_int = static_cast< void* >( &send_buffer[ 0 ] );
   void* recv_buffer_int = static_cast< void* >( &recv_buffer[ 0 ] );
 
   communicate_Alltoall_( send_buffer_int, recv_buffer_int, send_recv_count );
+  SCOREP_USER_FUNC_END();
 }
 
 template < class D >
@@ -805,11 +814,13 @@ void
 MPIManager::communicate_spike_data_Alltoall( std::vector< D >& send_buffer,
   std::vector< D >& recv_buffer )
 {
+  SCOREP_USER_FUNC_BEGIN();
   const size_t send_recv_count_spike_data_in_int_per_rank = sizeof( SpikeData )
     / sizeof( unsigned int ) * send_recv_count_spike_data_per_rank_;
 
   communicate_Alltoall(
     send_buffer, recv_buffer, send_recv_count_spike_data_in_int_per_rank );
+  SCOREP_USER_FUNC_END();
 }
 
 template < class D >

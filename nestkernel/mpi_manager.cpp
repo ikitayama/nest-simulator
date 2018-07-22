@@ -725,6 +725,7 @@ nest::MPIManager::communicate_Alltoall_( void* send_buffer,
   void* recv_buffer,
   const unsigned int send_recv_count )
 {
+  SCOREP_USER_FUNC_BEGIN();
   MPI_Alltoall( send_buffer,
     send_recv_count,
     MPI_UNSIGNED,
@@ -732,6 +733,7 @@ nest::MPIManager::communicate_Alltoall_( void* send_buffer,
     send_recv_count,
     MPI_UNSIGNED,
     comm );
+  SCOREP_USER_FUNC_END();
 }
 
 
