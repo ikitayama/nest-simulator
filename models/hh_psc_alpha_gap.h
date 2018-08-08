@@ -392,7 +392,9 @@ hh_psc_alpha_gap::wfr_update( Time const& origin,
   const long to )
 {
   SCOREP_USER_FUNC_BEGIN();
-  bool done = false;
+  State_ old_state = S_; // save state before wfr_update
+  const bool wfr_tol_exceeded = update_( origin, from, to, true );
+  S_ = old_state; // resotre old state
 
   return not wfr_tol_exceeded;
   SCOREP_USER_FUNC_END();
