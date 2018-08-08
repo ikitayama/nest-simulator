@@ -44,9 +44,13 @@
 // Includes from sli:
 #include "dictutils.h"
 
-//#include <scorep/SCOREP_User.h>
-//#include <typeinfo>
-//#include <boost/core/demangle.hpp>
+#ifdef SCOREP_USER_ENABLE
+#include <scorep/SCOREP_User.h>
+#include <typeinfo>
+#else
+#define SCOREP_USER_FUNC_BEGIN()
+#define SCOREP_USER_FUNC_END()
+#endif
 
 namespace nest
 {
@@ -370,9 +374,6 @@ EventDeliveryManager::gather_spike_data_( const thread tid,
         resize_send_recv_buffers_spike_data_();
         buffer_size_spike_data_has_changed_ = false;
       }
-#ifndef DISABLE_TIMING
-      sw_collocate_spike_data.start();
-#endif
     } // of omp single; implicit barrier
 
     // Need to get new positions in case buffer size has changed
@@ -599,7 +600,7 @@ EventDeliveryManager::deliver_events_( const thread tid,
   const std::vector< ConnectorModel* >& cm =
     kernel().model_manager.get_synapse_prototypes( tid );
 
-  SCOREP_USER_REGION_DEFINE( handle )
+  //SCOREP_USER_REGION_DEFINE( handle )
   bool are_others_completed = true;
 
   // deliver only at end of time slice
@@ -611,7 +612,7 @@ EventDeliveryManager::deliver_events_( const thread tid,
   // prepare Time objects for every possible time stamp within min_delay_
   std::vector< Time > prepared_timestamps(
     kernel().connection_manager.get_min_delay() );
-  SCOREP_USER_REGION_BEGIN( handle , "deliver_events_5g_", SCOREP_USER_REGION_TYPE_LOOP )
+  //SCOREP_USER_REGION_BEGIN( handle , "deliver_events_5g_", SCOREP_USER_REGION_TYPE_LOOP )
   for ( size_t lag = 0;
         lag < ( size_t ) kernel().connection_manager.get_min_delay();
         ++lag )
@@ -664,7 +665,7 @@ EventDeliveryManager::deliver_events_( const thread tid,
       }
     }
   }
-  SCOREP_USER_REGION_END( handle )
+  //SCOREP_USER_REGION_END( handle )
   return are_others_completed;
 }
 

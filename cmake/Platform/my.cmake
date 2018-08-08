@@ -50,8 +50,8 @@ set( CMAKE_FIND_LIBRARY_PREFIXES "lib" )
 set( CMAKE_FIND_LIBRARY_SUFFIXES ".a" )
 
 # set the compiler
-set( CMAKE_C_COMPILER gcc )
-set( CMAKE_CXX_COMPILER g++ )
+set( CMAKE_C_COMPILER fccpx )
+set( CMAKE_CXX_COMPILER FCCpx )
 
 # Prevent CMake from adding GNU-specific linker flags (-rdynamic)
 #set( CMAKE_C_COMPILER_ID "Fujitsu" CACHE STRING "Fujitsu C cross-compiler" FORCE )
