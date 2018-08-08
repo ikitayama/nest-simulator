@@ -68,7 +68,6 @@ public:
 
   virtual void initialize();
   virtual void finalize();
-  virtual void delete_secondary_recv_buffer_pos();
 
   virtual void set_status( const DictionaryDatum& );
   virtual void get_status( DictionaryDatum& );
@@ -105,7 +104,7 @@ public:
    *
    * The parameters delay and weight have the default value numerics::nan.
    * numerics::nan is a special value, which describes double values that
-   * are not a number. If delay or weight is omitted in an connect call,
+   * are not a number. If delay or weight is omitted in a connect call,
    * numerics::nan indicates this and weight/delay are set only, if they are
    * valid.
    *
@@ -126,9 +125,9 @@ public:
     const double_t weight = numerics::nan );
 
   /**
-   * Connect two nodes. The source node is defined by its global ID.
-   * The target node is defined by the node. The connection is
-   * established on the thread/process that owns the target node.
+   * Connect two nodes. The source and target nodes are defined by their
+   * global ID. The connection is established on the thread/process that owns
+   * the target node.
    *
    * \param sgid GID of the sending Node.
    * \param target GID of the target Node.
@@ -140,27 +139,15 @@ public:
     const DictionaryDatum& params,
     const synindex syn_id );
 
-  index find_connection_sorted( const thread tid,
+  index find_connection( const thread tid,
     const synindex syn_id,
     const index sgid,
     const index tgid );
 
-  index find_connection_unsorted( const thread tid,
+  void disconnect( const thread tid,
     const synindex syn_id,
     const index sgid,
     const index tgid );
-
-  void disconnect_5g( const thread tid,
-    const synindex syn_id,
-    const index sgid,
-    const index tgid );
-
-  void print_source_table( const thread tid ) const;
-
-  void print_connections( const thread tid ) const;
-
-  void print_targets( const thread tid ) const;
-  void print_send_buffer_pos( const thread tid ) const;
 
   void subnet_connect( Subnet&, Subnet&, int, index syn );
 
@@ -277,16 +264,14 @@ public:
 
   bool get_user_set_delay_extrema() const;
 
-  void send( thread t, index sgid, Event& e );
-
-  void send_5g( const thread tid,
+  void send( const thread tid,
     const synindex syn_id,
     const index lcid,
     const std::vector< ConnectorModel* >& cm,
     Event& e );
 
   /**
-   * Send event e to all device targets of source s_gid
+   * Send event e to all device targets of source source_gid
    */
   void send_to_devices( const thread tid, const index source_gid, Event& e );
 
@@ -375,8 +360,9 @@ public:
    */
   bool have_connections_changed() const;
 
-  /** Sets flag indicating whether connection information needs to be
-   *  communicated.
+  /**
+   * Sets flag indicating whether connection information needs to be
+   * communicated.
    */
   void set_have_connections_changed( const bool changed );
 
@@ -436,6 +422,10 @@ public:
   index
   get_source_gid( const thread tid, const synindex syn_id, const index lcid );
 
+  double get_stdp_eps() const;
+
+  void set_stdp_eps( const double stdp_eps );
+
 private:
   size_t get_num_target_data( const thread tid ) const;
 
@@ -445,6 +435,15 @@ private:
     const synindex syn_id,
     const index tgid,
     std::vector< index >& sources );
+
+  /**
+   * Splits a TokenArray of GIDs to two vectors containing GIDs of neurons and
+   * GIDs of devices.
+   */
+  void split_to_neuron_device_vectors_( const thread tid,
+    TokenArray const* gid_token_array,
+    std::vector< index >& neuron_gids,
+    std::vector< index >& device_gids ) const;
 
   /**
    * Update delay extrema to current values.
@@ -469,7 +468,7 @@ private:
   /**
    * Deletes all connections.
    */
-  void delete_connections_5g_();
+  void delete_connections_();
 
   /**
    * connect_ is used to establish a connection between a sender and
@@ -528,7 +527,7 @@ private:
 
   /**
    * connect_from_device_ is used to establish a connection between a sender and
-   * receiving node if the sender has proxies, and the receiver does not.
+   * receiving node if the sender does not have proxies.
    *
    * The parameters delay and weight have the default value NAN.
    * NAN is a special value in cmath, which describes double values that
@@ -562,7 +561,7 @@ private:
    * connection information. Corresponds to a three dimensional
    * structure: threads|synapses|connections
    */
-  std::vector< std::vector< ConnectorBase* >* > connections_5g_;
+  std::vector< std::vector< ConnectorBase* > > connections_;
 
   /**
    * A structure to hold the global ids of presynaptic neurons during
@@ -576,7 +575,7 @@ private:
    * Stores absolute position in receive buffer of secondary events.
    * structure: threads|synapses|position
    */
-  std::vector< std::vector< std::vector< size_t >* >* >
+  std::vector< std::vector< std::vector< size_t > > >
     secondary_recv_buffer_pos_;
 
   std::map< index, size_t > buffer_pos_of_source_gid_syn_id_;
@@ -631,6 +630,10 @@ private:
 
   //! Whether secondary connections (e.g., gap junctions) exist.
   bool secondary_connections_exist_;
+
+  //! Maximum distance between (double) spike times in STDP that is
+  //! still considered 0. See issue #894
+  double stdp_eps_;
 };
 
 inline DictionaryDatum&
@@ -780,14 +783,14 @@ ConnectionManager::get_secondary_recv_buffer_position( const thread tid,
   const synindex syn_id,
   const index lcid ) const
 {
-  return ( *( *secondary_recv_buffer_pos_[ tid ] )[ syn_id ] )[ lcid ];
+  return secondary_recv_buffer_pos_[ tid ][ syn_id ][ lcid ];
 }
 
 inline size_t
 ConnectionManager::get_num_connections_( const thread tid,
   const synindex syn_id ) const
 {
-  return ( *connections_5g_[ tid ] )[ syn_id ]->size();
+  return connections_[ tid ][ syn_id ]->size();
 }
 
 inline index
@@ -814,6 +817,12 @@ inline bool
 ConnectionManager::get_sort_connections_by_source() const
 {
   return sort_connections_by_source_;
+}
+
+inline double
+ConnectionManager::get_stdp_eps() const
+{
+  return stdp_eps_;
 }
 
 } // namespace nest

@@ -55,6 +55,7 @@
 #include "mip_generator.h"
 #include "noise_generator.h"
 #include "poisson_generator.h"
+#include "inhomogeneous_poisson_generator.h"
 #include "ppd_sup_generator.h"
 #include "pulsepacket_generator.h"
 #include "sinusoidal_gamma_generator.h"

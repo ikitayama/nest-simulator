@@ -215,10 +215,7 @@ STDPConnection< targetidentifierT >::send( Event& e,
   const CommonSynapseProperties& )
 {
   // synapse STDP depressing/facilitation dynamics
-  //   if(t_lastspike_ >0) {std::cout << "last spike " << t_lastspike <<
-  //   std::endl ;}
   double t_spike = e.get_stamp().get_ms();
-  // t_lastspike_ = 0 initially
 
   // use accessor functions (inherited from Connection< >) to obtain delay and
   // target
@@ -247,10 +244,9 @@ STDPConnection< targetidentifierT >::send( Event& e,
   {
     minus_dt = t_lastspike_ - ( start->t_ + dendritic_delay );
     ++start;
-    if ( minus_dt == 0 )
-    {
-      continue;
-    }
+    // get_history() should make sure that
+    // start->t_ > t_lastspike - dendritic_delay, i.e. minus_dt < 0
+    assert( minus_dt < -1.0 * kernel().connection_manager.get_stdp_eps() );
     weight_ = facilitate_( weight_, Kplus_ * std::exp( minus_dt / tau_plus_ ) );
   }
 

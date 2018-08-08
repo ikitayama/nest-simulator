@@ -15,6 +15,11 @@ should build and install NEST to `/install/path`, which should be an absolute
 path. Detailed installation  instructions can be found below, including 
 instructions for macOS, BlueGene/Q and Fujitsu Sparc64 systems.
 
+On systems where help extraction is slow, the call to `make install` can be replaced
+by `make install-nodoc` to skip the generation of help pages and indices. Using this
+option can help developers to speed up development cycles, but is not recommended for
+production use as it renders the built-in help system useless.
+
 Choice of CMake Version
 =======================
 
@@ -357,3 +362,4 @@ On the K Computer:
   `-x1`, and the compilation succeeds (the impact on performance was not analyzed):
 
         -Dwith-optimize="-Kfast -x1"
+  For NEST 3 or later, C++11 Standard library is required at build time, use `-Xg -std=c++11`.

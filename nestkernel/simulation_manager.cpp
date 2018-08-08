@@ -30,7 +30,6 @@
 
 // Includes from libnestutil:
 #include "compose.hpp"
-#include "stopwatch.h"
 
 // Includes from nestkernel:
 #include "connection_manager_impl.h"
@@ -77,6 +76,7 @@ nest::SimulationManager::initialize()
   Time::reset_resolution();
   clock_.calibrate();
 
+  prepared_ = false;
   simulating_ = false;
   simulated_ = false;
   exit_on_user_signal_ = false;
@@ -404,19 +404,19 @@ nest::SimulationManager::prepare()
   SCOREP_USER_FUNC_BEGIN();
   assert( kernel().is_initialized() );
 
+  if ( prepared_ )
+  {
+    std::string msg = "Prepare called twice.";
+    LOG( M_ERROR, "SimulationManager::prepare", msg );
+    throw KernelException();
+  }
+
   if ( inconsistent_state_ )
   {
     throw KernelException(
       "Kernel is in inconsistent state after an "
       "earlier error. Please run ResetKernel first." );
   }
-
-#ifndef DISABLE_TIMING
-  if ( kernel().mpi_manager.get_rank() < 30 )
-  {
-    sw_prepare.start();
-  }
-#endif
 
   t_real_ = 0;
   t_slice_begin_ = timeval(); // set to timeval{0, 0} as unset flag
@@ -463,6 +463,7 @@ nest::SimulationManager::prepare()
       * kernel().connection_manager.get_min_delay();
     kernel().music_manager.enter_runtime( tick );
   }
+  prepared_ = true;
 
   // check whether waveform relaxation is used on any MPI process;
   // needs to be called before update_connection_intrastructure_since
@@ -479,30 +480,8 @@ nest::SimulationManager::prepare()
     } // of omp parallel
   }
 
-#ifndef DISABLE_TIMING
-  if ( kernel().mpi_manager.get_rank() < 30 )
-  {
-    sw_prepare.stop();
-    sw_prepare.print( "0] PrepareSimulation time: " );
-
-    kernel().event_delivery_manager.sw_collocate_target_data.print(
-      "0] GatherTargetData::collocate time: " );
-    kernel().event_delivery_manager.sw_communicate_target_data.print(
-      "0] GatherTargetData::communicate time: " );
-    kernel().event_delivery_manager.sw_distribute_target_data.print(
-      "0] GatherTargetData::distribute time: " );
-  }
-#endif
-#ifndef DISABLE_COUNTS
-  if ( kernel().mpi_manager.get_rank() < 30 )
-  {
-    std::cout << "0] CommSteps(Rounds)TargetData: "
-              << kernel().event_delivery_manager.comm_steps_target_data << " ("
-              << kernel().event_delivery_manager.comm_rounds_target_data << ")"
-              << std::endl;
-  }
-#endif
   SCOREP_USER_FUNC_END();
+
 }
 
 void
@@ -563,12 +542,12 @@ nest::SimulationManager::run( Time const& t )
   SCOREP_USER_FUNC_BEGIN();
   assert_valid_simtime( t );
 
-#ifndef DISABLE_TIMING
-  if ( kernel().mpi_manager.get_rank() < 30 )
+  if ( not prepared_ )
   {
-    sw_simulate.start();
+    std::string msg = "Run called without calling Prepare.";
+    LOG( M_ERROR, "SimulationManager::run", msg );
+    throw KernelException();
   }
-#endif
 
   to_do_ += t.get_steps();
   to_do_total_ = to_do_;
@@ -617,23 +596,21 @@ nest::SimulationManager::run( Time const& t )
   call_update_();
 
   kernel().node_manager.post_run_cleanup();
+  
+SCOREP_USER_FUNC_END();
 
-#ifndef DISABLE_TIMING
-  if ( kernel().mpi_manager.get_rank() < 30 )
-  {
-    sw_simulate.stop();
-    sw_simulate.print( "0] Simulate time: " );
-  }
-<<<<<<< HEAD
-#endif
-=======
-  SCOREP_USER_FUNC_END();
->>>>>>> remotes/nest-5g-annotations/5g
 }
 
 void
 nest::SimulationManager::cleanup()
 {
+  if ( not prepared_ )
+  {
+    std::string msg = "Cleanup called without calling Prepare.";
+    LOG( M_ERROR, "SimulationManager::cleanup", msg );
+    throw KernelException();
+  }
+
   if ( not simulated_ )
   {
     return;
@@ -654,6 +631,8 @@ nest::SimulationManager::cleanup()
   }
 
   kernel().node_manager.finalize_nodes();
+  prepared_ = false;
+
   SCOREP_USER_FUNC_END();
 }
 
@@ -667,7 +646,7 @@ nest::SimulationManager::call_update_()
 
   size_t num_active_nodes = kernel().node_manager.get_num_active_nodes();
   os << "Number of local nodes: " << num_active_nodes << std::endl;
-  os << "Simulaton time (ms): " << t_sim;
+  os << "Simulation time (ms): " << t_sim;
 
 #ifdef _OPENMP
   os << std::endl
@@ -728,36 +707,8 @@ nest::SimulationManager::call_update_()
 void
 nest::SimulationManager::update_connection_infrastructure( const thread tid )
 {
-#ifndef DISABLE_TIMING
-  if ( tid == 0 and kernel().mpi_manager.get_rank() < 30 )
-  {
-    sw_restructure.start();
-  }
-#endif
   kernel().connection_manager.restructure_connection_tables( tid );
-#ifndef DISABLE_TIMING
-  if ( tid == 0 and kernel().mpi_manager.get_rank() < 30 )
-  {
-    sw_restructure.stop();
-    sw_restructure.print( "0] Restructure time: " );
-  }
-#endif
-
-#ifndef DISABLE_TIMING
-  if ( tid == 0 and kernel().mpi_manager.get_rank() < 30 )
-  {
-    sw_sort.start();
-  }
-#endif
-  kernel().connection_manager.sort_connections(
-    tid ); // TODO@5g: move into restructure_
-#ifndef DISABLE_TIMING
-  if ( tid == 0 and kernel().mpi_manager.get_rank() < 30 )
-  {
-    sw_sort.stop();
-    sw_sort.print( "0] Sort time: " );
-  }
-#endif
+  kernel().connection_manager.sort_connections( tid );
 
 #pragma omp barrier // wait for all threads to finish sorting
 
@@ -821,13 +772,6 @@ nest::SimulationManager::update_()
 #pragma omp parallel
   {
     const thread tid = kernel().vp_manager.get_thread_id();
-
-#ifndef DISABLE_TIMING
-    if ( tid == 0 and kernel().mpi_manager.get_rank() < 30 )
-    {
-      sw_total.start();
-    }
-#endif
 
     do
     {
@@ -993,14 +937,8 @@ nest::SimulationManager::update_()
         }
 
       } // of if(wfr_is_used)
-        // end of preliminary update
+      // end of preliminary update
 
-#ifndef DISABLE_TIMING
-      if ( tid == 0 and kernel().mpi_manager.get_rank() < 30 )
-      {
-        sw_update.start();
-      }
-#endif
       const std::vector< Node* >& thread_local_nodes =
         kernel().node_manager.get_nodes_on_thread( tid );
       for (
@@ -1027,13 +965,6 @@ nest::SimulationManager::update_()
 
 // parallel section ends, wait until all threads are done -> synchronize
 #pragma omp barrier
-#ifndef DISABLE_TIMING
-      if ( tid == 0 and kernel().mpi_manager.get_rank() < 30 )
-      {
-        sw_update.stop();
-      }
-#endif
-
       // gather and deliver only at end of slice, i.e., end of min_delay step
       if ( to_step_ == kernel().connection_manager.get_min_delay() )
       {
@@ -1089,47 +1020,6 @@ nest::SimulationManager::update_()
       ( *i )->update_synaptic_elements(
         Time( Time::step( clock_.get_steps() + to_step_ ) ).get_ms() );
     }
-
-#ifndef DISABLE_TIMING
-    if ( tid == 0 and kernel().mpi_manager.get_rank() < 30 )
-    {
-      sw_total.stop();
-      sw_update.print( "0] Update time: " );
-      kernel().event_delivery_manager.sw_collocate_spike_data.print(
-        "0] GatherSpikeData::collocate time: " );
-      kernel().event_delivery_manager.sw_communicate_spike_data.print(
-        "0] GatherSpikeData::communicate time: " );
-      kernel().event_delivery_manager.sw_deliver_spike_data.print(
-        "0] GatherSpikeData::deliver time: " );
-      kernel().event_delivery_manager.sw_communicate_secondary_events.print(
-        "0] GatherSecondaryData::communicate time: " );
-      sw_total.print( "0] Total time: " );
-    }
-#endif
-
-#ifndef DISABLE_COUNTS
-    if ( tid == 0 and kernel().mpi_manager.get_rank() < 30 )
-    {
-      std::cout << "0] CommSteps(Rounds)SpikeData: "
-                << kernel().event_delivery_manager.comm_steps_spike_data << " ("
-                << kernel().event_delivery_manager.comm_rounds_spike_data << ")"
-                << std::endl;
-      std::cout << "0] CommStepsSecondaryEvents: "
-                << kernel().event_delivery_manager.comm_steps_secondary_events
-                << std::endl;
-      std::cout << "0] CallCount deliver_events_5g_: ";
-      for ( thread tid = 0; tid < kernel().vp_manager.get_num_threads(); ++tid )
-      {
-        std::cout
-          << kernel().event_delivery_manager.call_count_deliver_events_5g[ tid ]
-          << " ";
-      }
-      std::cout << std::endl;
-      std::cout << "0] CallCount Connector::send(): " << std::endl;
-      kernel().connection_manager.print_call_counts_connectors();
-    }
-#endif
-
   } // of omp parallel
 
   // check if any exceptions have been raised

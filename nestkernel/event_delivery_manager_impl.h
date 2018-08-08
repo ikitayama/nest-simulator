@@ -26,8 +26,8 @@
 #include "event_delivery_manager.h"
 
 // Includes from nestkernel:
-#include "kernel_manager.h"
 #include "connection_manager_impl.h"
+#include "kernel_manager.h"
 
 namespace nest
 {
@@ -59,11 +59,11 @@ EventDeliveryManager::send< SpikeEvent >( Node& source,
   const long lag )
 {
   const thread tid = source.get_thread();
-  ++local_spike_counter_[ tid ];
   const index source_gid = source.get_gid();
   e.set_sender_gid( source_gid );
   if ( source.has_proxies() )
   {
+    ++local_spike_counter_[ tid ];
     e.set_stamp(
       kernel().simulation_manager.get_slice_origin() + Time::step( lag + 1 ) );
     e.set_sender( source );
@@ -110,7 +110,7 @@ EventDeliveryManager::send_remote( thread tid, SpikeEvent& e, const long lag )
       / kernel().vp_manager.get_num_assigned_ranks_per_thread();
     for ( int i = 0; i < e.get_multiplicity(); ++i )
     {
-      ( *spike_register_5g_[ tid ] )[ assigned_tid ][ lag ].push_back( *it );
+      spike_register_[ tid ][ assigned_tid ][ lag ].push_back( *it );
     }
   }
 }
@@ -133,7 +133,7 @@ EventDeliveryManager::send_off_grid_remote( thread tid,
       / kernel().vp_manager.get_num_assigned_ranks_per_thread();
     for ( int i = 0; i < e.get_multiplicity(); ++i )
     {
-      ( *off_grid_spike_register_5g_[ tid ] )[ assigned_tid ][ lag ].push_back(
+      off_grid_spike_register_[ tid ][ assigned_tid ][ lag ].push_back(
         OffGridTarget( *it, e.get_offset() ) );
     }
   }
@@ -145,9 +145,9 @@ EventDeliveryManager::send_secondary( const Node& source, SecondaryEvent& e )
   const thread tid = kernel().vp_manager.get_thread_id();
   const index lid = kernel().vp_manager.gid_to_lid( source.get_gid() );
 
-  // we need to consider every synapse type this event supports to
+  // We need to consider every synapse type this event supports to
   // make sure also labeled and connection created by CopyModel are
-  // considered
+  // considered.
   const std::vector< synindex >& supported_syn_ids = e.get_supported_syn_ids();
   for ( std::vector< synindex >::const_iterator cit = supported_syn_ids.begin();
         cit != supported_syn_ids.end();
