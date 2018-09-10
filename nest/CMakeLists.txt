@@ -19,11 +19,10 @@
 
 set( nest_sources
     neststartup.cpp neststartup.h
-    sli_neuron.h sli_neuron.cpp
     )
 
 add_executable( nest main.cpp ${nest_sources} )
-if ( IS_BLUEGENE AND static-libraries )
+if ( static-libraries )
     set_target_properties( nest
         PROPERTIES
         LINK_SEARCH_END_STATIC TRUE
@@ -67,39 +66,13 @@ target_include_directories( nest PRIVATE
     ${PROJECT_SOURCE_DIR}/librandom
     ${PROJECT_SOURCE_DIR}/sli
     ${PROJECT_SOURCE_DIR}/nestkernel
-    ${SLI_MODULE_INCLUDE_DIRS}
     )
 
-target_compile_definitions( nest PRIVATE
-    -D_BUILD_NEST_CLI
-)
-
-target_include_directories( nest_lib PRIVATE
-    ${PROJECT_BINARY_DIR}/nest
-    ${PROJECT_SOURCE_DIR}/libnestutil
-    ${PROJECT_BINARY_DIR}/libnestutil
-    ${PROJECT_SOURCE_DIR}/librandom
-    ${PROJECT_SOURCE_DIR}/sli
-    ${PROJECT_SOURCE_DIR}/nestkernel
-    ${SLI_MODULE_INCLUDE_DIRS}
-    ${PYTHON_INCLUDE_DIRS}
-    )
-
-if ( HAVE_PYTHON )
-  target_compile_definitions( nest_lib PRIVATE
-      -D_IS_PYNEST
-      )
-endif ()
-
-install( TARGETS nest nest_lib
+install( TARGETS nest
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     )
 
-install( FILES sli/models-init.sli
-    DESTINATION ${CMAKE_INSTALL_DATADIR}/sli )
-
-FILTER_HEADERS("${nest_sources}" install_headers )
 install( FILES ${install_headers}
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/nest)

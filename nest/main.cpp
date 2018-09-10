@@ -21,17 +21,18 @@
  */
 
 // Generated includes:
-#include "config.h"
+//#include "config.h"
 
 // Includes from nest:
 #include "neststartup.h"
-
-// Includes from sli:
-#include "interpret.h"
+#include "../nestkernel/nest.h"
+#include <iostream>
 
 int
 main( int argc, char* argv[] )
 {
-
+  std::cout << "Hello, world!" << std::endl;
+  nest::init_nest( &argc, &argv );
+  nest::reset_kernel();
   return 0;
 }

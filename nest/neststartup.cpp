@@ -27,7 +27,7 @@
 
 // Generated includes:
 #include "config.h"
-#include "static_modules.h"
+//#include "static_modules.h"
 
 // Includes from libnestutil:
 #include "logging.h"
@@ -93,9 +93,6 @@ neststartup( int* argc,
 {
   nest::init_nest( argc, argv );
 
-  sli_engine = &engine;
-  register_logger_client( sli_logging );
-
 // We disable synchronization between stdio and istd::ostreams
 // this has to be done before any in- or output has been done.
 /*
@@ -110,16 +107,16 @@ neststartup( int* argc,
 #endif
 #else
   // This is for all other compilers
-  std::ios::sync_with_stdio( false );
+  //std::ios::sync_with_stdio( false );
 #endif
 
-  addmodule< OOSupportModule >( engine );
-  addmodule< RandomNumbers >( engine );
+  //addmodule< OOSupportModule >( engine );
+  //addmodule< RandomNumbers >( engine );
 
 #if defined( _BUILD_NEST_CLI ) && defined( HAVE_READLINE )
   addmodule< GNUReadline >( engine );
 #endif
-
+  /*
   addmodule< SLIArrayModule >( engine );
   addmodule< SpecialFunctionsModule >( engine ); // safe without GSL
   addmodule< SLIgraphics >( engine );
@@ -146,7 +143,7 @@ neststartup( int* argc,
 
   // now add static modules providing models
   add_static_modules( engine );
-
+*/
 /*
  * The following section concerns shared user modules and is thus only
  * included if we built with libtool and libltdl.
@@ -184,7 +181,7 @@ neststartup( int* argc,
     new StringDatum( "(" + modulepath + "/pynest-init.sli) run" ) );
 #endif
 
-  return engine.startup();
+  return 0;
 }
 
 void
