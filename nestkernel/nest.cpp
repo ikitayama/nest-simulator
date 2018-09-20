@@ -36,6 +36,13 @@
 #include "sliexceptions.h"
 #include "token.h"
 
+#include "iaf_psc_alpha.h"
+#include "poisson_generator.h"
+#include "stdp_pl_connection_hom.h"
+#include "static_connection.h"
+#include "target_identifier.h"
+#include "model_manager_impl.h"
+
 namespace nest
 {
 
@@ -61,6 +68,51 @@ void
 reset_kernel()
 {
   kernel().reset();
+}
+
+void
+register_iaf_psc_alpha()
+{
+  kernel().model_manager.register_node_model<iaf_psc_alpha>("iaf_psc_alpha");
+}
+
+void
+register_poisson_generator()
+{
+  kernel().model_manager.register_node_model< poisson_generator >("poisson_generator");
+}
+
+void
+register_static_synapse_hpc()
+{
+  kernel()
+    .model_manager
+    .register_connection_model< StaticConnection< TargetIdentifierPtrRport > >(
+      "static_synapse" );
+  kernel()
+    .model_manager
+    .register_connection_model< StaticConnection< TargetIdentifierIndex > >(
+      "static_synapse_hpc" );
+
+}
+
+void
+register_stdp_pl_synapse_hom_hpc()
+{
+  kernel()
+    .model_manager
+    .register_connection_model< STDPPLConnectionHom< TargetIdentifierPtrRport > >(
+      "stdp_pl_synapse_hom" );
+  kernel()
+    .model_manager
+    .register_connection_model< STDPPLConnectionHom< TargetIdentifierIndex > >(
+      "stdp_pl_synapse_hom_hpc" );
+}
+
+void
+copy_model(Name &old_name, Name &new_name, DictionaryDatum params)
+{
+  kernel().model_manager.copy_model( old_name, new_name, params );
 }
 
 void

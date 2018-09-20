@@ -93,7 +93,7 @@ Dictionary::info( std::ostream& out ) const
           ++where )
     {
       out << std::setw( 25 ) << where->first << std::setw( 20 )
-          << where->second->gettypename() << where->second << std::endl;
+          << where->second << std::endl;
     }
     out << "--------------------------------------------------" << std::endl;
   }

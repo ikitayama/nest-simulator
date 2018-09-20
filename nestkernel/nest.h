@@ -51,7 +51,11 @@ void install_module( const std::string& module_name );
 
 void reset_kernel();
 void reset_network();
-
+void register_iaf_psc_alpha();
+void register_poisson_generator();
+void register_static_synapse_hpc();
+void register_stdp_pl_synapse_hom_hpc();
+void copy_model(Name &old_name, Name &new_name, DictionaryDatum params);
 void enable_dryrun_mode( const index n_procs );
 
 void register_logger_client( const deliver_logging_event_ptr client_callback );
