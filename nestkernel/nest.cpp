@@ -38,6 +38,7 @@
 
 #include "iaf_psc_alpha.h"
 #include "poisson_generator.h"
+#include "stdp_connection_hom.h"
 #include "stdp_pl_connection_hom.h"
 #include "static_connection.h"
 #include "target_identifier.h"
@@ -83,7 +84,7 @@ register_poisson_generator()
 }
 
 void
-register_static_synapse_hpc()
+register_synapses()
 {
   kernel()
     .model_manager
@@ -94,11 +95,6 @@ register_static_synapse_hpc()
     .register_connection_model< StaticConnection< TargetIdentifierIndex > >(
       "static_synapse_hpc" );
 
-}
-
-void
-register_stdp_pl_synapse_hom_hpc()
-{
   kernel()
     .model_manager
     .register_connection_model< STDPPLConnectionHom< TargetIdentifierPtrRport > >(
@@ -107,6 +103,20 @@ register_stdp_pl_synapse_hom_hpc()
     .model_manager
     .register_connection_model< STDPPLConnectionHom< TargetIdentifierIndex > >(
       "stdp_pl_synapse_hom_hpc" );
+}
+
+void
+register_conn_builders()
+{
+  kernel().connection_manager.register_conn_builder< AllToAllBuilder >("all_to_all" );
+}
+
+nest::index
+get_model_id(Name name)
+{
+  return kernel()
+    .model_manager
+    .get_model_id(name);
 }
 
 void
