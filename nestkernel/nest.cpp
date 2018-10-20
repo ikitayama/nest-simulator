@@ -109,6 +109,12 @@ void
 register_conn_builders()
 {
   kernel().connection_manager.register_conn_builder< AllToAllBuilder >("all_to_all" );
+
+  kernel().connection_manager.register_conn_builder< BernoulliBuilder >(
+    "pairwise_bernoulli" );
+  kernel()
+    .connection_manager.register_conn_builder< SymmetricBernoulliBuilder >(
+      "symmetric_pairwise_bernoulli" );
 }
 
 nest::index

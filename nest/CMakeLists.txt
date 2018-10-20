@@ -18,7 +18,6 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 set( nest_sources
-    neststartup.cpp neststartup.h
     )
 
 add_executable( nest main.cpp ${nest_sources} )

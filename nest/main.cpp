@@ -39,7 +39,6 @@
 #include "nest_types.h"
 #include "logging.h"
 #include "subnet.h"
-
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_integration.h>
 #include <gsl/gsl_math.h>
@@ -47,6 +46,7 @@
 #include <gsl/gsl_sf_erf.h>   // as more and more special functions get
 #include <gsl/gsl_sf_gamma.h> // added, replace by <gsl/gsl_sf.h>
 #include <gsl/gsl_sf_lambert.h>
+#include <stdlib.h>
 
 using namespace nest;
 
@@ -75,15 +75,18 @@ int
 main( int argc, char* argv[] )
 {
   nest::init_nest( &argc, &argv );
-  
+
   // before we begin; reset
   nest::reset_kernel();
 
   double tau_syn = 0.32582722403722841; // ms
+  double scale = 18000./11250; // NPP = 18,000, network size = scale * 11,250
 
   DictionaryDatum brunel_params(new Dictionary);
-  brunel_params->insert("NE", 9000);
-  brunel_params->insert("NI", 2250);
+  brunel_params->insert("NE", int(9000*scale));
+  brunel_params->insert("NI", int(2250*scale));
+  //brunel_params->insert("NE", 90);
+  //brunel_params->insert("NI", 23);
   brunel_params->insert("Nrec", 1000);
 
   DictionaryDatum iaf_psc_alpha_params(new Dictionary);
@@ -105,6 +108,8 @@ main( int argc, char* argv[] )
   brunel_params->insert("JE", 0.14); //mV
   brunel_params->insert("sigma_w", 3.47); // pA
   brunel_params->insert(names::g, -5.0);
+  brunel_params->insert(names::eta, 1.685);
+  brunel_params->info(std::cout);
 
   DictionaryDatum stdp_params(new Dictionary);  
   stdp_params->insert(names::delay, 1.5); // ms
@@ -112,18 +117,20 @@ main( int argc, char* argv[] )
   stdp_params->insert(names::lambda, 0.1); // STDP step size
   stdp_params->insert(names::mu, 0.4); // STDP weight dependence exponent (potentiation)
   stdp_params->insert(names::tau_plus, 15.0); // time constant for potentiation
-  
-  brunel_params->insert(names::eta, 1.685);
-
-  brunel_params->info(std::cout);
 
   // BuildNetwork
   // create node 0
   DictionaryDatum kernel_params(new Dictionary);
-  //dict->insert(names::total_num_virtual_procs, omp_get_num_threads()); // simulation setup is 1 node, multiple threads
-  kernel_params->insert(names::total_num_virtual_procs, 2); // simulation setup is 1 node, multiple threads
+  //std::cout << "omp_get_num_threads " << omp_get_num_threads() << std::endl;
+  //kernel_params->insert(names::total_num_virtual_procs, omp_get_num_threads()); // simulation setup is 1 node, multiple threads
+
+  char* nThreads = getenv("OMP_NUM_THREADS");
+  assert(nThreads && "nThreads is not non-zero");
+
+  kernel_params->insert(names::total_num_virtual_procs, atoi(nThreads)); // simulation setup is 1 node, multiple threads
   kernel_params->insert(names::resolution, 0.1); // ms
   kernel_params->insert(names::overwrite_files, false);
+  kernel_params->insert(names::local_num_threads, atoi(nThreads));
   kernel_params->info(std::cout);
   //bool new_value = false; // do not write to logs
   //updateValue< bool >( kernel_params, names::overwrite_files, new_value );
@@ -134,9 +141,8 @@ main( int argc, char* argv[] )
  
   nest::register_conn_builders(); // "all_to_all" etc.
 
-  double scale = 1.0;
-  //int CE = std::round(1. * getValue<int>(brunel_params, "NE")/scale);
-  int CE = std::round(1. * 9000 / scale);
+  int CE = std::round( 1. * NE/scale );
+  int CI = std::round( 1. * NI/scale );
 
   nest::register_iaf_psc_alpha();
   nest::set_model_defaults("iaf_psc_alpha", iaf_psc_alpha_params);
@@ -167,15 +173,10 @@ main( int argc, char* argv[] )
   std::cout << " inhibitory last node gid created " << i_to << std::endl;
   nest::change_subnet(0); // back to kernel
 
-  // randomize Vm
-  /*
-  nest::index i;
-  for (i=1;i<last_node_gid+1;i++) {
-        DictionaryDatum tmp(new Dictionary);
-        //tmp->insert(names::V_m
-	//set_node_status(i, );	
-  }
-  */
+  return 0;
+
+  // DO NOT randomize Vm
+  
   double tau_m = iaf_psc_alpha_params->lookup2(names::tau_m);
   double C_m = iaf_psc_alpha_params->lookup2(names::C_m);
   double conversion_factor = ConvertSynapseWeight(tau_m, tau_syn, C_m);
@@ -226,17 +227,57 @@ main( int argc, char* argv[] )
 
   nest::index n_size = e_Neurons.size() + i_Neurons.size();
   std::cout << "total network size " << n_size << std::endl;
+
   DictionaryDatum conn_rule(new Dictionary);
   conn_rule->insert(names::rule, "all_to_all");
   DictionaryDatum conn_model(new Dictionary);
   conn_model->insert(names::model, "syn_ex");
-  nest::connect(e_Neurons, e_stimulus, conn_rule, conn_model);
+  nest::connect(e_stimulus, e_Neurons, conn_rule, conn_model);
+  nest::connect(e_stimulus, i_Neurons, conn_rule, conn_model);
+ 
+  // excitatory -> excitatory population
+  DictionaryDatum conn_rule_ee(new Dictionary);
+  conn_rule_ee->insert(names::rule, "pairwise_bernoulli");
+  conn_rule_ee->insert(names::p, 0.01);
+  conn_rule_ee->insert(names::autapses, false);
+  conn_rule_ee->insert(names::multapses, true);
+  conn_rule_ee->info(std::cout);
+  DictionaryDatum conn_model_ee(new Dictionary);
+  conn_model_ee->insert(names::model, "stdp_pl_synapse_hom_hpc");
+  nest::connect(e_Neurons, e_Neurons, conn_rule_ee, conn_model_ee);
 
-  conn_model->insert(names::model, "syn_in");
-  //nest::connect(i_Neurons, e_Neurons, conn_rule, conn_model);
-  
+  // inhibitory -> excitatory population
+  DictionaryDatum conn_rule_ie(new Dictionary);
+  conn_rule_ie->insert(names::rule, "pairwise_bernoulli");
+  conn_rule_ie->insert(names::p, 0.01);
+  conn_rule_ie->insert(names::autapses, false);
+  conn_rule_ie->insert(names::multapses, true);
+  DictionaryDatum conn_model_ie(new Dictionary);
+  conn_model_ie->insert(names::model, "syn_in");
+  nest::connect(i_Neurons, e_Neurons, conn_rule_ie, conn_model_ie);
   nest::print_network(0, 6, std::cout);
 
+  // excitatory -> inhibitory population
+  DictionaryDatum conn_model_ei(new Dictionary);
+  conn_model_ei->insert(names::model, "syn_ex");
+  DictionaryDatum conn_rule_ei(new Dictionary);
+  conn_rule_ei->insert(names::rule, "pairwise_bernoulli");
+  conn_rule_ei->insert(names::p, 0.01);
+  conn_rule_ei->insert(names::autapses, false);
+  conn_rule_ei->insert(names::multapses, true);
+  nest::connect(e_Neurons, i_Neurons, conn_rule_ei, conn_model_ei);
+
+  // inhibitory -> inhibitory population
+  DictionaryDatum conn_model_ii(new Dictionary);
+  conn_model_ii->insert(names::model, "syn_in");
+  
+  DictionaryDatum conn_rule_ii(new Dictionary);
+  conn_rule_ii->insert(names::rule, "pairwise_bernoulli");
+  conn_rule_ii->insert(names::p, 0.01);
+  conn_rule_ii->insert(names::autapses, false);
+  conn_rule_ii->insert(names::multapses, true);
+  nest::connect(i_Neurons, i_Neurons, conn_rule_ii, conn_model_ii);
+  return 0;
   // presim stage
   nest::simulate(10);
 
