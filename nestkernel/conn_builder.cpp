@@ -1193,6 +1193,7 @@ nest::FixedInDegreeBuilder::FixedInDegreeBuilder( const GIDCollection& sources,
   }
 }
 
+#pragma omp declare target
 void
 nest::FixedInDegreeBuilder::connect_()
 {
@@ -1202,8 +1203,8 @@ nest::FixedInDegreeBuilder::connect_()
     // get thread id
     const thread tid = kernel().vp_manager.get_thread_id();
 
-    try
-    {
+//    try
+//    {
       const size_t expected_targets =
         std::ceil( targets_->size()
           / static_cast< double >(
@@ -1216,21 +1217,28 @@ nest::FixedInDegreeBuilder::connect_()
 
       if ( loop_over_targets_() )
       {
-        for ( GIDCollection::const_iterator tgid = targets_->begin();
-              tgid != targets_->end();
-              ++tgid )
+        size_t ntargets = targets_->size();
+	GIDCollection::const_iterator tgid = targets_->begin();
+#pragma omp target
+#pragma omp for
+        //for ( GIDCollection::const_iterator tgid = targets_->begin();
+        //      tgid != targets_->end();
+        //      ++tgid )
+        for (int i = 0;i<ntargets;i++)
         {
           // check whether the target is on this mpi machine
           if ( not kernel().node_manager.is_local_gid( *tgid ) )
           {
             // skip array parameters handled in other virtual processes
-            skip_conn_parameter_( tid, indegree_ );
+//            skip_conn_parameter_( tid, indegree_ );
             continue;
           }
-
+/*
           Node* target = kernel().node_manager.get_node( *tgid, tid );
 
           inner_connect_( tid, rng, target, *tgid, true );
+*/
+          ++tgid;
         }
       }
       else
@@ -1253,17 +1261,18 @@ nest::FixedInDegreeBuilder::connect_()
         }
         //SCOREP_USER_REGION_END(indegree_loop_handle)
       }
-    }
-    catch ( std::exception& err )
-    {
+  //  }
+  //  catch ( std::exception& err )
+  //  {
       // We must create a new exception here, err's lifetime ends at
       // the end of the catch block.
-      exceptions_raised_.at( tid ) =
-        lockPTR< WrappedThreadException >( new WrappedThreadException( err ) );
-    }
+  //    exceptions_raised_.at( tid ) =
+  //      lockPTR< WrappedThreadException >( new WrappedThreadException( err ) );
+  //  }
   }
   SCOREP_USER_FUNC_END();
 }
+#pragma omp end declare target
 
 void
 nest::FixedInDegreeBuilder::inner_connect_( const int tid,

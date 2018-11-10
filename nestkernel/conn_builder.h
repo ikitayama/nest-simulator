@@ -427,6 +427,7 @@ ConnBuilder::register_parameters_requiring_skipping_( ConnParameter& param )
   }
 }
 
+#pragma omp declare target
 inline void
 ConnBuilder::skip_conn_parameter_( thread target_thread, size_t n_skip )
 {
@@ -438,7 +439,7 @@ ConnBuilder::skip_conn_parameter_( thread target_thread, size_t n_skip )
     ( *it )->skip( target_thread, n_skip );
   }
 }
-
+#pragma omp end declare target
 } // namespace nest
 
 #endif
