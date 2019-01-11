@@ -425,6 +425,7 @@ nest::ConnBuilder::disconnect()
   }
 }
 
+//#pragma omp declare target
 void
 nest::ConnBuilder::single_connect_( index sgid,
   Node& target,
@@ -434,9 +435,9 @@ nest::ConnBuilder::single_connect_( index sgid,
   SCOREP_USER_FUNC_BEGIN()
   if ( this->requires_proxies() and not target.has_proxies() )
   {
-    throw IllegalConnection(
-      "Cannot use this rule to connect to nodes"
-      " without proxies (usually devices)." );
+    //throw IllegalConnection(
+    //  "Cannot use this rule to connect to nodes"
+    //  " without proxies (usually devices)." );
   }
 
   if ( param_dicts_.empty() ) // indicates we have no synapse params
@@ -494,28 +495,10 @@ nest::ConnBuilder::single_connect_( index sgid,
         or it->first == names::music_channel
         or it->first == names::synapse_label )
       {
-        try
-        {
           // change value of dictionary entry without allocating new datum
           IntegerDatum* id = static_cast< IntegerDatum* >(
             ( ( *param_dicts_[ target_thread ] )[ it->first ] ).datum() );
           ( *id ) = it->second->value_int( target_thread, rng );
-        }
-        catch ( KernelException& e )
-        {
-          if ( it->first == names::receptor_type )
-          {
-            throw BadProperty( "Receptor type must be of type integer." );
-          }
-          else if ( it->first == names::music_channel )
-          {
-            throw BadProperty( "Music channel type must be of type integer." );
-          }
-          else if ( it->first == names::synapse_label )
-          {
-            throw BadProperty( "Synapse label must be of type integer." );
-          }
-        }
       }
       else
       {
@@ -568,6 +551,7 @@ nest::ConnBuilder::single_connect_( index sgid,
   }
   SCOREP_USER_FUNC_END();
 }
+//#pragma omp end declare target
 
 void
 nest::ConnBuilder::set_pre_synaptic_element_name( const std::string& name )
@@ -1193,7 +1177,7 @@ nest::FixedInDegreeBuilder::FixedInDegreeBuilder( const GIDCollection& sources,
   }
 }
 
-#pragma omp declare target
+//#pragma omp declare target
 void
 nest::FixedInDegreeBuilder::connect_()
 {
@@ -1203,8 +1187,6 @@ nest::FixedInDegreeBuilder::connect_()
     // get thread id
     const thread tid = kernel().vp_manager.get_thread_id();
 
-//    try
-//    {
       const size_t expected_targets =
         std::ceil( targets_->size()
           / static_cast< double >(
@@ -1218,7 +1200,8 @@ nest::FixedInDegreeBuilder::connect_()
       if ( loop_over_targets_() )
       {
         size_t ntargets = targets_->size();
-	GIDCollection::const_iterator tgid = targets_->begin();
+	//GIDCollection::const_iterator tgid = targets_->begin();
+        int xy = 1;
 #pragma omp target
 #pragma omp for
         //for ( GIDCollection::const_iterator tgid = targets_->begin();
@@ -1226,19 +1209,20 @@ nest::FixedInDegreeBuilder::connect_()
         //      ++tgid )
         for (int i = 0;i<ntargets;i++)
         {
+          ++xy;
           // check whether the target is on this mpi machine
-          if ( not kernel().node_manager.is_local_gid( *tgid ) )
+          /*if ( not kernel().node_manager.is_local_gid( *tgid ) )
           {
             // skip array parameters handled in other virtual processes
-//            skip_conn_parameter_( tid, indegree_ );
+            skip_conn_parameter_( tid, indegree_ );
             continue;
           }
-/*
-          Node* target = kernel().node_manager.get_node( *tgid, tid );
 
-          inner_connect_( tid, rng, target, *tgid, true );
+          Node* target = kernel().node_manager.get_node( *tgid, tid );
 */
-          ++tgid;
+ //         inner_connect_( tid, rng, target, *tgid, true );
+
+  //        ++tgid;
         }
       }
       else
@@ -1259,20 +1243,11 @@ nest::FixedInDegreeBuilder::connect_()
 
           inner_connect_( tid, rng, target, tgid, false );
         }
-        //SCOREP_USER_REGION_END(indegree_loop_handle)
-      }
-  //  }
-  //  catch ( std::exception& err )
-  //  {
-      // We must create a new exception here, err's lifetime ends at
-      // the end of the catch block.
-  //    exceptions_raised_.at( tid ) =
-  //      lockPTR< WrappedThreadException >( new WrappedThreadException( err ) );
-  //  }
+       }
   }
   SCOREP_USER_FUNC_END();
 }
-#pragma omp end declare target
+//#pragma omp end declare target
 
 void
 nest::FixedInDegreeBuilder::inner_connect_( const int tid,

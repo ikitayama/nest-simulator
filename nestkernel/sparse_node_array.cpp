@@ -95,7 +95,7 @@ nest::SparseNodeArray::add_remote_node( index gid )
   max_gid_ = gid;
 }
 
-#pragma omp declare target
+//#pragma omp declare target
 nest::Node*
 nest::SparseNodeArray::get_node_by_gid( index gid ) const
 {
@@ -148,4 +148,4 @@ nest::SparseNodeArray::get_node_by_gid( index gid ) const
     return 0;
   }
 }
-#pragma omp end declare target
+//#pragma omp end declare target

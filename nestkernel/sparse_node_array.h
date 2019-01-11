@@ -117,9 +117,9 @@ public:
    *
    *  @see get_node_by_index()
    */
-#pragma omp declare target
+//#pragma omp declare target
   Node* get_node_by_gid( index ) const;
-#pragma omp end declare target
+//#pragma omp end declare target
   /**
    * Lookup node based on index into container.
    *

@@ -104,17 +104,26 @@ nest::TargetTableDevices::resize_to_number_of_synapse_types()
 #pragma omp parallel
   {
     const thread tid = kernel().vp_manager.get_thread_id();
+
+    int x = 1;
+#pragma omp target map(to: x)
+#pragma omp parallel for
     for ( index lid = 0; lid < target_to_devices_[ tid ].size(); ++lid )
     {
       // make sure this device has support for all synapse types
-      target_to_devices_[ tid ][ lid ].resize(
-        kernel().model_manager.get_num_synapse_prototypes(), NULL );
+      //target_to_devices_[ tid ][ lid ].resize(
+      //  kernel().model_manager.get_num_synapse_prototypes(), NULL );
+      ++x;
     }
+    int yy = 1;
+#pragma omp target
+#pragma omp parallel for
     for ( index ldid = 0; ldid < target_from_devices_[ tid ].size(); ++ldid )
     {
       // make sure this device has support for all synapse types
-      target_from_devices_[ tid ][ ldid ].resize(
-        kernel().model_manager.get_num_synapse_prototypes(), NULL );
+      //target_from_devices_[ tid ][ ldid ].resize(
+      //  kernel().model_manager.get_num_synapse_prototypes(), NULL );
+      ++yy;
     }
   } // end omp parallel
 }
