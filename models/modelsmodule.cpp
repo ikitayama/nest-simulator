@@ -164,7 +164,7 @@ ModelsModule::init( SLIInterpreter* )
     "volume_transmitter" );
 
   // Create voltmeter as a multimeter pre-configured to record V_m.
-  /*BeginDocumentation
+  /** @BeginDocumentation
   Name: voltmeter - Device to record membrane potential from neurons.
   Synopsis: voltmeter Create
 
@@ -264,7 +264,7 @@ ModelsModule::init( SLIInterpreter* )
 
   // register synapses
 
-  /* BeginDocumentation
+  /** @BeginDocumentation
      Name: static_synapse_hpc - Variant of static_synapse with low memory
      consumption.
 
@@ -286,7 +286,7 @@ ModelsModule::init( SLIInterpreter* )
       "static_synapse_hpc" );
 
 
-  /* BeginDocumentation
+  /** @BeginDocumentation
      Name: static_synapse_hom_w_hpc - Variant of static_synapse_hom_w with low
      memory consumption.
      SeeAlso: synapsedict, static_synapse_hom_w, static_synapse_hpc
@@ -315,7 +315,7 @@ ModelsModule::init( SLIInterpreter* )
       "stdp_synapse_hpc" );
 
 
-  /* BeginDocumentation
+  /** @BeginDocumentation
      Name: stdp_pl_synapse_hom_hpc - Variant of stdp_pl_synapse_hom with low
      memory consumption.
      SeeAlso: synapsedict, stdp_pl_synapse_hom, static_synapse_hpc
