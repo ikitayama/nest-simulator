@@ -128,19 +128,21 @@ main( int argc, char* argv[] )
   assert(nThreads && "nThreads is not non-zero");
 
   kernel_params->insert(names::total_num_virtual_procs, atoi(nThreads)); // simulation setup is 1 node, multiple threads
-  kernel_params->insert(names::resolution, 0.1); // ms
+  //kernel_params->insert(names::resolution, 0.1); // ms
   kernel_params->insert(names::overwrite_files, false);
   kernel_params->insert(names::local_num_threads, atoi(nThreads));
   kernel_params->info(std::cout);
   //bool new_value = false; // do not write to logs
   //updateValue< bool >( kernel_params, names::overwrite_files, new_value );
   nest::set_kernel_status(kernel_params); 
-  std::cout << "resolution " << kernel_params->lookup2(names::resolution) << std::endl;
+  //std::cout << "resolution " << kernel_params->lookup2(names::resolution) << std::endl;
   std::cout << "overwrite_files " << kernel_params->lookup2(names::overwrite_files) << std::endl;
   std::cout << "current subnet gid " << nest::current_subnet() << std::endl;
  
   nest::register_conn_builders(); // "all_to_all" etc.
 
+  int NE = int(9000 * scale);
+  int NI = int(2250 * scale);
   int CE = std::round( 1. * NE/scale );
   int CI = std::round( 1. * NI/scale );
 
