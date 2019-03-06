@@ -1177,8 +1177,8 @@ nest::FixedInDegreeBuilder::connect_()
         std::ceil( targets_->size()
           / static_cast< double >(
                      kernel().vp_manager.get_num_virtual_processes() ) );
-      kernel().connection_manager.reserve_connections(
-        tid, get_synapse_model(), expected_targets * indegree_ + 100 );
+      //kernel().connection_manager.reserve_connections(
+      //  tid, get_synapse_model(), expected_targets * indegree_ + 100 );
 
       // allocate pointer to thread specific random generator
       librandom::RngPtr rng = kernel().rng_manager.get_rng( tid );
