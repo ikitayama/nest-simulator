@@ -106,7 +106,7 @@ nest::TargetTableDevices::resize_to_number_of_synapse_types()
     const thread tid = kernel().vp_manager.get_thread_id();
 
     int x = 1;
-#pragma omp target map(to: x)
+//#pragma omp target map(to: x)
 #pragma omp parallel for
     for ( index lid = 0; lid < target_to_devices_[ tid ].size(); ++lid )
     {
@@ -116,7 +116,7 @@ nest::TargetTableDevices::resize_to_number_of_synapse_types()
       ++x;
     }
     int yy = 1;
-#pragma omp target
+//#pragma omp target
 #pragma omp parallel for
     for ( index ldid = 0; ldid < target_from_devices_[ tid ].size(); ++ldid )
     {
