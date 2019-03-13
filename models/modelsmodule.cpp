@@ -45,6 +45,15 @@
 // Neuron models
 #include "hh_psc_alpha.h"
 #include "hh_psc_alpha_gap.h"
+<<<<<<< HEAD
+=======
+#include "ht_neuron.h"
+#include "iaf_chs_2007.h"
+#include "iaf_chxk_2008.h"
+#include "iaf_cond_alpha.h"
+#include "iaf_cond_alpha_mc.h"
+#include "iaf_cond_beta.h"
+>>>>>>> remotes/origin/master
 #include "iaf_cond_exp.h"
 #include "iaf_psc_alpha.h"
 
@@ -62,6 +71,7 @@
 #include "sinusoidal_poisson_generator.h"
 #include "spike_generator.h"
 #include "step_current_generator.h"
+#include "step_rate_generator.h"
 
 // Recording devices
 #include "correlation_detector.h"
@@ -146,6 +156,33 @@ ModelsModule::init( SLIInterpreter* )
 
   kernel().model_manager.register_node_model< poisson_generator >(
     "poisson_generator" );
+<<<<<<< HEAD
+=======
+  kernel().model_manager.register_node_model< pulsepacket_generator >(
+    "pulsepacket_generator" );
+  kernel().model_manager.register_node_model< noise_generator >(
+    "noise_generator" );
+  kernel().model_manager.register_node_model< step_current_generator >(
+    "step_current_generator" );
+  kernel().model_manager.register_node_model< step_rate_generator >(
+    "step_rate_generator" );
+  kernel().model_manager.register_node_model< mip_generator >(
+    "mip_generator" );
+  kernel().model_manager.register_node_model< sinusoidal_poisson_generator >(
+    "sinusoidal_poisson_generator" );
+  kernel().model_manager.register_node_model< ppd_sup_generator >(
+    "ppd_sup_generator" );
+  kernel().model_manager.register_node_model< gamma_sup_generator >(
+    "gamma_sup_generator" );
+  kernel().model_manager.register_node_model< erfc_neuron >( "erfc_neuron" );
+  kernel().model_manager.register_node_model< ginzburg_neuron >(
+    "ginzburg_neuron" );
+  kernel().model_manager.register_node_model< mcculloch_pitts_neuron >(
+    "mcculloch_pitts_neuron" );
+  kernel().model_manager.register_node_model< izhikevich >( "izhikevich" );
+  kernel().model_manager.register_node_model< spike_dilutor >(
+    "spike_dilutor" );
+>>>>>>> remotes/origin/master
 
   kernel().model_manager.register_node_model< spike_detector >(
     "spike_detector" );
@@ -164,7 +201,7 @@ ModelsModule::init( SLIInterpreter* )
     "volume_transmitter" );
 
   // Create voltmeter as a multimeter pre-configured to record V_m.
-  /*BeginDocumentation
+  /** @BeginDocumentation
   Name: voltmeter - Device to record membrane potential from neurons.
   Synopsis: voltmeter Create
 
@@ -239,6 +276,15 @@ ModelsModule::init( SLIInterpreter* )
     name, vmdict, false );
 
 #ifdef HAVE_GSL
+<<<<<<< HEAD
+=======
+  kernel().model_manager.register_node_model< iaf_chxk_2008 >(
+    "iaf_chxk_2008" );
+  kernel().model_manager.register_node_model< iaf_cond_alpha >(
+    "iaf_cond_alpha" );
+  kernel().model_manager.register_node_model< iaf_cond_beta >(
+    "iaf_cond_beta" );
+>>>>>>> remotes/origin/master
   kernel().model_manager.register_node_model< iaf_cond_exp >( "iaf_cond_exp" );
 #endif
 
@@ -264,7 +310,7 @@ ModelsModule::init( SLIInterpreter* )
 
   // register synapses
 
-  /* BeginDocumentation
+  /** @BeginDocumentation
      Name: static_synapse_hpc - Variant of static_synapse with low memory
      consumption.
 
@@ -286,7 +332,7 @@ ModelsModule::init( SLIInterpreter* )
       "static_synapse_hpc" );
 
 
-  /* BeginDocumentation
+  /** @BeginDocumentation
      Name: static_synapse_hom_w_hpc - Variant of static_synapse_hom_w with low
      memory consumption.
      SeeAlso: synapsedict, static_synapse_hom_w, static_synapse_hpc
@@ -315,7 +361,7 @@ ModelsModule::init( SLIInterpreter* )
       "stdp_synapse_hpc" );
 
 
-  /* BeginDocumentation
+  /** @BeginDocumentation
      Name: stdp_pl_synapse_hom_hpc - Variant of stdp_pl_synapse_hom with low
      memory consumption.
      SeeAlso: synapsedict, stdp_pl_synapse_hom, static_synapse_hpc
