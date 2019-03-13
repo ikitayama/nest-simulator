@@ -45,15 +45,6 @@
 // Neuron models
 #include "hh_psc_alpha.h"
 #include "hh_psc_alpha_gap.h"
-<<<<<<< HEAD
-=======
-#include "ht_neuron.h"
-#include "iaf_chs_2007.h"
-#include "iaf_chxk_2008.h"
-#include "iaf_cond_alpha.h"
-#include "iaf_cond_alpha_mc.h"
-#include "iaf_cond_beta.h"
->>>>>>> remotes/origin/master
 #include "iaf_cond_exp.h"
 #include "iaf_psc_alpha.h"
 
@@ -156,33 +147,6 @@ ModelsModule::init( SLIInterpreter* )
 
   kernel().model_manager.register_node_model< poisson_generator >(
     "poisson_generator" );
-<<<<<<< HEAD
-=======
-  kernel().model_manager.register_node_model< pulsepacket_generator >(
-    "pulsepacket_generator" );
-  kernel().model_manager.register_node_model< noise_generator >(
-    "noise_generator" );
-  kernel().model_manager.register_node_model< step_current_generator >(
-    "step_current_generator" );
-  kernel().model_manager.register_node_model< step_rate_generator >(
-    "step_rate_generator" );
-  kernel().model_manager.register_node_model< mip_generator >(
-    "mip_generator" );
-  kernel().model_manager.register_node_model< sinusoidal_poisson_generator >(
-    "sinusoidal_poisson_generator" );
-  kernel().model_manager.register_node_model< ppd_sup_generator >(
-    "ppd_sup_generator" );
-  kernel().model_manager.register_node_model< gamma_sup_generator >(
-    "gamma_sup_generator" );
-  kernel().model_manager.register_node_model< erfc_neuron >( "erfc_neuron" );
-  kernel().model_manager.register_node_model< ginzburg_neuron >(
-    "ginzburg_neuron" );
-  kernel().model_manager.register_node_model< mcculloch_pitts_neuron >(
-    "mcculloch_pitts_neuron" );
-  kernel().model_manager.register_node_model< izhikevich >( "izhikevich" );
-  kernel().model_manager.register_node_model< spike_dilutor >(
-    "spike_dilutor" );
->>>>>>> remotes/origin/master
 
   kernel().model_manager.register_node_model< spike_detector >(
     "spike_detector" );
@@ -276,15 +240,6 @@ ModelsModule::init( SLIInterpreter* )
     name, vmdict, false );
 
 #ifdef HAVE_GSL
-<<<<<<< HEAD
-=======
-  kernel().model_manager.register_node_model< iaf_chxk_2008 >(
-    "iaf_chxk_2008" );
-  kernel().model_manager.register_node_model< iaf_cond_alpha >(
-    "iaf_cond_alpha" );
-  kernel().model_manager.register_node_model< iaf_cond_beta >(
-    "iaf_cond_beta" );
->>>>>>> remotes/origin/master
   kernel().model_manager.register_node_model< iaf_cond_exp >( "iaf_cond_exp" );
 #endif
 
