@@ -1648,6 +1648,11 @@ nest::BernoulliBuilder::connect_()
               it != kernel().node_manager.local_nodes_end();
               ++it )
         {
+	int *tmpa;
+#pragma omp target
+#pragma omp teams distribute parallel for
+         for (int i=0;i<100;i++);
+
           Node* const target = ( *it ).get_node();
           const index tgid = ( *it ).get_gid();
 
