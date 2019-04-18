@@ -1195,9 +1195,14 @@ nest::FixedInDegreeBuilder::connect_()
 
       if ( loop_over_targets_() )
       {
-        for ( GIDCollection::const_iterator tgid = targets_->begin();
+        GIDCollection::const_iterator tgid = targets_->begin();
+        int len = targets_->size();
+        /*for ( GIDCollection::const_iterator tgid = targets_->begin();
               tgid != targets_->end();
               ++tgid )
+        */
+#pragma omp target teams distribute for
+        for (int tmpi=0;tmpi<len;tmpi++)
         {
           // check whether the target is on this mpi machine
           if ( not kernel().node_manager.is_local_gid( *tgid ) )
