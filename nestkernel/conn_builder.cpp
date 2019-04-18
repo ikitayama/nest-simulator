@@ -1201,7 +1201,7 @@ nest::FixedInDegreeBuilder::connect_()
               tgid != targets_->end();
               ++tgid )
         */
-#pragma omp target teams distribute for
+#pragma omp target teams distribute parallel for
         for (int tmpi=0;tmpi<len;tmpi++)
         {
           // check whether the target is on this mpi machine
