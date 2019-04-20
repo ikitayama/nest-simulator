@@ -1209,12 +1209,14 @@ nest::FixedInDegreeBuilder::connect_()
           {
             // skip array parameters handled in other virtual processes
             skip_conn_parameter_( tid, indegree_ );
+	    ++tgid;
             continue;
           }
 
           Node* target = kernel().node_manager.get_node( *tgid, tid );
 
           inner_connect_( tid, rng, target, *tgid, true );
+	  ++tgid;
         }
       }
       else
