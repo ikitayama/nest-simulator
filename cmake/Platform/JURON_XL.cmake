@@ -25,15 +25,21 @@ set( CMAKE_CXX_COMPILER xlc++ CACHE FILEPATH "override C++ compiler" )
 #
 # Compile flags for different build types
 #
-set( CMAKE_C_FLAGS_DEBUG "-O0 -g" CACHE STRING "Compiler optimization flags" )
-set( CMAKE_CXX_FLAGS_DEBUG "-O0 -g" CACHE STRING "Compiler optimization flags" )
-set( CMAKE_C_FLAGS_RELEASE "-O3 -qstrict -qarch=pwr8 -qtune=pwr8 -DNDEBUG" CACHE STRING "Compiler optimization flags" )
-set( CMAKE_CXX_FLAGS_RELEASE "-O3 -qstrict -qarch=pwr8 -qtune=pwr8 -DNDEBUG" CACHE STRING "Compiler optimization flags" )
+set( CMAKE_C_FLAGS_DEBUG "-qxflag=deep_promote -qstaticlink=xllibs -O1 -g" CACHE STRING "Compiler optimization flags" )
+set( CMAKE_CXX_FLAGS_DEBUG "-qxflag=deep_promote -qstaticlink=xllibs -O1 -g" CACHE STRING "Compiler optimization flags" )
+set( CMAKE_C_FLAGS_RELEASE "-qxflag=deep_promote -qstaticlink=xllibs -O3 -qstrict -qarch=pwr8 -qtune=pwr8 -DNDEBUG" CACHE STRING "Compiler optimization flags" )
+set( CMAKE_CXX_FLAGS_RELEASE "-qxflag=deep_promote -qstaticlink=xllibs -O3 -qstrict -qarch=pwr8 -qtune=pwr8 -DNDEBUG" CACHE STRING "Compiler optimization flags" )
 set( CMAKE_C_FLAGS_RELWITHDEBINFO "-O2 -g -qarch=pwr8 -qtune=pwr8 -DNDEBUG" CACHE STRING "Compiler optimization flags" )
 set( CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g -qarch=pwr8 -qtune=pwr8 -DNDEBUG" CACHE STRING "Compiler optimization flags" )
 
-set( OpenMP_C_FLAGS "-qsmp=omp -qoffload" CACHE STRING "Compiler flag for OpenMP parallelization" FORCE )
-set( OpenMP_CXX_FLAGS "-qsmp=omp -qoffload" CACHE STRING "Compiler flag for OpenMP parallelization" FORCE )
+if (with-offload)
+  set( OpenMP_C_FLAGS "-qsmp=omp -qoffload" CACHE STRING "Compiler flag for OpenMP parallelization" FORCE )
+  set( OpenMP_CXX_FLAGS "-qsmp=omp -qoffload" CACHE STRING "Compiler flag for OpenMP parallelization" FORCE )
+else()
+  set( OpenMP_C_FLAGS "-qsmp=omp" CACHE STRING "Compiler flag for OpenMP parallelization" FORCE )
+  set( OpenMP_CXX_FLAGS "-qsmp=omp" CACHE STRING "Compiler flag for OpenMP parallelization" FORCE )
+endif()
+
 
 set( with-warning "-Wall" CACHE STRING "Enable user defined warnings. [default ON, when ON, defaults to '-Wall']" )
 
