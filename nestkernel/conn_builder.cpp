@@ -1267,6 +1267,7 @@ nest::FixedInDegreeBuilder::inner_connect_( const int tid,
   std::set< long > ch_ids;
   long n_rnd = sources_->size();
 
+//#pragma omp target teams distribute parallel for
   for ( long j = 0; j < indegree_; ++j )
   {
     unsigned long s_id;
