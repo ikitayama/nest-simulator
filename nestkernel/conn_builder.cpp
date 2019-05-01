@@ -1201,7 +1201,7 @@ nest::FixedInDegreeBuilder::connect_()
               tgid != targets_->end();
               ++tgid )
         */
-#pragma omp target teams distribute parallel for
+//#pragma omp target teams distribute parallel for
         for (int tmpi=0;tmpi<len;tmpi++)
         {
           // check whether the target is on this mpi machine
@@ -1274,6 +1274,7 @@ nest::FixedInDegreeBuilder::inner_connect_( const int tid,
   std::set< long > ch_ids;
   long n_rnd = sources_->size();
 
+#pragma omp target teams distribute parallel for
   for ( long j = 0; j < indegree_; ++j )
   {
     unsigned long s_id;
@@ -1291,7 +1292,7 @@ nest::FixedInDegreeBuilder::inner_connect_( const int tid,
       ch_ids.insert( s_id );
     }
 
-    single_connect_( sgid, *target, target_thread, rng );
+    //single_connect_( sgid, *target, target_thread, rng );
   }
 }
 
@@ -1656,8 +1657,8 @@ nest::BernoulliBuilder::connect_()
               ++it )
         {
 	int *tmpa;
-#pragma omp target
-#pragma omp teams distribute parallel for
+//#pragma omp target
+//#pragma omp teams distribute parallel for
          for (int i=0;i<100;i++);
 
           Node* const target = ( *it ).get_node();
