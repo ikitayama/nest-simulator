@@ -960,12 +960,13 @@ nest::SimulationManager::update_()
             ( *node )->update( clock_, from_step_, to_step_ );
           }
         //}
-        /*catch ( std::exception& e )
-        {
+        //catch ( std::exception& e )
+        //{
+          //assert(1);
           // so throw the exception after parallel region
           exceptions_raised.at( tid ) = lockPTR< WrappedThreadException >(
             new WrappedThreadException( e ) );
-        }*/
+        //}
         ++node;
       }
 
