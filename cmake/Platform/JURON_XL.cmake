@@ -25,8 +25,8 @@ set( CMAKE_CXX_COMPILER xlc++ CACHE FILEPATH "override C++ compiler" )
 #
 # Compile flags for different build types
 #
-set( CMAKE_C_FLAGS_DEBUG "-qxflag=deep_promote -qstaticlink=xllibs -O1 -g" CACHE STRING "Compiler optimization flags" )
-set( CMAKE_CXX_FLAGS_DEBUG "-qxflag=deep_promote -qstaticlink=xllibs -O1 -g" CACHE STRING "Compiler optimization flags" )
+set( CMAKE_C_FLAGS_DEBUG "-qxflag=deep_promote -qstaticlink=xllibs -qversion=verbose -g" CACHE STRING "Compiler optimization flags" )
+set( CMAKE_CXX_FLAGS_DEBUG "-qxflag=deep_promote -qstaticlink=xllibs -qversion=verbose -g" CACHE STRING "Compiler optimization flags" )
 set( CMAKE_C_FLAGS_RELEASE "-qxflag=deep_promote -qstaticlink=xllibs -O3 -qstrict -qarch=pwr8 -qtune=pwr8 -DNDEBUG" CACHE STRING "Compiler optimization flags" )
 set( CMAKE_CXX_FLAGS_RELEASE "-qxflag=deep_promote -qstaticlink=xllibs -O3 -qstrict -qarch=pwr8 -qtune=pwr8 -DNDEBUG" CACHE STRING "Compiler optimization flags" )
 set( CMAKE_C_FLAGS_RELWITHDEBINFO "-O2 -g -qarch=pwr8 -qtune=pwr8 -DNDEBUG" CACHE STRING "Compiler optimization flags" )
