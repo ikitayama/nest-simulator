@@ -769,7 +769,7 @@ nest::SimulationManager::update_()
   std::vector< lockPTR< WrappedThreadException > > exceptions_raised(
     kernel().vp_manager.get_num_threads() );
 // parallel section begins
-#pragma omp parallel
+//#pragma omp parallel
   {
     const thread tid = kernel().vp_manager.get_thread_id();
 
@@ -948,7 +948,7 @@ nest::SimulationManager::update_()
         ++node ) */
       std::vector< Node* >::const_iterator node = thread_local_nodes.begin();
       int len = thread_local_nodes.size(); 
-#pragma omp target teams distribute parallel for
+//#pragma omp target teams distribute parallel for
       for(int i=0;i<len;i++)
       {
         // We update in a parallel region. Therefore, we need to catch
@@ -964,8 +964,8 @@ nest::SimulationManager::update_()
         //{
           //assert(1);
           // so throw the exception after parallel region
-          exceptions_raised.at( tid ) = lockPTR< WrappedThreadException >(
-            new WrappedThreadException( e ) );
+          //exceptions_raised.at( tid ) = lockPTR< WrappedThreadException >(
+          //  new WrappedThreadException( e ) );
         //}
         ++node;
       }

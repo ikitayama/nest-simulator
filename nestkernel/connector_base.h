@@ -399,7 +399,9 @@ public:
         ->get_common_properties();
 
     index lcid_offset = 0;
-    while ( true )
+    //while ( true )
+#pragma omp target teams distribute parallel for
+    for (int i=0;i<100;i++)
     {
     //SCOREP_USER_REGION_DEFINE(region_handle)
     //const char* region_name = typeid(*this).name();
@@ -418,7 +420,7 @@ public:
       }
       if ( not has_source_subsequent_targets )
       {
-        break;
+        ///break;
       }
       ++lcid_offset;
     }
