@@ -300,16 +300,12 @@ nest::ConnectionManager::delete_connections_()
 #pragma omp parallel
   {
     const thread tid = kernel().vp_manager.get_thread_id();
-//    for ( std::vector< ConnectorBase* >::iterator conn =
-  //          connections_[ tid ].begin();
-    //      conn != connections_[ tid ].end();
-    //      ++conn )
-    int len = connections_[tid].size();
-#pragma omp target distribute parallel for    
-    for (int i=0;i<len;i++)	
+    for ( std::vector< ConnectorBase* >::iterator conn =
+            connections_[ tid ].begin();
+          conn != connections_[ tid ].end();
+          ++conn )
     {
-      //delete *conn;
-      delete connections_[tid][i];
+      delete *conn;
     }
   } // end omp parallel
 }

@@ -400,7 +400,7 @@ public:
 
     index lcid_offset = 0;
     //while ( true )
-//#pragma omp target teams distribute parallel for
+#pragma omp target teams distribute parallel for
     for (int i=0;i<100;i++)
     {
     //SCOREP_USER_REGION_DEFINE(region_handle)
