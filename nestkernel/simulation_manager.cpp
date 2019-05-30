@@ -948,7 +948,7 @@ nest::SimulationManager::update_()
         ++node ) */
       std::vector< Node* >::const_iterator node = thread_local_nodes.begin();
       int len = thread_local_nodes.size(); 
-//#pragma omp target teams distribute parallel for
+#pragma omp target teams distribute parallel for
       for(int i=0;i<len;i++)
       {
         // We update in a parallel region. Therefore, we need to catch
