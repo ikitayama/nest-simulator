@@ -941,26 +941,17 @@ nest::SimulationManager::update_()
 
       const std::vector< Node* >& thread_local_nodes =
         kernel().node_manager.get_nodes_on_thread( tid );
-      for (
-        std::vector< Node* >::const_iterator node = thread_local_nodes.begin();
-        node != thread_local_nodes.end();
-        ++node )
+
+      std::vector< Node* >::const_iterator node = thread_local_nodes.begin();	
+      int len = thread_local_nodes.size();
+#pragma omp target temas distributed parallel for
+      for (int i=0;i<len;i++)
       {
-        // We update in a parallel region. Therefore, we need to catch
-        // exceptions here and then handle them after the parallel region.
-        try
-        {
           if ( not( *node )->is_frozen() )
           {
             ( *node )->update( clock_, from_step_, to_step_ );
           }
-        }
-        catch ( std::exception& e )
-        {
-          // so throw the exception after parallel region
-          exceptions_raised.at( tid ) = lockPTR< WrappedThreadException >(
-            new WrappedThreadException( e ) );
-        }
+       ++node; 
       }
 
 // parallel section ends, wait until all threads are done -> synchronize
