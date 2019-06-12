@@ -944,7 +944,6 @@ nest::SimulationManager::update_()
 
       std::vector< Node* >::const_iterator node = thread_local_nodes.begin();	
       int len = thread_local_nodes.size();
-#pragma omp target temas distributed parallel for
       for (int i=0;i<len;i++)
       {
           if ( not( *node )->is_frozen() )

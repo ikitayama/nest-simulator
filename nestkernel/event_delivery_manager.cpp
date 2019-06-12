@@ -307,6 +307,8 @@ EventDeliveryManager::write_done_marker_secondary_events_( const bool done )
   // write done marker at last position in every chunk
   const size_t chunk_size_in_int =
     kernel().mpi_manager.get_chunk_size_secondary_events_in_int();
+
+#pragma omp target teams distribute parallel for  
   for ( thread rank = 0; rank < kernel().mpi_manager.get_num_processes();
         ++rank )
   {
@@ -563,6 +565,7 @@ EventDeliveryManager::reset_complete_marker_spike_data_(
   const SendBufferPosition& send_buffer_position,
   std::vector< SpikeDataT >& send_buffer ) const
 {
+//#pragma omp target teams distribute parallel for
   for ( thread rank = assigned_ranks.begin; rank < assigned_ranks.end; ++rank )
   {
     const thread idx = send_buffer_position.end( rank ) - 1;
