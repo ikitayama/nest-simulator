@@ -1008,17 +1008,20 @@ NodeManager::reset_nodes_state()
      container.  Subnets are not iterated, since their nodes are
      registered in nodes_ directly.
    */
+  Node *node = local_nodes_.get_node_by_index(12);
+#pragma omp for simd
   for ( size_t n = 0; n < local_nodes_.size(); ++n )
   {
-    Node* node = local_nodes_.get_node_by_index( n );
-    assert( node != 0 );
-    if ( node->num_thread_siblings() == 0 ) // not a SiblingContainer
-    {
-      node->init_state();
-      node->set_buffers_initialized( false );
-    }
-    else if ( node->get_model_id() == -1 )
-    {
+    //Node* node = local_nodes_.get_node_by_index( n );
+    //assert( node != 0 );
+    //if ( node->num_thread_siblings() == 0 ) // not a SiblingContainer
+    //{
+      //node->init_state();
+      node->set_thread_lid(1);
+     // node->set_buffers_initialized( false );
+    //}
+    /*else if ( node->get_model_id() == -1 )
+      {
       SiblingContainer* const c = dynamic_cast< SiblingContainer* >( node );
       assert( c );
       for ( std::vector< Node* >::iterator it = c->begin(); it != c->end();
@@ -1027,7 +1030,7 @@ NodeManager::reset_nodes_state()
         ( *it )->init_state();
         ( *it )->set_buffers_initialized( false );
       }
-    }
+    }*/
   }
 }
 }

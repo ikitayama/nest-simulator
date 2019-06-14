@@ -315,6 +315,7 @@ iaf_psc_alpha::calibrate()
  * Update and spike handling functions
  */
 
+#pragma omp declare simd
 void
 iaf_psc_alpha::update( Time const& origin, const long from, const long to )
 {
