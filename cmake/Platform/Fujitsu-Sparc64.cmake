@@ -26,10 +26,9 @@ set( TRIPLET_VENDOR fujitsu )
 # Set k-computer for main CMakeList.txt
 #
 set( k-computer ON CACHE BOOL "Enable K computer." FORCE )
-# better to build static for K computer
-set( static-libraries ON CACHE BOOL "Build static libraries. [default=no]" FORCE )
 # no readline support on K computer
 set( with-readline OFF CACHE BOOL "Find a readline library [default=ON]. To set a specific readline, set install path." FORCE )
+set( with-ltdl OFF CACHE BOOL "Find a ltdl library [default=ON]. To set a specific ltdl, set install path." FORCE )
 # we obviously want to do mpi on K computer
 set( with-mpi ON CACHE BOOL "Request compilation with MPI; optionally give directory with MPI installation." FORCE )
 

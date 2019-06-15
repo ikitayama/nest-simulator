@@ -33,44 +33,58 @@
 #include "stimulating_device.h"
 #include "universal_data_logger.h"
 
-/* BeginDocumentation
-   Name: ac_generator - provides AC input current
-   Description:
-
-   This device produce an ac-current which are sent by a CurrentEvent. The
-   current is given by
-
-           I(t) = offset + amplitude * sin ( om * t + phi )
-
-   where
-
-       om  = 2 * pi * frequency
-       phi = phase / 180 * pi
-
-   The parameters are
-
-   amplitude   double -  Amplitude of sine current in pA
-   offset      double -  Constant amplitude offset in pA
-   frequency   double -  Frequency in Hz
-   phase       double -  Phase of sine current (0-360 deg)
-
-   Setting start and stop (see StimulatingDevice) only windows the current
-   as defined above. It does not shift the time axis.
-
-   References:
-   [1] S. Rotter and M. Diesmann, Exact digital simulation of time-
-   invariant linear systems with applications to neuronal modeling,
-   Biol. Cybern. 81, 381-402 (1999)
-
-   Sends: CurrentEvent
-
-   Author: Johan Hake, Spring 2003
-
-   SeeAlso: Device, StimulatingDevice, dc_generator, step_current_generator
-*/
 
 namespace nest
 {
+
+/** @BeginDocumentation
+@ingroup Devices
+@ingroup generator
+
+Name: ac_generator - provides AC input current
+
+Description:
+
+This device produces an ac-current sent by a CurrentEvent. The
+current is given by
+
+       @f[ I(t) = offset + amplitude * \sin ( om * t + \phi ) @f]
+
+where
+    @f[
+    om  = 2 * \pi * frequency \\
+    \phi = phase / 180 * \pi
+    @f]
+
+Parameters:
+\verbatim embed:rst
+==========   ======   ====================================
+ amplitude   pA       Amplitude of sine current
+ offset      pA       Constant amplitude offset
+ frequency   Hz       Frequency
+ phase       degree   Phase of sine current (0-360 deg)
+==========   ======   ====================================
+\endverbatim
+
+
+Setting start and stop (see StimulatingDevice) only windows the current
+as defined above. It does not shift the time axis.
+
+References:
+
+\verbatim embed:rst
+
+.. [1] Rotter S and Diesmann M (1999). Exact digital simulation of time-
+       invariant linear systems with applications to neuronal modeling,
+       Biol. Cybern. 81, 381-402. DOI: https://doi.org/10.1007/s004220050570
+\endverbatim
+
+Sends: CurrentEvent
+
+Author: Johan Hake, Spring 2003
+
+SeeAlso: Device, StimulatingDevice, dc_generator, step_current_generator
+*/
 class ac_generator : public DeviceNode
 {
 
