@@ -34,11 +34,17 @@
 #include "nest_types.h"
 #include "recording_device.h"
 
-/* BeginDocumentation
+namespace nest
+{
+
+/** @BeginDocumentation
+@ingroup Devices
+@ingroup detector
 
 Name: spin_detector - Device for detecting binary states in neurons.
 
 Description:
+
 The spin_detector is a recording device. It is used to decode and
 record binary states from spiking activity from a single neuron, or
 from multiple neurons at once. A single spike signals the 0 state, two
@@ -76,10 +82,6 @@ Receives: SpikeEvent
 
 SeeAlso: spike_detector, Device, RecordingDevice
 */
-
-
-namespace nest
-{
 /**
  * Spin detector class.
  *
@@ -101,7 +103,6 @@ namespace nest
  * - After all spikes are recieved and states are decoded, update()
  *   clears the read_toggle() segment of the buffer.
  *
- * @ingroup Devices
  */
 class spin_detector : public DeviceNode
 {

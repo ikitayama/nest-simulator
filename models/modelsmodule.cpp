@@ -44,6 +44,7 @@
 
 // Neuron models
 #include "hh_psc_alpha.h"
+#include "hh_psc_alpha_clopath.h"
 #include "hh_psc_alpha_gap.h"
 #include "iaf_cond_exp.h"
 #include "iaf_psc_alpha.h"
@@ -62,6 +63,7 @@
 #include "sinusoidal_poisson_generator.h"
 #include "spike_generator.h"
 #include "step_current_generator.h"
+#include "step_rate_generator.h"
 
 // Recording devices
 #include "correlation_detector.h"
@@ -76,6 +78,7 @@
 
 // Prototypes for synapses
 #include "bernoulli_connection.h"
+#include "clopath_connection.h"
 #include "common_synapse_properties.h"
 #include "cont_delay_connection_impl.h"
 #include "diffusion_connection.h"
@@ -164,7 +167,7 @@ ModelsModule::init( SLIInterpreter* )
     "volume_transmitter" );
 
   // Create voltmeter as a multimeter pre-configured to record V_m.
-  /*BeginDocumentation
+  /** @BeginDocumentation
   Name: voltmeter - Device to record membrane potential from neurons.
   Synopsis: voltmeter Create
 
@@ -264,7 +267,7 @@ ModelsModule::init( SLIInterpreter* )
 
   // register synapses
 
-  /* BeginDocumentation
+  /** @BeginDocumentation
      Name: static_synapse_hpc - Variant of static_synapse with low memory
      consumption.
 
@@ -286,7 +289,7 @@ ModelsModule::init( SLIInterpreter* )
       "static_synapse_hpc" );
 
 
-  /* BeginDocumentation
+  /** @BeginDocumentation
      Name: static_synapse_hom_w_hpc - Variant of static_synapse_hom_w with low
      memory consumption.
      SeeAlso: synapsedict, static_synapse_hom_w, static_synapse_hpc
@@ -314,8 +317,14 @@ ModelsModule::init( SLIInterpreter* )
     .register_connection_model< STDPConnection< TargetIdentifierIndex > >(
       "stdp_synapse_hpc" );
 
+  kernel()
+    .model_manager
+    .register_connection_model< ClopathConnection< TargetIdentifierPtrRport > >(
+      "clopath_synapse",
+      /*requires_symmetric=*/false,
+      /*requires_clopath_archiving=*/true );
 
-  /* BeginDocumentation
+  /** @BeginDocumentation
      Name: stdp_pl_synapse_hom_hpc - Variant of stdp_pl_synapse_hom with low
      memory consumption.
      SeeAlso: synapsedict, stdp_pl_synapse_hom, static_synapse_hpc

@@ -23,61 +23,6 @@
 #ifndef STDP_CONNECTION_HOM_H
 #define STDP_CONNECTION_HOM_H
 
-/* BeginDocumentation
-  Name: stdp_synapse_hom - Synapse type for spike-timing dependent
-   plasticity using homogeneous parameters.
-
-  Description:
-   stdp_synapse_hom is a connector to create synapses with spike time
-   dependent plasticity (as defined in [1]). Here the weight dependence
-   exponent can be set separately for potentiation and depression.
-
-   Parameters controlling plasticity are identical for all synapses of the
-   model, reducing the memory required per synapse considerably.
-
-  Examples:
-   multiplicative STDP [2]  mu_plus = mu_minus = 1.0
-   additive STDP       [3]  mu_plus = mu_minus = 0.0
-   Guetig STDP         [1]  mu_plus = mu_minus = [0.0,1.0]
-   van Rossum STDP     [4]  mu_plus = 0.0 mu_minus = 1.0
-
-  Parameters:
-   tau_plus   double - Time constant of STDP window, potentiation in ms
-                       (tau_minus defined in post-synaptic neuron)
-   lambda     double - Step size
-   alpha      double - Asymmetry parameter (scales depressing increments as
-                       alpha*lambda)
-   mu_plus    double - Weight dependence exponent, potentiation
-   mu_minus   double - Weight dependence exponent, depression
-   Wmax       double - Maximum allowed weight
-
-  Remarks:
-   The parameters are common to all synapses of the model and must be set using
-   SetDefaults on the synapse model.
-
-  Transmits: SpikeEvent
-
-  References:
-   [1] Guetig et al. (2003) Learning Input Correlations through Nonlinear
-       Temporally Asymmetric Hebbian Plasticity. Journal of Neuroscience
-
-   [2] Rubin, J., Lee, D. and Sompolinsky, H. (2001). Equilibrium
-       properties of temporally asymmetric Hebbian plasticity, PRL
-       86,364-367
-
-   [3] Song, S., Miller, K. D. and Abbott, L. F. (2000). Competitive
-       Hebbian learning through spike-timing-dependent synaptic
-       plasticity,Nature Neuroscience 3:9,919--926
-
-   [4] van Rossum, M. C. W., Bi, G-Q and Turrigiano, G. G. (2000).
-       Stable Hebbian learning from spike timing-dependent
-       plasticity, Journal of Neuroscience, 20:23,8812--8821
-
-  FirstVersion: March 2006
-  Author: Moritz Helias, Abigail Morrison
-  SeeAlso: synapsedict, tsodyks_synapse, static_synapse
-*/
-
 // C++ includes:
 #include <cmath>
 
@@ -87,6 +32,76 @@
 namespace nest
 {
 
+/** @BeginDocumentation
+@ingroup Synapses
+@ingroup stdp
+
+Name: stdp_synapse_hom - Synapse type for spike-timing dependent
+plasticity using homogeneous parameters.
+
+Description:
+
+stdp_synapse_hom is a connector to create synapses with spike time
+dependent plasticity (as defined in [1]). Here the weight dependence
+exponent can be set separately for potentiation and depression.
+
+ Parameters controlling plasticity are identical for all synapses of the
+ model, reducing the memory required per synapse considerably.
+
+Examples:
+
+    multiplicative STDP [2]  mu_plus = mu_minus = 1.0
+    additive STDP       [3]  mu_plus = mu_minus = 0.0
+    Guetig STDP         [1]  mu_plus = mu_minus = [0.0,1.0]
+    van Rossum STDP     [4]  mu_plus = 0.0 mu_minus = 1.0
+
+Parameters:
+
+\verbatim embed:rst
+========= =======  ======================================================
+ tau_plus ms       Time constant of STDP window, potentiation
+                   (tau_minus defined in post-synaptic neuron)
+ lambda   real     Step size
+ alpha    real     Asymmetry parameter (scales depressing increments as
+                   alpha*lambda)
+ mu_plus  real     Weight dependence exponent, potentiation
+ mu_minus real     Weight dependence exponent, depression
+ Wmax     real     Maximum allowed weight
+========= =======  ======================================================
+\endverbatim
+
+Remarks:
+
+The parameters are common to all synapses of the model and must be set using
+SetDefaults on the synapse model.
+
+Transmits: SpikeEvent
+
+References:
+
+\verbatim embed:rst
+.. [1] Guetig et al. (2003). Learning input correlations through nonlinear
+       temporally asymmetric hebbian plasticity. Journal of Neuroscience,
+       23:3697-3714 DOI: https://doi.org/10.1523/JNEUROSCI.23-09-03697.2003
+.. [2] Rubin J, Lee D, Sompolinsky H (2001). Equilibrium
+       properties of temporally asymmetric Hebbian plasticity. Physical Review
+       Letters, 86:364-367. DOI: https://doi.org/10.1103/PhysRevLett.86.364
+.. [3] Song S, Miller KD, Abbott LF (2000). Competitive Hebbian learning
+       through spike-timing-dependent synaptic plasticity. Nature Neuroscience
+       3(9):919-926.
+       DOI: https://doi.org/10.1038/78829
+.. [4] van Rossum MCW, Bi G-Q, Turrigiano GG (2000). Stable Hebbian learning
+       from spike timing-dependent plasticity. Journal of Neuroscience,
+       20(23):8812-8821.
+       DOI: https://doi.org/10.1523/JNEUROSCI.20-23-08812.2000
+\endverbatim
+
+FirstVersion: March 2006
+
+Author: Moritz Helias, Abigail Morrison
+
+SeeAlso: synapsedict, tsodyks_synapse, static_synapse
+*/
 /**
  * Class containing the common properties for all synapses of type
  * STDPConnectionHom.
@@ -213,7 +228,7 @@ public:
     ConnTestDummyNode dummy_target;
     ConnectionBase::check_connection_( dummy_target, s, t, receptor_type );
 
-    t.register_stdp_connection( t_lastspike_ - get_delay() );
+    t.register_stdp_connection( t_lastspike_ - get_delay(), get_delay() );
   }
 
 private:
@@ -311,7 +326,7 @@ STDPConnectionHom< targetidentifierT >::send( Event& e,
 
   e.set_receiver( *target );
   e.set_weight( weight_ );
-  e.set_delay( get_delay_steps() );
+  e.set_delay_steps( get_delay_steps() );
   e.set_rport( get_rport() );
   e();
 
