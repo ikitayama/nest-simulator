@@ -232,7 +232,9 @@ public:
   /**
    * Returns true if the node uses the waveform relaxation method
    */
+#pragma omp declare target
   bool node_uses_wfr() const;
+#pragma omp end declare target
 
   /**
    * Sets node_uses_wfr_ member variable
@@ -745,7 +747,9 @@ public:
   /**
    * @returns true if node is a subnet.
    */
+#pragma omp declare target
   virtual bool is_subnet() const;
+#pragma omp end declare target
 
   /**
    * @returns type of signal this node produces
@@ -1060,11 +1064,13 @@ Node::set_thread( thread t )
   thread_ = t;
 }
 
+#pragma omp declare target
 inline thread
 Node::get_thread() const
 {
   return thread_;
 }
+#pragma omp end declare target
 
 inline void
 Node::set_vp( thread vp )

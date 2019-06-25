@@ -281,7 +281,9 @@ private:
   index next_local_gid_( index curr_gid ) const;
 
 private:
+#pragma omp declare target
   SparseNodeArray local_nodes_; //!< The network as sparse array of local nodes
+#pragma omp end declare target
   Subnet* root_;                //!< Root node.
   Subnet* current_;             //!< Current working node (for insertion).
 
