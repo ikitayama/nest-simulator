@@ -95,6 +95,7 @@ nest::SparseNodeArray::add_remote_node( index gid )
   max_gid_ = gid;
 }
 
+//#pragma omp declare target
 nest::Node*
 nest::SparseNodeArray::get_node_by_gid( index gid ) const
 {
@@ -108,7 +109,7 @@ nest::SparseNodeArray::get_node_by_gid( index gid ) const
   assert( local_max_gid_ <= max_gid_ );
   if ( gid > max_gid_ )
   {
-    throw UnknownNode();
+    //throw UnknownNode();
   }
 
   // handle root node requests first
@@ -147,3 +148,4 @@ nest::SparseNodeArray::get_node_by_gid( index gid ) const
     return 0;
   }
 }
+//#pragma omp end declare target

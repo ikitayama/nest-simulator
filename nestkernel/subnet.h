@@ -179,7 +179,9 @@ public:
 
   std::string print_network( int, int, std::string = "" );
 
+#pragma omp declare target
   bool is_subnet() const;
+#pragma omp end declare target
 
   bool is_homogeneous() const;
 

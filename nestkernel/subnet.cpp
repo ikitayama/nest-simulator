@@ -283,8 +283,10 @@ nest::Subnet::set_label( std::string const label )
   }
 }
 
+#pragma omp declare target
 bool
 nest::Subnet::is_subnet() const
 {
   return true;
 }
+#pragma omp end declare target

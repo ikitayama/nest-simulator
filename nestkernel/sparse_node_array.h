@@ -117,7 +117,9 @@ public:
    *
    *  @see get_node_by_index()
    */
+//#pragma omp declare target
   Node* get_node_by_gid( index ) const;
+//#pragma omp end declare target
 
   /**
    * Lookup node based on index into container.
@@ -143,12 +145,15 @@ public:
   std::map< long, size_t > get_step_ctr() const;
 
 private:
+#pragma omp declare target
   std::vector< NodeEntry > nodes_;            //!< stores local node information
+//#pragma omp declare target
   index max_gid_;                             //!< largest GID in network
   index local_min_gid_;                       //!< smallest local GID
   index local_max_gid_;                       //!< largest local GID
   double gid_idx_scale_;                      //!< interpolation factor
   mutable std::map< long, size_t > step_ctr_; //!< for analysis, measure misses
+#pragma omp end declare target
 };
 
 } // namespace nest

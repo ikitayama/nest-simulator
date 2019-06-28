@@ -379,6 +379,7 @@ EventDeliveryManager::gather_spike_data_( const thread tid,
     } // of omp single; implicit barrier
 
     // Need to get new positions in case buffer size has changed
+//#pragma omp declare target
     SendBufferPosition send_buffer_position( assigned_ranks,
       kernel().mpi_manager.get_send_recv_count_spike_data_per_rank() );
 
@@ -531,6 +532,7 @@ EventDeliveryManager::set_end_and_invalid_markers_(
   std::vector< SpikeDataT >& send_buffer )
 {
   SCOREP_USER_FUNC_BEGIN();
+//#pragma omp target teams distribute parallel for map(to: send_buffer_position)
   for ( thread rank = assigned_ranks.begin; rank < assigned_ranks.end; ++rank )
   {
     // thread-local index of (global) rank
@@ -624,6 +626,7 @@ EventDeliveryManager::deliver_events_( const thread tid,
       kernel().simulation_manager.get_clock() + Time::step( lag + 1 );
   }
 
+//#pragma omp target teams distribute parallel for
   for ( thread rank = 0; rank < kernel().mpi_manager.get_num_processes();
         ++rank )
   {

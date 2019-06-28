@@ -459,12 +459,12 @@ Node::event_hook( DSCurrentEvent& e )
   e.get_receiver().handle( e );
 }
 
-//#pragma omp declare target
+#pragma omp declare target
 bool
 Node::is_subnet() const
 {
   return false;
 }
-//#pragma omp end declare target
+#pragma omp end declare target
 
 } // namespace
