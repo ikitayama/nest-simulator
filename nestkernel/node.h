@@ -747,9 +747,7 @@ public:
   /**
    * @returns true if node is a subnet.
    */
-#pragma omp declare target
   virtual bool is_subnet() const;
-#pragma omp end declare target
 
   /**
    * @returns type of signal this node produces

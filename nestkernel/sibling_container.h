@@ -65,9 +65,7 @@ public:
     assert( false );
   }
 
-#pragma omp declare target
   bool is_subnet() const;
-#pragma omp end declare target
 
   bool has_proxies() const;
 
@@ -187,13 +185,11 @@ SiblingContainer::has_proxies() const
   return false;
 }
 
-#pragma omp declare target
-inline bool
+bool
 SiblingContainer::is_subnet() const
 {
   return empty() ? false : nodes_[ 0 ]->is_subnet();
 }
-#pragma omp end declare target
 
 inline Node*
 SiblingContainer::get_thread_sibling( index i ) const

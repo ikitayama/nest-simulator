@@ -401,13 +401,11 @@ public:
    * be added by the user.
    * @returns false
    */
-#pragma omp declare target
   bool
   is_subnet() const
   {
     return false;
   }
-#pragma omp end declare target
 
 protected:
   /**
