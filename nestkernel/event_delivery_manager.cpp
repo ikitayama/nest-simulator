@@ -474,26 +474,32 @@ EventDeliveryManager::collocate_spike_data_buffers_( const thread tid,
   bool is_spike_register_empty = true;
 
   // First dimension: loop over writing thread
+  int len = spike_register.size();/*
   for ( typename std::vector< std::
             vector< std::vector< std::vector< TargetT > > > >::iterator it =
           spike_register.begin();
         it != spike_register.end();
-        ++it )
+        ++it )*/
+  for (int i=0;i<len;i++)
   {
     // Second dimension: fixed reading thread
 
     // Third dimension: loop over lags
-    for ( unsigned int lag = 0; lag < ( *it )[ tid ].size(); ++lag )
+    for ( unsigned int lag = 0; lag < spike_register[i][ tid ].size(); ++lag )
     {
       // Fourth dimension: loop over entries
+      int len = spike_register[i][ tid ][ lag ].size();/*
       for ( typename std::vector< TargetT >::iterator iiit =
               ( *it )[ tid ][ lag ].begin();
             iiit < ( *it )[ tid ][ lag ].end();
-            ++iiit )
+            ++iiit )*/
+//#pragma omp target teams distribute parallel for map(tofrom: spike_register, send_buffer_position)
+///#pragma omp target teams distribute parallel for map(tofrom: spike_register)
+      for ( int j=0;j<len;j++)
       {
-        assert( not iiit->is_processed() );
+        assert( not spike_register[i][ tid ][ lag ][ j ].is_processed() );
 
-        const thread rank = iiit->get_rank();
+        const thread rank = spike_register[i][ tid ][ lag ][j].get_rank();
 
         if ( send_buffer_position.is_chunk_filled( rank ) )
         {
@@ -510,12 +516,12 @@ EventDeliveryManager::collocate_spike_data_buffers_( const thread tid,
         else
         {
           send_buffer[ send_buffer_position.idx( rank ) ].set(
-            ( *iiit ).get_tid(),
-            ( *iiit ).get_syn_id(),
-            ( *iiit ).get_lcid(),
+            spike_register[i][ tid ][ lag ][ j ].get_tid(),
+            spike_register[i][ tid ][ lag ][ j ].get_syn_id(),
+            spike_register[i][ tid ][ lag ][ j ].get_lcid(),
             lag,
-            ( *iiit ).get_offset() );
-          ( *iiit ).set_status( TARGET_ID_PROCESSED ); // mark entry for removal
+            spike_register[i][ tid ][ lag ][ j ].get_offset() );
+          spike_register[i][ tid ][ lag ][ j ].set_status( TARGET_ID_PROCESSED ); // mark entry for removal
           send_buffer_position.increase( rank );
         }
       }

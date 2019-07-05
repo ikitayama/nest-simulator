@@ -626,8 +626,8 @@ NodeManager::ensure_valid_thread_local_ids()
 //#pragma omp extension unified_memory
         size_t num_thread_local_nodes = 0;
         size_t num_thread_local_wfr_nodes = 0;
-#pragma omp target map(tofrom: num_thread_local_nodes, num_thread_local_wfr_nodes) map(to: tid) map(to: local_nodes_)
-#pragma omp teams distribute parallel for
+//#pragma omp target map(tofrom: num_thread_local_nodes, num_thread_local_wfr_nodes) map(to: tid) map(to: local_nodes_)
+//#pragma omp teams distribute parallel for
         for ( size_t idx = 1; idx < local_nodes_.size(); ++idx )
         {
           Node* node = local_nodes_.get_node_by_index( idx );

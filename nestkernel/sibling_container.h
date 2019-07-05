@@ -185,7 +185,7 @@ SiblingContainer::has_proxies() const
   return false;
 }
 
-bool
+inline bool
 SiblingContainer::is_subnet() const
 {
   return empty() ? false : nodes_[ 0 ]->is_subnet();
