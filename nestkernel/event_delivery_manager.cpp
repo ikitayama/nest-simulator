@@ -493,8 +493,7 @@ EventDeliveryManager::collocate_spike_data_buffers_( const thread tid,
               ( *it )[ tid ][ lag ].begin();
             iiit < ( *it )[ tid ][ lag ].end();
             ++iiit )*/
-//#pragma omp target teams distribute parallel for map(tofrom: spike_register, send_buffer_position)
-///#pragma omp target teams distribute parallel for map(tofrom: spike_register)
+#pragma omp target teams distribute parallel for map(tofrom: spike_register, send_buffer_position, send_buffer)
       for ( int j=0;j<len;j++)
       {
         assert( not spike_register[i][ tid ][ lag ][ j ].is_processed() );
@@ -506,7 +505,7 @@ EventDeliveryManager::collocate_spike_data_buffers_( const thread tid,
           is_spike_register_empty = false;
           if ( send_buffer_position.are_all_chunks_filled() )
           {
-            return is_spike_register_empty;
+            //return is_spike_register_empty;
           }
           else
           {
