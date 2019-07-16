@@ -503,6 +503,7 @@ EventDeliveryManager::collocate_spike_data_buffers_( const thread tid,
         if ( send_buffer_position.is_chunk_filled( rank ) )
         {
           is_spike_register_empty = false;
+//
           if ( send_buffer_position.are_all_chunks_filled() )
           {
             //return is_spike_register_empty;
@@ -511,9 +512,11 @@ EventDeliveryManager::collocate_spike_data_buffers_( const thread tid,
           {
             continue;
           }
+//
         }
         else
         {
+/*
           send_buffer[ send_buffer_position.idx( rank ) ].set(
             spike_register[i][ tid ][ lag ][ j ].get_tid(),
             spike_register[i][ tid ][ lag ][ j ].get_syn_id(),
@@ -522,6 +525,7 @@ EventDeliveryManager::collocate_spike_data_buffers_( const thread tid,
             spike_register[i][ tid ][ lag ][ j ].get_offset() );
           spike_register[i][ tid ][ lag ][ j ].set_status( TARGET_ID_PROCESSED ); // mark entry for removal
           send_buffer_position.increase( rank );
+*/
         }
       }
     }
