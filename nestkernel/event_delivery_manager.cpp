@@ -655,11 +655,11 @@ EventDeliveryManager::deliver_events_( const thread tid,
     }
 
 SpikeDataT s_d[10];
-#pragma omp target parallel for map(to: rank,s_d)
+#pragma omp target parallel for map(to: rank,s_d,tid) 
     for ( unsigned int i = 0; i < send_recv_count_spike_data_per_rank; ++i )
     {
-
-      SpikeDataT& spike_data = s_d[i];
+        if (s_d[0].get_tid() == tid) {}
+      //SpikeDataT& spike_data = s_d[i];
 /*
       const SpikeDataT& spike_data =
         recv_buffer[ rank * send_recv_count_spike_data_per_rank + i ];

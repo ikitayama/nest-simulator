@@ -80,7 +80,9 @@ public:
   /**
    * Returns thread index.
    */
+#pragma omp declare target
   thread get_tid() const;
+#pragma omp end declare target
 
   /**
    * Returns synapse-type index.
@@ -189,11 +191,13 @@ SpikeData::get_lag() const
   return lag_;
 }
 
+#pragma omp declare target
 inline thread
 SpikeData::get_tid() const
 {
   return tid_;
 }
+#pragma omp end declare target
 
 inline synindex
 SpikeData::get_syn_id() const

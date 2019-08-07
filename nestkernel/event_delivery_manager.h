@@ -292,9 +292,11 @@ private:
    * Reads spikes from MPI buffers and delivers them to ringbuffer of
    * nodes.
    */
+#pragma omp declare target
   template < typename SpikeDataT >
   bool deliver_events_( const thread tid,
     const std::vector< SpikeDataT >& recv_buffer );
+#pragma omp end declare target
 
   /**
    * Deletes all spikes from spike registers and resets spike
