@@ -654,8 +654,13 @@ EventDeliveryManager::deliver_events_( const thread tid,
       continue;
     }
 
+SpikeDataT s_d[10];
+#pragma omp target parallel for map(to: rank,s_d)
     for ( unsigned int i = 0; i < send_recv_count_spike_data_per_rank; ++i )
     {
+
+      SpikeDataT& spike_data = s_d[i];
+/*
       const SpikeDataT& spike_data =
         recv_buffer[ rank * send_recv_count_spike_data_per_rank + i ];
 
@@ -676,8 +681,8 @@ EventDeliveryManager::deliver_events_( const thread tid,
       // break if this was the last valid entry from this rank
       if ( spike_data.is_end_marker() )
       {
-        break;
-      }
+        //break;
+      }*/
     }
   }
   //SCOREP_USER_REGION_END( handle )
