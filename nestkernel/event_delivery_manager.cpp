@@ -308,7 +308,7 @@ EventDeliveryManager::write_done_marker_secondary_events_( const bool done )
   const size_t chunk_size_in_int =
     kernel().mpi_manager.get_chunk_size_secondary_events_in_int();
 
-#pragma omp target teams distribute parallel for  
+//#pragma omp target teams distribute parallel for  
   for ( thread rank = 0; rank < kernel().mpi_manager.get_num_processes();
         ++rank )
   {
@@ -493,7 +493,7 @@ EventDeliveryManager::collocate_spike_data_buffers_( const thread tid,
               ( *it )[ tid ][ lag ].begin();
             iiit < ( *it )[ tid ][ lag ].end();
             ++iiit )*/
-#pragma omp target teams distribute parallel for map(tofrom: spike_register, send_buffer_position, send_buffer)
+//#pragma omp target teams distribute parallel for map(tofrom: spike_register, send_buffer_position, send_buffer)
       for ( int j=0;j<len;j++)
       {
         assert( not spike_register[i][ tid ][ lag ][ j ].is_processed() );
@@ -635,54 +635,63 @@ EventDeliveryManager::deliver_events_( const thread tid,
       kernel().simulation_manager.get_clock() + Time::step( lag + 1 );
   }
 
-//#pragma omp target teams distribute parallel for
+int len=recv_buffer.size();
+SpikeDataT r_buffer[len];
+for (int i=0;i<len;i++) {
+  r_buffer[i] = recv_buffer[i];
+}
+
+SpikeDataT spike_data;
+#pragma omp target parallel for map(to: tid,se,send_recv_count_spike_data_per_rank) map(tofrom: r_buffer)
   for ( thread rank = 0; rank < kernel().mpi_manager.get_num_processes();
         ++rank )
   {
     // check last entry for completed marker; needs to be done before
     // checking invalid marker to assure that this is always read
+    /*
     if ( not recv_buffer[ ( rank + 1 ) * send_recv_count_spike_data_per_rank
                - 1 ].is_complete_marker() )
     {
       are_others_completed = false;
     }
-
+    */
     // continue with next rank if no spikes were sent by this rank
-    if ( recv_buffer[ rank * send_recv_count_spike_data_per_rank ]
+    /*
+    if ( r_buffer[ rank * send_recv_count_spike_data_per_rank ]
            .is_invalid_marker() )
     {
       continue;
     }
+    */
 
-SpikeDataT s_d[10];
-#pragma omp target parallel for map(to: rank,s_d,tid) 
     for ( unsigned int i = 0; i < send_recv_count_spike_data_per_rank; ++i )
     {
-        if (s_d[0].get_tid() == tid) {}
-      //SpikeDataT& spike_data = s_d[i];
-/*
-      const SpikeDataT& spike_data =
-        recv_buffer[ rank * send_recv_count_spike_data_per_rank + i ];
+      spike_data =
+      r_buffer[ rank * send_recv_count_spike_data_per_rank + i ];
 
       if ( spike_data.get_tid() == tid )
       {
-        se.set_stamp( prepared_timestamps[ spike_data.get_lag() ] );
-        se.set_offset( spike_data.get_offset() );
+        //se.set_stamp( prepared_timestamps[ spike_data[j].get_lag() ] );
+        //se.set_offset( spike_data.get_offset() );
+//
+        //const index syn_id = spike_data.get_syn_id();
+        //if (spike_data.get_syn_id()) {}
+//
+        //const index lcid = spike_data.get_lcid();
+        //const index source_gid =
+        //int i =2;
+        //kernel().connection_manager.get_source_gid( tid, spike_data.get_syn_id(), spike_data.get_lcid());
+        //kernel().connection_manager.get_source_gid( tid, 1, 1);
+        //se.set_sender_gid( source_gid );
 
-        const index syn_id = spike_data.get_syn_id();
-        const index lcid = spike_data.get_lcid();
-        const index source_gid =
-          kernel().connection_manager.get_source_gid( tid, syn_id, lcid );
-        se.set_sender_gid( source_gid );
-
-        kernel().connection_manager.send( tid, syn_id, lcid, cm, se );
+        //kernel().connection_manager.send( tid, syn_id, lcid, cm, se );
       }
 
       // break if this was the last valid entry from this rank
       if ( spike_data.is_end_marker() )
       {
         //break;
-      }*/
+      }
     }
   }
   //SCOREP_USER_REGION_END( handle )

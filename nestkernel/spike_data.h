@@ -87,7 +87,7 @@ public:
   /**
    * Returns synapse-type index.
    */
-  synindex get_syn_id() const;
+  inline synindex get_syn_id() const;
 
   /**
    * Resets the status flag to default value.
@@ -117,7 +117,9 @@ public:
   /**
    * Returns whether the marker is the end marker.
    */
+#pragma omp declare target
   bool is_end_marker() const;
+#pragma omp end declare target
 
   /**
    * Returns whether the marker is the invalid marker.
@@ -127,7 +129,7 @@ public:
   /**
    * Returns offset.
    */
-  double get_offset() const;
+  inline double get_offset() const;
 };
 
 inline SpikeData::SpikeData()
@@ -270,7 +272,7 @@ public:
     const index lcid,
     const unsigned int lag,
     const double offset );
-  double get_offset() const;
+  inline double get_offset() const;
 };
 
 inline OffGridSpikeData::OffGridSpikeData()

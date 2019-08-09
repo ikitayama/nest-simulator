@@ -410,7 +410,7 @@ public:
 
   bool secondary_connections_exist() const;
 
-  index
+  inline index
   get_source_gid( const thread tid, const synindex syn_id, const index lcid );
 
   double get_stdp_eps() const;

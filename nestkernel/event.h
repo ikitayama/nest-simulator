@@ -243,7 +243,7 @@ public:
    * in time.
    * @param t Creation time in realtime. t has to be in [0, h).
    */
-  void set_offset( double t );
+  inline void set_offset( double t );
 
   /**
    * Return the weight.
