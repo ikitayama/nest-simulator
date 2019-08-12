@@ -80,9 +80,7 @@ public:
   /**
    * Returns thread index.
    */
-#pragma omp declare target
   thread get_tid() const;
-#pragma omp end declare target
 
   /**
    * Returns synapse-type index.
@@ -107,7 +105,7 @@ public:
   /**
    * Sets the status flag to invalid marker.
    */
-  void set_invalid_marker();
+  inline void set_invalid_marker();
 
   /**
    * Returns whether the marker is the complete marker.
@@ -117,14 +115,12 @@ public:
   /**
    * Returns whether the marker is the end marker.
    */
-#pragma omp declare target
   bool is_end_marker() const;
-#pragma omp end declare target
 
   /**
    * Returns whether the marker is the invalid marker.
    */
-  bool is_invalid_marker() const;
+  inline bool is_invalid_marker() const;
 
   /**
    * Returns offset.
@@ -193,13 +189,11 @@ SpikeData::get_lag() const
   return lag_;
 }
 
-#pragma omp declare target
 inline thread
 SpikeData::get_tid() const
 {
   return tid_;
 }
-#pragma omp end declare target
 
 inline synindex
 SpikeData::get_syn_id() const

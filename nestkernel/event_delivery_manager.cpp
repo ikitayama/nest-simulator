@@ -642,40 +642,41 @@ for (int i=0;i<len;i++) {
 }
 
 SpikeDataT spike_data;
-#pragma omp target parallel for map(to: tid,se,send_recv_count_spike_data_per_rank) map(tofrom: r_buffer)
+
+#pragma omp target parallel for map(to: spike_data,tid,se,send_recv_count_spike_data_per_rank, recv_buffer) map(tofrom: r_buffer, are_others_completed, prepared_timestamps)
   for ( thread rank = 0; rank < kernel().mpi_manager.get_num_processes();
         ++rank )
   {
     // check last entry for completed marker; needs to be done before
     // checking invalid marker to assure that this is always read
     /*
-    if ( not recv_buffer[ ( rank + 1 ) * send_recv_count_spike_data_per_rank
+    if ( not r_buffer[ ( rank + 1 ) * send_recv_count_spike_data_per_rank
                - 1 ].is_complete_marker() )
     {
       are_others_completed = false;
     }
     */
+    //r_buffer[0].is_complete_marker(); // seems ok.
+    //spike_data.is_complete_marker();  // seems ok.
     // continue with next rank if no spikes were sent by this rank
     /*
-    if ( r_buffer[ rank * send_recv_count_spike_data_per_rank ]
-           .is_invalid_marker() )
+    spike_data = recv_buffer[ rank * send_recv_count_spike_data_per_rank ];
+    if  (spike_data.is_invalid_marker() )
     {
       continue;
     }
     */
-
     for ( unsigned int i = 0; i < send_recv_count_spike_data_per_rank; ++i )
     {
       spike_data =
-      r_buffer[ rank * send_recv_count_spike_data_per_rank + i ];
-
+      recv_buffer[ rank * send_recv_count_spike_data_per_rank + i ];
       if ( spike_data.get_tid() == tid )
       {
-        //se.set_stamp( prepared_timestamps[ spike_data[j].get_lag() ] );
+        //se.set_stamp( prepared_timestamps[ spike_data.get_lag() ] );
         //se.set_offset( spike_data.get_offset() );
+        //se.set_offset(0.0 );
 //
-        //const index syn_id = spike_data.get_syn_id();
-        //if (spike_data.get_syn_id()) {}
+        const index syn_id = spike_data.get_syn_id();
 //
         //const index lcid = spike_data.get_lcid();
         //const index source_gid =
