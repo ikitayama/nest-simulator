@@ -338,8 +338,8 @@ EventDeliveryManager::gather_spike_data( const thread tid )
 {
   if ( off_grid_spiking_ )
   {
-    gather_spike_data_(
-      tid, send_buffer_off_grid_spike_data_, recv_buffer_off_grid_spike_data_ );
+    //gather_spike_data_(
+    //  tid, send_buffer_off_grid_spike_data_, recv_buffer_off_grid_spike_data_ );
   }
   else
   {
@@ -347,11 +347,10 @@ EventDeliveryManager::gather_spike_data( const thread tid )
   }
 }
 
-template < typename SpikeDataT >
 void
 EventDeliveryManager::gather_spike_data_( const thread tid,
-  std::vector< SpikeDataT >& send_buffer,
-  std::vector< SpikeDataT >& recv_buffer )
+  std::vector< SpikeData >& send_buffer,
+  std::vector< SpikeData >& recv_buffer )
 {
   SCOREP_USER_FUNC_BEGIN();
 
@@ -604,10 +603,9 @@ EventDeliveryManager::set_complete_marker_spike_data_(
   SCOREP_USER_FUNC_END();
 }
 
-template < typename SpikeDataT >
 bool
 EventDeliveryManager::deliver_events_( const thread tid,
-  const std::vector< SpikeDataT >& recv_buffer )
+  const std::vector< SpikeData >& recv_buffer )
 {
   const unsigned int send_recv_count_spike_data_per_rank =
     kernel().mpi_manager.get_send_recv_count_spike_data_per_rank();
@@ -636,14 +634,20 @@ EventDeliveryManager::deliver_events_( const thread tid,
   }
 
 int len=recv_buffer.size();
-SpikeDataT r_buffer[len];
+SpikeData spikeData[len];
 for (int i=0;i<len;i++) {
-  r_buffer[i] = recv_buffer[i];
+  spikeData[i] = recv_buffer[i];
 }
 
-SpikeDataT spike_data;
+len = prepared_timestamps.size();
+Time p_t[len];
+for (int i=0;i<len;i++) {
+   p_t[i] = prepared_timestamps[i];
+}
 
-#pragma omp target parallel for map(to: spike_data,tid,se,send_recv_count_spike_data_per_rank, recv_buffer) map(tofrom: r_buffer, are_others_completed, prepared_timestamps)
+SpikeData spike_data;
+
+#pragma omp target parallel for map(to: spike_data,tid,se,send_recv_count_spike_data_per_rank) map(tofrom: spikeData, are_others_completed, p_t)
   for ( thread rank = 0; rank < kernel().mpi_manager.get_num_processes();
         ++rank )
   {
@@ -668,15 +672,14 @@ SpikeDataT spike_data;
     */
     for ( unsigned int i = 0; i < send_recv_count_spike_data_per_rank; ++i )
     {
-      spike_data =
-      recv_buffer[ rank * send_recv_count_spike_data_per_rank + i ];
-      if ( spike_data.get_tid() == tid )
+      int j = rank * send_recv_count_spike_data_per_rank + i;
+      //spike_data = r_buffer[ rank * send_recv_count_spike_data_per_rank + i ];
+      //if ( spikeData[j].get_tid() == tid )
       {
-        //se.set_stamp( prepared_timestamps[ spike_data.get_lag() ] );
+        //se.set_stamp( p_t[ spike_data.get_lag() ] );
         //se.set_offset( spike_data.get_offset() );
-        //se.set_offset(0.0 );
 //
-        const index syn_id = spike_data.get_syn_id();
+//       const index syn_id = spikeData[j].get_syn_id();
 //
         //const index lcid = spike_data.get_lcid();
         //const index source_gid =
@@ -684,15 +687,14 @@ SpikeDataT spike_data;
         //kernel().connection_manager.get_source_gid( tid, spike_data.get_syn_id(), spike_data.get_lcid());
         //kernel().connection_manager.get_source_gid( tid, 1, 1);
         //se.set_sender_gid( source_gid );
-
         //kernel().connection_manager.send( tid, syn_id, lcid, cm, se );
       }
 
       // break if this was the last valid entry from this rank
-      if ( spike_data.is_end_marker() )
-      {
+      //if ( spike_data.is_end_marker() )
+      //{
         //break;
-      }
+     // }
     }
   }
   //SCOREP_USER_REGION_END( handle )

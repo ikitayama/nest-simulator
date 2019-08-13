@@ -246,7 +246,11 @@ private:
   template < typename SpikeDataT >
   void gather_spike_data_( const thread tid,
     std::vector< SpikeDataT >& send_buffer,
-    std::vector< SpikeDataT >& recv_buffer );
+    std::vector< SpikeDataT >& recv_buffer ) {};
+
+  void gather_spike_data_( const thread tid,
+    std::vector< SpikeData >& send_buffer,
+    std::vector< SpikeData >& recv_buffer );
 
   void resize_send_recv_buffers_spike_data_();
 
@@ -294,7 +298,10 @@ private:
    */
   template < typename SpikeDataT >
   bool deliver_events_( const thread tid,
-    const std::vector< SpikeDataT >& recv_buffer );
+    const std::vector< SpikeDataT >& recv_buffer ) {};
+
+  bool deliver_events_( const thread tid,
+    const std::vector< SpikeData >& recv_buffer );
 
   /**
    * Deletes all spikes from spike registers and resets spike

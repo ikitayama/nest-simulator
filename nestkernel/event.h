@@ -243,9 +243,7 @@ public:
    * in time.
    * @param t Creation time in realtime. t has to be in [0, h).
    */
-#pragma omp declare target
   void set_offset( double t );
-#pragma omp end declare target
 
   /**
    * Return the weight.
@@ -1369,13 +1367,11 @@ Event::get_offset() const
   return offset_;
 }
 
-#pragma omp declare target
 inline void
 Event::set_offset( double t )
 {
   offset_ = t;
 }
-#pragma omp end declare target
 
 inline port
 Event::get_port() const

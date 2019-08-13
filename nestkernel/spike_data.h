@@ -85,7 +85,9 @@ public:
   /**
    * Returns synapse-type index.
    */
-  inline synindex get_syn_id() const;
+#pragma omp declare target
+  synindex get_syn_id() const;
+#pragma omp end declare target
 
   /**
    * Resets the status flag to default value.
@@ -195,11 +197,13 @@ SpikeData::get_tid() const
   return tid_;
 }
 
+#pragma omp declare target
 inline synindex
 SpikeData::get_syn_id() const
 {
   return syn_id_;
 }
+#pragma omp end declare target
 
 inline void
 SpikeData::reset_marker()
