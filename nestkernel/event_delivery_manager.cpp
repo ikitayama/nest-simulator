@@ -605,17 +605,24 @@ EventDeliveryManager::deliver_events_( const thread tid,
       kernel().simulation_manager.get_clock() + Time::step( lag + 1 );
   }
 
-  for ( thread rank = 0; rank < kernel().mpi_manager.get_num_processes();
+int len= recv_buffer.size();
+SpikeDataT r_buf[len];
+for (int i=0;i<len;i++)
+	r_buf[i] = recv_buffer[i];
+int nranks= kernel().mpi_manager.get_num_processes();
+
+#pragma omp target parallel for map(tofrom: are_others_completed,r_buf) map(to: send_recv_count_spike_data_per_rank,nranks)
+  for ( thread rank = 0; rank < nranks;
         ++rank )
   {
     // check last entry for completed marker; needs to be done before
     // checking invalid marker to assure that this is always read
-    if ( not recv_buffer[ ( rank + 1 ) * send_recv_count_spike_data_per_rank
+    if ( not r_buf[ ( rank + 1 ) * send_recv_count_spike_data_per_rank
                - 1 ].is_complete_marker() )
     {
       are_others_completed = false;
     }
-
+/*
     // continue with next rank if no spikes were sent by this rank
     if ( recv_buffer[ rank * send_recv_count_spike_data_per_rank ]
            .is_invalid_marker() )
@@ -648,6 +655,7 @@ EventDeliveryManager::deliver_events_( const thread tid,
         break;
       }
     }
+*/
   }
 
   return are_others_completed;
