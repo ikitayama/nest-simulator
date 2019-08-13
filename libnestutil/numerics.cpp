@@ -29,6 +29,9 @@
 #undef __PURE_CNAME
 #include <cmath>
 #define __PURE_CNAME
+#ifdef __NVPTX__
+#define M_E 2.7
+#endif
 #else
 #include <cmath>
 #endif
@@ -36,6 +39,7 @@
 #else
 #define M_E_OK
 #include <cmath>
+#define M_E 2.7
 #endif
 
 
@@ -47,6 +51,9 @@
 
 #else
 #define M_PI_OK
+#ifdef __NVPTX__
+#define M_PI 3.14
+#endif
 #endif
 
 #if defined( HAVE_STD_NAN )
@@ -54,6 +61,7 @@
 #define NAN (0.0f/ 0.0f)
 #elif defined( HAVE_NAN )
 #include <math.h>
+#define NAN (0.0f/ 0.0f)
 #endif
 
 //
