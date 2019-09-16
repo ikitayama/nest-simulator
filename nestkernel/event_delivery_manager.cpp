@@ -595,8 +595,8 @@ EventDeliveryManager::deliver_events_( const thread tid,
   SpikeEvent se;
 
   // prepare Time objects for every possible time stamp within min_delay_
-  std::vector< Time > prepared_timestamps(
-    kernel().connection_manager.get_min_delay() );
+  int min_delay = kernel().connection_manager.get_min_delay();
+  Time prepared_timestamps[min_delay];
   for ( size_t lag = 0;
         lag < ( size_t ) kernel().connection_manager.get_min_delay();
         ++lag )
@@ -605,13 +605,19 @@ EventDeliveryManager::deliver_events_( const thread tid,
       kernel().simulation_manager.get_clock() + Time::step( lag + 1 );
   }
 
-int len= recv_buffer.size();
-SpikeDataT r_buf[len];
-for (int i=0;i<len;i++)
+  int len= recv_buffer.size();
+  SpikeDataT r_buf[len];
+  for (int i=0;i<len;i++)
 	r_buf[i] = recv_buffer[i];
-int nranks= kernel().mpi_manager.get_num_processes();
+  int nranks= kernel().mpi_manager.get_num_processes();
 
-#pragma omp target parallel for map(tofrom: are_others_completed,r_buf) map(to: send_recv_count_spike_data_per_rank,nranks)
+  SpikeDataT spike_data;
+  //Source thread_local_sources[1024][1024*1024];
+  //kernel().connection_manager.copy_to(tid,thread_local_sources);
+  ConnectorBase* connections[10][10];
+  //ConnectionManager connectionManager;
+ 
+#pragma omp target parallel for map(tofrom: are_others_completed,r_buf) map(to: send_recv_count_spike_data_per_rank,nranks,spike_data,se,prepared_timestamps,connections) //map(to: thread_local_sources)
   for ( thread rank = 0; rank < nranks;
         ++rank )
   {
@@ -622,9 +628,9 @@ int nranks= kernel().mpi_manager.get_num_processes();
     {
       are_others_completed = false;
     }
-/*
+
     // continue with next rank if no spikes were sent by this rank
-    if ( recv_buffer[ rank * send_recv_count_spike_data_per_rank ]
+    if ( r_buf[ rank * send_recv_count_spike_data_per_rank ]
            .is_invalid_marker() )
     {
       continue;
@@ -632,8 +638,8 @@ int nranks= kernel().mpi_manager.get_num_processes();
 
     for ( unsigned int i = 0; i < send_recv_count_spike_data_per_rank; ++i )
     {
-      const SpikeDataT& spike_data =
-        recv_buffer[ rank * send_recv_count_spike_data_per_rank + i ];
+      spike_data =
+        r_buf[ rank * send_recv_count_spike_data_per_rank + i ];
 
       if ( spike_data.get_tid() == tid )
       {
@@ -642,20 +648,21 @@ int nranks= kernel().mpi_manager.get_num_processes();
 
         const index syn_id = spike_data.get_syn_id();
         const index lcid = spike_data.get_lcid();
-        const index source_gid =
-          kernel().connection_manager.get_source_gid( tid, syn_id, lcid );
-        se.set_sender_gid( source_gid );
+        //const index source_gid = kernel().connection_manager.get_source_gid( tid, syn_id, lcid );
+        //const index source_gid = source.get_gid( tid, syn_id, lcid );
+        //const index source_gid = thread_local_sources[syn_id][lcid].get_gid();
+        //se.set_sender_gid( source_gid );
 
-        kernel().connection_manager.send( tid, syn_id, lcid, cm, se );
+        //kernel().connection_manager.send( tid, syn_id, lcid, cm, se );
+        //connections[0][0]->send(lcid, cm, se);
       }
 
       // break if this was the last valid entry from this rank
       if ( spike_data.is_end_marker() )
       {
-        break;
+        //break;
       }
     }
-*/
   }
 
   return are_others_completed;

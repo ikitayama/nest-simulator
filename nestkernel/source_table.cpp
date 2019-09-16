@@ -171,8 +171,8 @@ nest::SourceTable::get_gid( const thread tid,
 {
   if ( not kernel().connection_manager.get_keep_source_table() )
   {
-    throw KernelException(
-      "Cannot use SourceTable::get_gid when get_keep_source_table is false" );
+    //throw KernelException(
+    //  "Cannot use SourceTable::get_gid when get_keep_source_table is false" );
   }
   return sources_[ tid ][ syn_id ][ lcid ].get_gid();
 }

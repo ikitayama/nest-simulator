@@ -1509,6 +1509,22 @@ nest::ConnectionManager::compute_target_data_buffer_size()
 }
 
 void
+nest::ConnectionManager::copy_to(const thread tid, Source thread_local_sources[1024][1024*1024]) {
+       std::vector< BlockVector< Source > > tmp = source_table_.get_thread_local_sources(tid);
+
+       for (int j=0;j<1024;j++) {
+	for (int k=0;k<1024*1024;k++) {
+		//thread_local_sources[j][k] = tmp[j][k];
+	}
+	}
+
+}
+
+void 
+nest::ConnectionManager::copy_back(const thread tid, Source thread_local_sources[1024][1024*1024]) {
+}
+
+void
 nest::ConnectionManager::compute_compressed_secondary_recv_buffer_positions(
   const thread tid )
 {
