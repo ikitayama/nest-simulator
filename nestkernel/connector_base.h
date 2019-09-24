@@ -417,39 +417,43 @@ public:
     }
   }
 
+#pragma omp declare target
   index
   send( const thread tid,
     const index lcid,
     const std::vector< ConnectorModel* >& cm,
     Event& e )
   {
-    typename ConnectionT::CommonPropertiesType const& cp =
-      static_cast< GenericConnectorModel< ConnectionT >* >( cm[ syn_id_ ] )
-        ->get_common_properties();
+    //typename ConnectionT::CommonPropertiesType const& cp =
+    //  static_cast< GenericConnectorModel< ConnectionT >* >( cm[ syn_id_ ] )
+    //    ->get_common_properties();
 
     index lcid_offset = 0;
     while ( true )
     {
-      ConnectionT& conn = C_[ lcid + lcid_offset ];
-      const bool is_disabled = conn.is_disabled();
-      const bool has_source_subsequent_targets =
-        conn.has_source_subsequent_targets();
+      //ConnectionT& conn = C_[ lcid + lcid_offset ];
+      //const bool is_disabled = conn.is_disabled();
+      //const bool has_source_subsequent_targets =
+      //  conn.has_source_subsequent_targets();
 
       e.set_port( lcid + lcid_offset );
+      /*
       if ( not is_disabled )
       {
         conn.send( e, tid, cp );
         send_weight_event( tid, lcid + lcid_offset, e, cp );
       }
-      if ( not has_source_subsequent_targets )
-      {
-        break;
-      }
+      */ 
+      //if ( not has_source_subsequent_targets )
+     // {
+     //   break;
+     // }
       ++lcid_offset;
     }
 
     return 1 + lcid_offset; // event was delivered to at least one target
   }
+#pragma omp end declare target
 
   // Implemented in connector_base_impl.h
   void send_weight_event( const thread tid,

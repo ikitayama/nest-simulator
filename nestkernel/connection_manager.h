@@ -77,9 +77,8 @@ public:
 
   void compute_target_data_buffer_size();
   void compute_compressed_secondary_recv_buffer_positions( const thread tid );
-  void copy_to(const thread, Source thread_local_sources[1024][1024*1024]);
-  void copy_back(const thread, Source thread_local_sources[1024][1024*1024]);
-
+  void copy_to(const thread, index **thead_local_sources);
+  void get_thread_local_connections(const thread, ConnectorBase **);
 
   /**
    * Add a connectivity rule, i.e. the respective ConnBuilderFactory.
@@ -414,10 +413,8 @@ public:
 
   bool secondary_connections_exist() const;
 
-#pragma omp declare target
   index
   get_source_gid( const thread tid, const synindex syn_id, const index lcid );
-#pragma omp end declare target
 
   double get_stdp_eps() const;
 
@@ -798,7 +795,6 @@ ConnectionManager::get_num_connections_( const thread tid,
   return connections_[ tid ][ syn_id ]->size();
 }
 
-#pragma omp declare target
 inline index
 ConnectionManager::get_source_gid( const thread tid,
   const synindex syn_index,
@@ -806,7 +802,6 @@ ConnectionManager::get_source_gid( const thread tid,
 {
   return source_table_.get_gid( tid, syn_index, lcid );
 }
-#pragma omp end declare target
 
 inline bool
 ConnectionManager::has_primary_connections() const

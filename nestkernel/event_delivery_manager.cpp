@@ -586,6 +586,11 @@ EventDeliveryManager::deliver_events_( const thread tid,
   const std::vector< ConnectorModel* >& cm =
     kernel().model_manager.get_synapse_prototypes( tid );
 
+  ConnectorModel* cmarray[cm.size()];
+  for (int i=0;i<cm.size();i++) {
+     cmarray[i] = cm[i];
+  }
+
   bool are_others_completed = true;
 
   // deliver only at end of time slice
@@ -612,12 +617,18 @@ EventDeliveryManager::deliver_events_( const thread tid,
   int nranks= kernel().mpi_manager.get_num_processes();
 
   SpikeDataT spike_data;
-  //Source thread_local_sources[1024][1024*1024];
-  //kernel().connection_manager.copy_to(tid,thread_local_sources);
-  ConnectorBase* connections[10][10];
-  //ConnectionManager connectionManager;
+  //Source **thread_local_sources = nullptr; 
+  //index **thread_local_sources = nullptr; 
+  index **thread_local_sources = new index*[100];
+  for (int i=0;i<100;i++)
+	thread_local_sources[i] = new index[1024*1024]; 
+
+  kernel().connection_manager.copy_to(tid,thread_local_sources);
+  ConnectorBase* connections[100];
+
+  kernel().connection_manager.get_thread_local_connections(tid, connections);
  
-#pragma omp target parallel for map(tofrom: are_others_completed,r_buf) map(to: send_recv_count_spike_data_per_rank,nranks,spike_data,se,prepared_timestamps,connections) //map(to: thread_local_sources)
+#pragma omp target parallel for map(tofrom: are_others_completed,r_buf) map(to: send_recv_count_spike_data_per_rank,nranks,spike_data,se,prepared_timestamps) map(to: thread_local_sources) map(to: cmarray) map(tofrom: connections)
   for ( thread rank = 0; rank < nranks;
         ++rank )
   {
@@ -650,11 +661,12 @@ EventDeliveryManager::deliver_events_( const thread tid,
         const index lcid = spike_data.get_lcid();
         //const index source_gid = kernel().connection_manager.get_source_gid( tid, syn_id, lcid );
         //const index source_gid = source.get_gid( tid, syn_id, lcid );
-        //const index source_gid = thread_local_sources[syn_id][lcid].get_gid();
-        //se.set_sender_gid( source_gid );
-
+        //std::cout << "syn_id " << syn_id << " lcid " << lcid << std::endl;
+        const index source_gid = thread_local_sources[syn_id][lcid];
+        // se is mapped.
+        //se.
         //kernel().connection_manager.send( tid, syn_id, lcid, cm, se );
-        //connections[0][0]->send(lcid, cm, se);
+        //connections[syn_id]->send(tid, lcid, cm, se);
       }
 
       // break if this was the last valid entry from this rank

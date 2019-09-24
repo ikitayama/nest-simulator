@@ -57,9 +57,7 @@ public:
   /**
    * Returns this Source's GID.
    */
-#pragma omp declare target
   uint64_t get_gid() const;
-#pragma omp end declare target
 
   void set_processed( const bool processed );
   bool is_processed() const;
@@ -111,13 +109,11 @@ Source::set_gid( const uint64_t gid )
   gid_ = gid;
 }
 
-#pragma omp declare target
 inline uint64_t
 Source::get_gid() const
 {
   return gid_;
 }
-#pragma omp end declare target
 
 inline void
 Source::set_processed( const bool processed )
