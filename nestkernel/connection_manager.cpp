@@ -1509,7 +1509,7 @@ nest::ConnectionManager::compute_target_data_buffer_size()
 }
 
 void
-nest::ConnectionManager::copy_to(const thread tid, index **thread_local_sources) {
+nest::ConnectionManager::copy_to(const thread tid, index *thread_local_sources) {
        std::vector< BlockVector< Source > > tmp = source_table_.get_thread_local_sources(tid);
        for (int j=0;j<tmp.size();j++) {
          //std::cout << j << " " << tmp[j].size() << std::endl;  
@@ -1532,7 +1532,7 @@ nest::ConnectionManager::copy_to(const thread tid, index **thread_local_sources)
        for (int j=0;j<n_syn_types;j++) {
         if (len[j] == 0) continue; 
 	for (int k=0;k<len[j];k++) {
-		thread_local_sources[j][k] = tmp[j][k].get_gid();
+		thread_local_sources[j + sizeof(index)*k ] = tmp[j][k].get_gid();
                 if (j==20) {
                   //std::cout << "syn_id 20, " << k << " gid " << thread_local_sources[j][k] << std::endl;
                 }

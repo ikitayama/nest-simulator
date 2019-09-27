@@ -619,16 +619,16 @@ EventDeliveryManager::deliver_events_( const thread tid,
   SpikeDataT spike_data;
   //Source **thread_local_sources = nullptr; 
   //index **thread_local_sources = nullptr; 
-  index **thread_local_sources = new index*[100];
-  for (int i=0;i<100;i++)
-	thread_local_sources[i] = new index[1024*1024]; 
+  index *thread_local_sources = new index[100*1024*1024];
+  //for (int i=0;i<100;i++)
+//	thread_local_sources[i] = new index[1024*1024]; 
 
   kernel().connection_manager.copy_to(tid,thread_local_sources);
   ConnectorBase* connections[100];
 
   kernel().connection_manager.get_thread_local_connections(tid, connections);
  
-#pragma omp target parallel for map(tofrom: are_others_completed,r_buf) map(to: send_recv_count_spike_data_per_rank,nranks,spike_data,se,prepared_timestamps) map(to: thread_local_sources) map(to: cmarray) map(tofrom: connections)
+#pragma omp target parallel for map(tofrom: are_others_completed,r_buf) map(to: send_recv_count_spike_data_per_rank,nranks,spike_data,se,prepared_timestamps) map(to: cmarray[:cm.size()]) map(tofrom: connections[:100]) map(tofrom: thread_local_sources[0:100*1024*1024])
   for ( thread rank = 0; rank < nranks;
         ++rank )
   {
@@ -662,7 +662,7 @@ EventDeliveryManager::deliver_events_( const thread tid,
         //const index source_gid = kernel().connection_manager.get_source_gid( tid, syn_id, lcid );
         //const index source_gid = source.get_gid( tid, syn_id, lcid );
         //std::cout << "syn_id " << syn_id << " lcid " << lcid << std::endl;
-        const index source_gid = thread_local_sources[syn_id][lcid];
+        const index source_gid = thread_local_sources[syn_id + sizeof(index)*lcid];
         // se is mapped.
         //se.
         //kernel().connection_manager.send( tid, syn_id, lcid, cm, se );

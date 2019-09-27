@@ -77,7 +77,7 @@ public:
 
   void compute_target_data_buffer_size();
   void compute_compressed_secondary_recv_buffer_positions( const thread tid );
-  void copy_to(const thread, index **thead_local_sources);
+  void copy_to(const thread, index *thead_local_sources);
   void get_thread_local_connections(const thread, ConnectorBase **);
 
   /**
