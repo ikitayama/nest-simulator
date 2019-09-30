@@ -41,6 +41,9 @@
 #include "vp_manager.h"
 #include "vp_manager_impl.h"
 
+#include "target_identifier.h"
+#include "connection.h"
+
 // Includes from sli:
 #include "dictutils.h"
 
@@ -666,7 +669,9 @@ EventDeliveryManager::deliver_events_( const thread tid,
         // se is mapped.
         //se.
         //kernel().connection_manager.send( tid, syn_id, lcid, cm, se );
-        //connections[syn_id]->send(tid, lcid, cm, se);
+        //StaticConnection< TargetIdentifierPtrRport >
+        Connector<Connection< TargetIdentifierIndex > > *p = static_cast<Connector<Connection< TargetIdentifierIndex> > *>(connections[syn_id]);
+       p->Connector<Connection< TargetIdentifierIndex > >::send_offload(tid, lcid, cmarray, se);
       }
 
       // break if this was the last valid entry from this rank

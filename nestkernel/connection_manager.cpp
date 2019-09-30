@@ -1542,8 +1542,10 @@ nest::ConnectionManager::copy_to(const thread tid, index *thread_local_sources) 
 }
 
 void
-nest::ConnectionManager::get_thread_local_connections(const thread tid, ConnectorBase **) {
-
+nest::ConnectionManager::get_thread_local_connections(const thread tid, ConnectorBase *connections[100]) {
+         for (int i=0;i<100;i++) {
+         connections[i] = connections_[tid][i];
+        }
 }
  
 void
