@@ -157,7 +157,7 @@ public:
    * \param tid Thread ID of the target
    * \param cp Common properties-object of the synapse
    */
-  void
+  inline void
   send( Event& e, const thread tid, const CommonPropertiesHomW& cp )
   {
     e.set_weight( cp.get_weight() );

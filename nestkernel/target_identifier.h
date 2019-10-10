@@ -142,8 +142,8 @@ public:
   Node*
   get_target_ptr( const thread tid ) const
   {
-    assert( target_ != invalid_targetindex );
-    return kernel().node_manager.thread_lid_to_node( tid, target_ );
+    //assert( target_ != invalid_targetindex );
+    //return kernel().node_manager.thread_lid_to_node( tid, target_ );
   }
 
   rport
@@ -159,10 +159,10 @@ public:
   {
     if ( rprt != 0 )
     {
-      throw IllegalConnection(
-        "Only rport==0 allowed for HPC synpases. Use normal synapse models "
-        "instead. See Kunkel et al, Front Neuroinform 8:78 (2014), Sec "
-        "3.3.2." );
+      //throw IllegalConnection(
+      //  "Only rport==0 allowed for HPC synpases. Use normal synapse models "
+      //  "instead. See Kunkel et al, Front Neuroinform 8:78 (2014), Sec "
+      //  "3.3.2." );
     }
   }
 

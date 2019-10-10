@@ -149,7 +149,7 @@ public:
     ConnectionBase::check_connection_( dummy_target, s, t, receptor_type );
   }
 
-  void
+inline  void
   send( Event& e, const thread tid, const CommonSynapseProperties& )
   {
     e.set_weight( weight_ );

@@ -224,6 +224,14 @@ public:
     return cp_;
   }
 
+#pragma omp declare target
+  typename ConnectionT::CommonPropertiesType const&
+  get_common_properties1() const
+  {
+    return cp_;
+  }
+#pragma omp end declare target
+
   void set_syn_id( synindex syn_id );
 
   virtual typename ConnectionT::EventType*

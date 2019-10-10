@@ -181,6 +181,8 @@ public:
 
   Node* thread_lid_to_node( thread t, targetindex thread_local_id ) const;
 
+  const std::vector< Node* >& copy1( thread ) const;
+
   /**
    * Get list of nodes on given thread.
    */
@@ -342,6 +344,12 @@ inline Node*
 NodeManager::thread_lid_to_node( thread t, targetindex thread_local_id ) const
 {
   return nodes_vec_[ t ][ thread_local_id ];
+}
+
+inline const std::vector< Node* >&
+NodeManager::copy1( thread t ) const
+{
+  return nodes_vec_[ t ];
 }
 
 inline const std::vector< Node* >&

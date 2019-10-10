@@ -50,8 +50,11 @@
 #include "arraydatum.h"
 #include "dictutils.h"
 
+
 namespace nest
 {
+
+class TargetIdentifierPtrRport;
 
 /**
  * Base class to allow storing Connectors for different synapse types
@@ -239,6 +242,7 @@ class Connector : public ConnectorBase
 {
 private:
   BlockVector< ConnectionT > C_;
+  ConnectionT *C_1[1024];
   const synindex syn_id_;
 
 public:
@@ -272,7 +276,7 @@ public:
     assert( lcid >= 0 and lcid < C_.size() );
 
     C_[ lcid ].get_status( dict );
-
+    //C_1[ lcid ].get_status( dict );
     // get target gid here, where tid is available
     // necessary for hpc synapses using TargetIdentifierIndex
     def< long >( dict, names::target, C_[ lcid ].get_target( tid )->get_gid() );
@@ -287,6 +291,7 @@ public:
 
     C_[ lcid ].set_status(
       dict, static_cast< GenericConnectorModel< ConnectionT >& >( cm ) );
+    
   }
 
 
@@ -294,6 +299,7 @@ public:
   push_back( const ConnectionT& c )
   {
     C_.push_back( c );
+    ConnectionT * C_1 = &C_[0];
     return *this;
   }
 
@@ -436,33 +442,33 @@ public:
     const index lcid,
     ConnectorModel* cmarray[100],
     Event& e )
-  {
-    /*//typename ConnectionT::CommonPropertiesType const& cp =
-    //  static_cast< GenericConnectorModel< ConnectionT >* >( cmarray[ syn_id_ ] )
-    //    ->get_common_properties();
-
+  { 
+    typename ConnectionT::CommonPropertiesType const* cp;
+      //static_cast< GenericConnectorModel< ConnectionT >* >( cmarray[ syn_id_ ])->GenericConnectorModel< ConnectionT >::get_common_properties1();
+    
     index lcid_offset = 0;
     while ( true )
-    {
-      //ConnectionT& conn = C_[ lcid + lcid_offset ];
-      //const bool is_disabled = conn.is_disabled();
-      //const bool has_source_subsequent_targets =
-      //  conn.has_source_subsequent_targets();
+    { 
+      ConnectionT& conn = *C_1[ lcid + lcid_offset ]; 
+      
+      const bool is_disabled = conn.is_disabled();
+      const bool has_source_subsequent_targets = 
+        conn.has_source_subsequent_targets();
 
       e.set_port( lcid + lcid_offset );
       if ( not is_disabled )
       {
-        conn.send( e, tid, cp );
-        send_weight_event( tid, lcid + lcid_offset, e, cp );
+        //conn.send( e, tid, *cp );
+        //send_weight_event( tid, lcid + lcid_offset, e, *cp);
       }
-      //if ( not has_source_subsequent_targets )
-     // {
-     //   break;
-     // }
+      if ( not has_source_subsequent_targets )
+      {
+        break;
+      }
       ++lcid_offset;
     }
-    */
-    //return 1 + lcid_offset; // event was delivered to at least one target
+
+    return 1 + lcid_offset; // event was delivered to at least one target 
   }
 #pragma omp end declare target
 

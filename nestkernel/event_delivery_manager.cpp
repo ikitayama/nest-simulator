@@ -44,11 +44,15 @@
 #include "target_identifier.h"
 #include "connection.h"
 
+#include "static_connection.h"
+
 // Includes from sli:
 #include "dictutils.h"
 
 namespace nest
 {
+class TargetIdentfierRport;
+
 EventDeliveryManager::EventDeliveryManager()
   : off_grid_spiking_( false )
   , moduli_()
@@ -590,6 +594,7 @@ EventDeliveryManager::deliver_events_( const thread tid,
     kernel().model_manager.get_synapse_prototypes( tid );
 
   ConnectorModel* cmarray[cm.size()];
+  //GenericConnectorModel<StaticConnection<TargetIdentifierRport>>* cmarray[cm.size()];
   for (int i=0;i<cm.size();i++) {
      cmarray[i] = cm[i];
   }
@@ -619,6 +624,12 @@ EventDeliveryManager::deliver_events_( const thread tid,
 	r_buf[i] = recv_buffer[i];
   int nranks= kernel().mpi_manager.get_num_processes();
 
+  std::vector<Node*> thread_local_nodes = kernel().node_manager.copy1(tid);
+  len = thread_local_nodes.size();
+  Node *a1[len];
+  for (int i=0;i<len;i++)
+      a1[i] = thread_local_nodes[i];
+
   SpikeDataT spike_data;
   //Source **thread_local_sources = nullptr; 
   //index **thread_local_sources = nullptr; 
@@ -630,8 +641,8 @@ EventDeliveryManager::deliver_events_( const thread tid,
   ConnectorBase* connections[100];
 
   kernel().connection_manager.get_thread_local_connections(tid, connections);
- 
-#pragma omp target parallel for map(tofrom: are_others_completed,r_buf) map(to: send_recv_count_spike_data_per_rank,nranks,spike_data,se,prepared_timestamps) map(to: cmarray[:cm.size()]) map(tofrom: connections[:100]) map(tofrom: thread_local_sources[0:100*1024*1024])
+  //std::cout << typeid(connections[0]).name() << std::endl; 
+#pragma omp target parallel for map(tofrom: are_others_completed,r_buf) map(to: send_recv_count_spike_data_per_rank,nranks,spike_data,se,prepared_timestamps) map(to: cmarray[:cm.size()]) map(tofrom: connections[:100]) map(tofrom: thread_local_sources[0:100*1024*1024]) map(to: a1[0:1024])
   for ( thread rank = 0; rank < nranks;
         ++rank )
   {
@@ -670,8 +681,9 @@ EventDeliveryManager::deliver_events_( const thread tid,
         //se.
         //kernel().connection_manager.send( tid, syn_id, lcid, cm, se );
         //StaticConnection< TargetIdentifierPtrRport >
-        Connector<Connection< TargetIdentifierIndex > > *p = static_cast<Connector<Connection< TargetIdentifierIndex> > *>(connections[syn_id]);
-       p->Connector<Connection< TargetIdentifierIndex > >::send_offload(tid, lcid, cmarray, se);
+        //Connector<Connection< TargetIdentifierIndex > > *p = static_cast<Connector<Connection< TargetIdentifierIndex> > *>(connections[syn_id]);
+        Connector<StaticConnection< TargetIdentifierPtrRport > > *p = static_cast<Connector<StaticConnection< TargetIdentifierPtrRport > > *>(connections[syn_id]);
+       p->Connector<StaticConnection< TargetIdentifierPtrRport > >::send_offload(tid, lcid, cmarray, se);
       }
 
       // break if this was the last valid entry from this rank
