@@ -242,13 +242,14 @@ class Connector : public ConnectorBase
 {
 private:
   BlockVector< ConnectionT > C_;
-  ConnectionT *C_1[1024];
+  ConnectionT *C_1;
   const synindex syn_id_;
 
 public:
   explicit Connector( const synindex syn_id )
     : syn_id_( syn_id )
   {
+   C_1 = &C_[0];
   }
 
   ~Connector()
@@ -299,7 +300,6 @@ public:
   push_back( const ConnectionT& c )
   {
     C_.push_back( c );
-    ConnectionT * C_1 = &C_[0];
     return *this;
   }
 
@@ -449,7 +449,7 @@ public:
     index lcid_offset = 0;
     while ( true )
     { 
-      ConnectionT& conn = *C_1[ lcid + lcid_offset ]; 
+      ConnectionT conn = C_1[ lcid + lcid_offset ]; 
       
       const bool is_disabled = conn.is_disabled();
       const bool has_source_subsequent_targets = 
