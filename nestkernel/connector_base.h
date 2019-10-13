@@ -452,8 +452,8 @@ public:
       ConnectionT conn = C_1[ lcid + lcid_offset ]; 
       
       const bool is_disabled = conn.is_disabled();
-      const bool has_source_subsequent_targets = false;
-        //conn.has_source_subsequent_targets();
+      const bool has_source_subsequent_targets =
+        conn.has_source_subsequent_targets();
 
       e.set_port( lcid + lcid_offset );
       if ( not is_disabled )

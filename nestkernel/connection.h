@@ -265,11 +265,13 @@ public:
    *
    * @see set_has_source_subsequent_targets
    */
+#pragma omp declare target
   bool
   has_source_subsequent_targets() const
   {
     return syn_id_delay_.has_source_subsequent_targets();
   }
+#pragma omp end declare target
 
   /**
    * Disables the connection.
