@@ -99,7 +99,7 @@ struct SynIdDelay
    *
    * @see disable
    */
-  bool
+  inline bool
   is_disabled() const
   {
     return disabled;

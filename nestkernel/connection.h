@@ -287,11 +287,13 @@ public:
    *
    * @see disable
    */
-  bool
+#pragma omp declare target
+ bool
   is_disabled() const
   {
     return syn_id_delay_.is_disabled();
   }
+#pragma omp end declare target
 
 protected:
   /**
