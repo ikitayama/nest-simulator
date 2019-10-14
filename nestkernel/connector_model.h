@@ -218,7 +218,7 @@ public:
     default_connection_.check_synapse_params( syn_spec );
   }
 
-  typename ConnectionT::CommonPropertiesType const&
+  inline typename ConnectionT::CommonPropertiesType const&
   get_common_properties() const
   {
     return cp_;

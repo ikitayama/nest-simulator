@@ -55,7 +55,7 @@ Connector< ConnectionT >::send_weight_event( const thread tid,
     wr_e.set_receiver( *cp.get_weight_recorder()->get_thread_sibling( tid ) );
     // Put the gid of the postsynaptic node as receiver gid
     wr_e.set_receiver_gid( e.get_receiver().get_gid() );
-    wr_e();
+    //wr_e();
   }
 }
 #pragma omp end declare target

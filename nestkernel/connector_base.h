@@ -443,8 +443,8 @@ public:
     ConnectorModel* cmarray[100],
     Event& e )
   { 
-    typename ConnectionT::CommonPropertiesType const* cp;
-      //static_cast< GenericConnectorModel< ConnectionT >* >( cmarray[ syn_id_ ])->GenericConnectorModel< ConnectionT >::get_common_properties1();
+    typename ConnectionT::CommonPropertiesType const& cp =
+      static_cast< GenericConnectorModel< ConnectionT >* >( cmarray[ syn_id_ ])->GenericConnectorModel< ConnectionT >::get_common_properties();
     
     index lcid_offset = 0;
     while ( true )
@@ -458,8 +458,8 @@ public:
       e.set_port( lcid + lcid_offset );
       if ( not is_disabled )
       {
-        conn.send( e, tid, *cp );
-        //send_weight_event( tid, lcid + lcid_offset, e, *cp);
+        conn.send( e, tid, cp );
+        send_weight_event( tid, lcid + lcid_offset, e, cp);
       }
       if ( not has_source_subsequent_targets )
       {
