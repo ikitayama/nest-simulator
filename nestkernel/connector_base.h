@@ -458,7 +458,7 @@ public:
       e.set_port( lcid + lcid_offset );
       if ( not is_disabled )
       {
-        //conn.send( e, tid, *cp );
+        conn.send( e, tid, *cp );
         //send_weight_event( tid, lcid + lcid_offset, e, *cp);
       }
       if ( not has_source_subsequent_targets )

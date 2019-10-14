@@ -31,6 +31,7 @@
 namespace nest
 {
 
+#pragma omp declare target
 template < typename ConnectionT >
 void
 Connector< ConnectionT >::send_weight_event( const thread tid,
@@ -57,6 +58,7 @@ Connector< ConnectionT >::send_weight_event( const thread tid,
     wr_e();
   }
 }
+#pragma omp end declare target
 
 } // of namespace nest
 
