@@ -174,12 +174,18 @@ public:
   virtual index send_offload( const thread tid,
     const index lcid,
     ConnectorModel* [100],
-    Event& e ) = 0;
+    Event& e , index *) = 0;
 
   virtual void send_weight_event( const thread tid,
     const unsigned int lcid,
     Event& e,
     const CommonSynapseProperties& cp ) = 0;
+
+  virtual void send_weight_event1( const thread tid,
+    const unsigned int lcid,
+    Event& e,
+    const CommonSynapseProperties& cp,
+    index * ) = 0;
 
   /**
    * Update weights of dopamine modulated STDP connections.
@@ -441,25 +447,25 @@ public:
   send_offload( const thread tid,
     const index lcid,
     ConnectorModel* cmarray[100],
-    Event& e )
+    Event& e , index* thread_local_thread)
   { 
-    typename ConnectionT::CommonPropertiesType const& cp =
+    /*typename ConnectionT::CommonPropertiesType const& cp =
       static_cast< GenericConnectorModel< ConnectionT >* >( cmarray[ syn_id_ ])->GenericConnectorModel< ConnectionT >::get_common_properties();
-    
+    */
     index lcid_offset = 0;
     while ( true )
     { 
       ConnectionT conn = C_1[ lcid + lcid_offset ]; 
       
-      const bool is_disabled = conn.is_disabled();
-      const bool has_source_subsequent_targets =
-        conn.has_source_subsequent_targets();
+      const bool is_disabled = false;//conn.is_disabled();
+      const bool has_source_subsequent_targets = false;
+        //conn.has_source_subsequent_targets();
 
       e.set_port( lcid + lcid_offset );
       if ( not is_disabled )
       {
-        conn.send( e, tid, cp );
-        send_weight_event( tid, lcid + lcid_offset, e, cp);
+        //conn.send( e, tid, cp );
+        //send_weight_event1( tid, lcid + lcid_offset, e, cp, thread_local_thread );
       }
       if ( not has_source_subsequent_targets )
       {
@@ -477,6 +483,12 @@ public:
     const unsigned int lcid,
     Event& e,
     const CommonSynapseProperties& cp );
+
+  void send_weight_event1( const thread tid,
+    const unsigned int lcid,
+    Event& e,
+    const CommonSynapseProperties& cp,
+    index *);
 
   void
   trigger_update_weight( const long vt_gid,

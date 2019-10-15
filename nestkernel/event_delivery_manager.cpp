@@ -683,7 +683,7 @@ EventDeliveryManager::deliver_events_( const thread tid,
         //StaticConnection< TargetIdentifierPtrRport >
         //Connector<Connection< TargetIdentifierIndex > > *p = static_cast<Connector<Connection< TargetIdentifierIndex> > *>(connections[syn_id]);
         Connector<StaticConnection< TargetIdentifierPtrRport > > *p = static_cast<Connector<StaticConnection< TargetIdentifierPtrRport > > *>(connections[syn_id]);
-       p->Connector<StaticConnection< TargetIdentifierPtrRport > >::send_offload(tid, lcid, cmarray, se);
+        p->Connector<StaticConnection< TargetIdentifierPtrRport > >::send_offload(tid, lcid, cmarray, se, thread_local_sources);
       }
 
       // break if this was the last valid entry from this rank
