@@ -648,7 +648,8 @@ EventDeliveryManager::deliver_events_( const thread tid,
   Connector< StaticConnection< TargetIdentifierPtrRport > > *connections1[100];
   for (int i=0;i<100;i++) {
 	connections1[i] = static_cast< Connector< StaticConnection< TargetIdentifierPtrRport > > *>(connections[i]);
-        //connections1[i]->c1();
+        if (i == 20 or i==21 or i==0) connections1[i]->c1();
+       //connections1[i]->c1();
   }
   class Test
   {

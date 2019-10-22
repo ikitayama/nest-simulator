@@ -252,10 +252,8 @@ template < typename ConnectionT >
 class Connector : public ConnectorBase
 {
 private:
-//#pragma omp declare target
   BlockVector< ConnectionT > C_;
- ConnectionT C_1[8210000];
-//#pragma omp end declare target
+  ConnectionT C_1[8210000];
   const synindex syn_id_;
 
 public:
@@ -324,7 +322,7 @@ public:
     int i=0;    
     for (typename BlockVector< ConnectionT >::const_iterator iter = C_.begin();
 	iter != C_.end();iter++) {
-	C_1[0] = *iter;
+	C_1[i] = *iter;
         i++;
     } 
  }
@@ -472,10 +470,11 @@ public:
     /*typename ConnectionT::CommonPropertiesType const& cp =
       static_cast< GenericConnectorModel< ConnectionT >* >( cmarray[ syn_id_ ])->GenericConnectorModel< ConnectionT >::get_common_properties();
     */
+    //std::cout << "syn_id_ " << syn_id_ << std::endl;
     index lcid_offset = 0;
     while ( true )
     { 
-      ConnectionT conn = C_[ lcid + lcid_offset ]; 
+      ConnectionT conn = C_1[ lcid + lcid_offset ]; 
       //std::cout << typeid(conn).name() << std::endl;    
       const bool is_disabled = false;//conn.is_disabled();
       const bool has_source_subsequent_targets = false;
