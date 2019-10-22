@@ -50,12 +50,17 @@
 #include "arraydatum.h"
 #include "dictutils.h"
 
+// for OpenMP Offloading work
+//#include "target_identifier.h"
+
+class StaticConnection;
+class TargetIdentifierPtrRport;
 
 namespace nest
 {
 
-class TargetIdentifierPtrRport;
-
+//class TargetIdentifierPtrRport;
+//class StaticConnection;
 /**
  * Base class to allow storing Connectors for different synapse types
  * in vectors. We define the interface here to avoid casting.
@@ -247,15 +252,19 @@ template < typename ConnectionT >
 class Connector : public ConnectorBase
 {
 private:
+//#pragma omp declare target
   BlockVector< ConnectionT > C_;
-  ConnectionT *C_1;
+ ConnectionT C_1[8210000];
+//#pragma omp end declare target
   const synindex syn_id_;
 
 public:
   explicit Connector( const synindex syn_id )
     : syn_id_( syn_id )
   {
-   C_1 = &C_[0];
+   //C_1 = &C_[0];
+  // C_1 = malloc(sizeof(ConnectionT)*8210000);
+//#pragma omp target data map(to: C_1)
   }
 
   ~Connector()
@@ -283,7 +292,6 @@ public:
     assert( lcid >= 0 and lcid < C_.size() );
 
     C_[ lcid ].get_status( dict );
-    //C_1[ lcid ].get_status( dict );
     // get target gid here, where tid is available
     // necessary for hpc synapses using TargetIdentifierIndex
     def< long >( dict, names::target, C_[ lcid ].get_target( tid )->get_gid() );
@@ -308,6 +316,18 @@ public:
     C_.push_back( c );
     return *this;
   }
+  
+  void
+  c1()
+  {
+    //std::copy( C_.begin(), C_.end(), C_1 ); 
+    int i=0;    
+    for (typename BlockVector< ConnectionT >::const_iterator iter = C_.begin();
+	iter != C_.end();iter++) {
+	C_1[0] = *iter;
+        i++;
+    } 
+ }
 
   void
   get_connection( const index source_gid,
@@ -455,12 +475,12 @@ public:
     index lcid_offset = 0;
     while ( true )
     { 
-      ConnectionT conn = C_1[ lcid + lcid_offset ]; 
-      
+      ConnectionT conn = C_[ lcid + lcid_offset ]; 
+      //std::cout << typeid(conn).name() << std::endl;    
       const bool is_disabled = false;//conn.is_disabled();
       const bool has_source_subsequent_targets = false;
         //conn.has_source_subsequent_targets();
-
+      
       e.set_port( lcid + lcid_offset );
       if ( not is_disabled )
       {
@@ -477,7 +497,7 @@ public:
     return 1 + lcid_offset; // event was delivered to at least one target 
   }
 #pragma omp end declare target
-
+  
   // Implemented in connector_base_impl.h
   void send_weight_event( const thread tid,
     const unsigned int lcid,
