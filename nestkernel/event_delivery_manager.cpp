@@ -597,6 +597,7 @@ EventDeliveryManager::deliver_events_( const thread tid,
   //GenericConnectorModel<StaticConnection<TargetIdentifierRport>>* cmarray[cm.size()];
   for (int i=0;i<cm.size();i++) {
      cmarray[i] = cm[i];
+
   }
 
   bool are_others_completed = true;
@@ -638,27 +639,39 @@ EventDeliveryManager::deliver_events_( const thread tid,
 //	thread_local_sources[i] = new index[1024*1024]; 
 
   kernel().connection_manager.copy_to(tid,thread_local_sources);
-  ConnectorBase* connections[100];
+  //Connector<StaticConnection<TargetIdentifierPtrRport > > connections[100];
+  ConnectorBase *connections[100];
   for (int i=0;i<100;i++) {
-	static_cast< Connector< StaticConnection< TargetIdentifierPtrRport > > *>(connections[i]);
+	//static_cast< Connector< StaticConnection< TargetIdentifierPtrRport > > *>(connections[i]);
 	//std::cout << typeid(connections[i]).name() << std::endl;
   }
 
-  kernel().connection_manager.get_thread_local_connections(tid, connections);
-  Connector< StaticConnection< TargetIdentifierPtrRport > > *connections1[100];
+  std::vector<ConnectorBase*> thread_local_v = kernel().connection_manager.get_thread_local_connections(tid);
+
   for (int i=0;i<100;i++) {
-	connections1[i] = static_cast< Connector< StaticConnection< TargetIdentifierPtrRport > > *>(connections[i]);
-        if (i == 20 or i==21 or i==0) connections1[i]->c1();
-       //connections1[i]->c1();
+	connections[i] = thread_local_v[i];
   }
-  class Test
-  {
-    public:
-    Test() {};
-  }; 
-  Test myTest;
+  Connector<StaticConnection<TargetIdentifierPtrRport > > *connections1[100];
+
+  for (int i=0;i<100;i++) {
+	connections1[i] = static_cast<Connector<StaticConnection<TargetIdentifierPtrRport > > *>(connections[i]);
+        if (i == 20 or i==21 or i==0) connections1[i]->c1();
+  }
   //std::cout << typeid(connections[0]).name() << std::endl; 
-#pragma omp target parallel for map(tofrom: are_others_completed,r_buf) map(to: send_recv_count_spike_data_per_rank,nranks,spike_data,se,prepared_timestamps) map(to: cmarray[:cm.size()]) map(tofrom: connections1[:100]) map(tofrom: thread_local_sources[0:100*1024*1024]) map(to: a1[0:1024]) map(to: myTest)
+
+#pragma omp target enter data map(to: connections1[0:100])
+#pragma omp target enter data map(to: cmarray[0:100])
+//for (int i=0;i == 0 or i == 20 or i == 21;i++) {
+	#pragma omp target enter data map(to: connections1[0][0:1])
+	#pragma omp target enter data map(to: connections1[20][0:1])
+	#pragma omp target enter data map(to: connections1[21][0:1])
+	#pragma omp target enter data map(to: cmarray[0][0:1])
+	#pragma omp target enter data map(to: cmarray[20][0:1])
+	#pragma omp target enter data map(to: cmarray[21][0:1])
+//
+//}
+
+#pragma omp target parallel for map(to: connections1) map(tofrom: are_others_completed,r_buf) map(to: send_recv_count_spike_data_per_rank,nranks,spike_data,se,prepared_timestamps) map(to: cmarray) map(tofrom: thread_local_sources[0:100*1024*1024]) map(to: a1[0:1024])
   for ( thread rank = 0; rank < nranks;
         ++rank )
   {
@@ -700,6 +713,8 @@ EventDeliveryManager::deliver_events_( const thread tid,
         //Connector<Connection< TargetIdentifierIndex > > *p = static_cast<Connector<Connection< TargetIdentifierIndex> > *>(connections[syn_id]);
         Connector<StaticConnection< TargetIdentifierPtrRport > > *p = static_cast<Connector<StaticConnection< TargetIdentifierPtrRport > > *>(connections1[syn_id]);
         p->Connector<StaticConnection< TargetIdentifierPtrRport > >::send_offload(tid, lcid, cmarray, se, thread_local_sources);
+        //Connector<StaticConnection< TargetIdentifierPrtRport > > *p = connections1[syn_id]->send_offload(tid, lcid, cmarray, se, thread_local_sources);
+        //connections1[0]->send_offload(tid, lcid, cmarray, se, thread_local_sources);
       }
       // break if this was the last valid entry from this rank
       if ( spike_data.is_end_marker() )
@@ -708,6 +723,11 @@ EventDeliveryManager::deliver_events_( const thread tid,
       }
     }
   }
+
+#pragma omp target exit data map(from: connections1[0][0:1])
+#pragma omp target exit data map(from: connections1[20][0:1])
+#pragma omp target exit data map(from: connections1[21][0:1])
+#pragma omp target exit data map(from: connections1[0:100])
 
   return are_others_completed;
 }

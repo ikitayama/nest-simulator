@@ -260,9 +260,6 @@ public:
   explicit Connector( const synindex syn_id )
     : syn_id_( syn_id )
   {
-   //C_1 = &C_[0];
-  // C_1 = malloc(sizeof(ConnectionT)*8210000);
-//#pragma omp target data map(to: C_1)
   }
 
   ~Connector()
@@ -318,7 +315,6 @@ public:
   void
   c1()
   {
-    //std::copy( C_.begin(), C_.end(), C_1 ); 
     int i=0;    
     for (typename BlockVector< ConnectionT >::const_iterator iter = C_.begin();
 	iter != C_.end();iter++) {
@@ -460,30 +456,28 @@ public:
   {
   }
 
-#pragma omp declare target
   index
   send_offload( const thread tid,
     const index lcid,
     ConnectorModel* cmarray[100],
     Event& e , index* thread_local_thread)
   { 
-    /*typename ConnectionT::CommonPropertiesType const& cp =
-      static_cast< GenericConnectorModel< ConnectionT >* >( cmarray[ syn_id_ ])->GenericConnectorModel< ConnectionT >::get_common_properties();
-    */
+    typename ConnectionT::CommonPropertiesType const& cp =
+      static_cast<GenericConnectorModel< ConnectionT >* >( cmarray[ syn_id_ ])->GenericConnectorModel< ConnectionT >::get_common_properties();
     //std::cout << "syn_id_ " << syn_id_ << std::endl;
+    printf("eee\n");
     index lcid_offset = 0;
     while ( true )
     { 
       ConnectionT conn = C_1[ lcid + lcid_offset ]; 
       //std::cout << typeid(conn).name() << std::endl;    
-      const bool is_disabled = false;//conn.is_disabled();
-      const bool has_source_subsequent_targets = false;
-        //conn.has_source_subsequent_targets();
+      const bool is_disabled = conn.is_disabled();
+      const bool has_source_subsequent_targets = conn.has_source_subsequent_targets();
       
       e.set_port( lcid + lcid_offset );
       if ( not is_disabled )
       {
-        //conn.send( e, tid, cp );
+        conn.send( e, tid, cp );
         //send_weight_event1( tid, lcid + lcid_offset, e, cp, thread_local_thread );
       }
       if ( not has_source_subsequent_targets )
@@ -495,7 +489,6 @@ public:
 
     return 1 + lcid_offset; // event was delivered to at least one target 
   }
-#pragma omp end declare target
   
   // Implemented in connector_base_impl.h
   void send_weight_event( const thread tid,

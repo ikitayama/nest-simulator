@@ -77,7 +77,7 @@ struct SynIdDelay
     this->subsequent_targets = subsequent_targets;
   }
 
-  bool
+  inline bool
   has_source_subsequent_targets() const
   {
     return this->subsequent_targets;
@@ -99,7 +99,7 @@ struct SynIdDelay
    *
    * @see disable
    */
-  inline bool
+  bool
   is_disabled() const
   {
     return disabled;
