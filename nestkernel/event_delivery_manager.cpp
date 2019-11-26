@@ -661,7 +661,7 @@ EventDeliveryManager::deliver_events_( const thread tid,
 
 #pragma omp target enter data map(to: connections1[0:100])
 #pragma omp target enter data map(to: cmarray[0:100])
-//for (int i=0;i == 0 or i == 20 or i == 21;i++) {
+//for (int i=1;i == 0 or i == 20 or i == 21;i++) {
 	#pragma omp target enter data map(to: connections1[0][0:1])
 	#pragma omp target enter data map(to: connections1[20][0:1])
 	#pragma omp target enter data map(to: connections1[21][0:1])
@@ -711,8 +711,9 @@ EventDeliveryManager::deliver_events_( const thread tid,
         //kernel().connection_manager.send( tid, syn_id, lcid, cm, se );
         //StaticConnection< TargetIdentifierPtrRport >
         //Connector<Connection< TargetIdentifierIndex > > *p = static_cast<Connector<Connection< TargetIdentifierIndex> > *>(connections[syn_id]);
-        Connector<StaticConnection< TargetIdentifierPtrRport > > *p = static_cast<Connector<StaticConnection< TargetIdentifierPtrRport > > *>(connections1[syn_id]);
-        p->Connector<StaticConnection< TargetIdentifierPtrRport > >::send_offload(tid, lcid, cmarray, se, thread_local_sources);
+        //Connector<StaticConnection< TargetIdentifierPtrRport > > *p = static_cast<Connector<StaticConnection< TargetIdentifierPtrRport > > *>(connections1[syn_id]);
+        //p->Connector<StaticConnection< TargetIdentifierPtrRport > >::send_offload(tid, lcid, cmarray, se, thread_local_sources);
+        connections1[syn_id]->Connector<StaticConnection< TargetIdentifierPtrRport > >::send_offload(tid, lcid, cmarray, se, thread_local_sources);
         //Connector<StaticConnection< TargetIdentifierPrtRport > > *p = connections1[syn_id]->send_offload(tid, lcid, cmarray, se, thread_local_sources);
         //connections1[0]->send_offload(tid, lcid, cmarray, se, thread_local_sources);
       }

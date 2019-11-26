@@ -456,16 +456,19 @@ public:
   {
   }
 
-  index
+  inline index
   send_offload( const thread tid,
     const index lcid,
     ConnectorModel* cmarray[100],
     Event& e , index* thread_local_thread)
   { 
-    typename ConnectionT::CommonPropertiesType const& cp =
+    typename ConnectionT::CommonPropertiesType const &cp =
       static_cast<GenericConnectorModel< ConnectionT >* >( cmarray[ syn_id_ ])->GenericConnectorModel< ConnectionT >::get_common_properties();
-    //std::cout << "syn_id_ " << syn_id_ << std::endl;
-    printf("eee\n");
+    
+    // check if we can call CommonSynapseProperties::get_vt_gid(), which always returns -1.
+    long tmp1 = cp.get_vt_gid();
+    printf("get_vt_gid() returns %d\n", tmp1);
+    
     index lcid_offset = 0;
     while ( true )
     { 
@@ -477,8 +480,8 @@ public:
       e.set_port( lcid + lcid_offset );
       if ( not is_disabled )
       {
-        conn.send( e, tid, cp );
-        //send_weight_event1( tid, lcid + lcid_offset, e, cp, thread_local_thread );
+        conn.ConnectionT::send( e, tid, cp );
+        //send_weight_event( tid, lcid + lcid_offset, e, cp, thread_local_thread );
       }
       if ( not has_source_subsequent_targets )
       {
