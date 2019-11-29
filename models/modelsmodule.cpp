@@ -92,6 +92,8 @@
 #include "gif_cond_exp.h"
 #include "gif_cond_exp_multisynapse.h"
 #include "gif_pop_psc_exp.h"
+#include "glif_cond.h"
+#include "glif_psc.h"
 
 // Stimulation devices
 #include "ac_generator.h"
@@ -137,6 +139,9 @@
 #include "static_connection.h"
 #include "static_connection_hom_w.h"
 #include "stdp_connection.h"
+#include "stdp_nn_restr_connection.h"
+#include "stdp_nn_symm_connection.h"
+#include "stdp_nn_pre-centered_connection.h"
 #include "stdp_connection_facetshw_hom.h"
 #include "stdp_connection_facetshw_hom_impl.h"
 #include "stdp_connection_hom.h"
@@ -196,6 +201,7 @@ ModelsModule::commandstring( void ) const
 void
 ModelsModule::init( SLIInterpreter* )
 {
+
   // rate models with input noise
   kernel().model_manager.register_node_model< gauss_rate_ipn >( "gauss_rate_ipn" );
   kernel().model_manager.register_node_model< lin_rate_ipn >( "lin_rate_ipn" );
@@ -231,6 +237,7 @@ ModelsModule::init( SLIInterpreter* )
   kernel().model_manager.register_node_model< pp_pop_psc_delta >( "pp_pop_psc_delta" );
   kernel().model_manager.register_node_model< gif_psc_exp >( "gif_psc_exp" );
   kernel().model_manager.register_node_model< gif_psc_exp_multisynapse >( "gif_psc_exp_multisynapse" );
+  kernel().model_manager.register_node_model< glif_psc >( "glif_psc" );
 
   kernel().model_manager.register_node_model< ac_generator >( "ac_generator" );
   kernel().model_manager.register_node_model< dc_generator >( "dc_generator" );
@@ -254,7 +261,7 @@ ModelsModule::init( SLIInterpreter* )
   kernel().model_manager.register_node_model< spike_detector >( "spike_detector" );
   kernel().model_manager.register_node_model< weight_recorder >( "weight_recorder" );
   kernel().model_manager.register_node_model< spin_detector >( "spin_detector" );
-  kernel().model_manager.register_node_model< Multimeter >( "multimeter" );
+  kernel().model_manager.register_node_model< multimeter >( "multimeter" );
   kernel().model_manager.register_node_model< correlation_detector >( "correlation_detector" );
   kernel().model_manager.register_node_model< correlomatrix_detector >( "correlomatrix_detector" );
   kernel().model_manager.register_node_model< correlospinmatrix_detector >( "correlospinmatrix_detector" );
@@ -279,7 +286,7 @@ ModelsModule::init( SLIInterpreter* )
   /withgid are set, respectively.
 
   Accumulator mode:
-  Voltmeter can operate in accumulator mode. In this case, values for all
+  A voltmeter can operate in accumulator mode. In this case, values for all
   recorded variables are added across all recorded nodes (but kept separate in
   time). This can be useful to record average membrane potential in a
   population.
@@ -332,7 +339,7 @@ ModelsModule::init( SLIInterpreter* )
   ad.push_back( LiteralDatum( names::V_m.toString() ) );
   ( *vmdict )[ names::record_from ] = ad;
   const Name name = "voltmeter";
-  kernel().model_manager.register_preconf_node_model< Multimeter >( name, vmdict, false );
+  kernel().model_manager.register_preconf_node_model< multimeter >( name, vmdict, false );
 
 #ifdef HAVE_GSL
   kernel().model_manager.register_node_model< iaf_chxk_2008 >( "iaf_chxk_2008" );
@@ -350,6 +357,7 @@ ModelsModule::init( SLIInterpreter* )
   kernel().model_manager.register_node_model< gif_cond_exp >( "gif_cond_exp" );
   kernel().model_manager.register_node_model< gif_cond_exp_multisynapse >( "gif_cond_exp_multisynapse" );
   kernel().model_manager.register_node_model< gif_pop_psc_exp >( "gif_pop_psc_exp" );
+  kernel().model_manager.register_node_model< glif_cond >( "glif_cond" );
 
   kernel().model_manager.register_node_model< aeif_psc_delta_clopath >( "aeif_psc_delta_clopath" );
   kernel().model_manager.register_node_model< aeif_cond_alpha >( "aeif_cond_alpha" );
@@ -441,6 +449,15 @@ ModelsModule::init( SLIInterpreter* )
   kernel().model_manager.register_connection_model< ClopathConnection< TargetIdentifierPtrRport > >( "clopath_synapse",
     /*requires_symmetric=*/false,
     /*requires_clopath_archiving=*/true );
+
+  kernel().model_manager.register_connection_model< STDPNNRestrConnection< TargetIdentifierPtrRport > >(
+    "stdp_nn_restr_synapse" );
+
+  kernel().model_manager.register_connection_model< STDPNNSymmConnection< TargetIdentifierPtrRport > >(
+    "stdp_nn_symm_synapse" );
+
+  kernel().model_manager.register_connection_model< STDPNNPreCenteredConnection< TargetIdentifierPtrRport > >(
+    "stdp_nn_pre-centered_synapse" );
 
   /** @BeginDocumentation
      Name: stdp_pl_synapse_hom_hpc - Variant of stdp_pl_synapse_hom with low
