@@ -807,3 +807,4 @@ void
 NodeManager::set_status( const DictionaryDatum& d )
 {
 }
+}

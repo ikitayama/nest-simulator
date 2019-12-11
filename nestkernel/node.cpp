@@ -69,7 +69,6 @@ Node::~Node()
 {
 }
 
-inline
 void
 Node::init_state()
 {

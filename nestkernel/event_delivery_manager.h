@@ -439,13 +439,8 @@ private:
 inline void
 EventDeliveryManager::reset_spike_register_( const thread tid )
 {
-<<<<<<< HEAD
   SCOREP_USER_FUNC_BEGIN();
-  for ( std::vector< std::vector< std::vector< Target > > >::iterator it =
-          spike_register_[ tid ].begin();
-=======
   for ( std::vector< std::vector< std::vector< Target > > >::iterator it = spike_register_[ tid ].begin();
->>>>>>> nest-3
         it < spike_register_[ tid ].end();
         ++it )
   {

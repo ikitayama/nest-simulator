@@ -1135,11 +1135,9 @@ nest::FixedInDegreeBuilder::FixedInDegreeBuilder( NodeCollectionPTR sources,
 void
 nest::FixedInDegreeBuilder::connect_()
 {
-<<<<<<< HEAD
-  SCOREP_USER_FUNC_BEGIN();
-=======
 
->>>>>>> nest-3
+  SCOREP_USER_FUNC_BEGIN();
+
 #pragma omp parallel
   {
     // get thread id

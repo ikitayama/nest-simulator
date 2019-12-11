@@ -515,14 +515,8 @@ EventDeliveryManager::set_complete_marker_spike_data_( const AssignedRanks& assi
   const SendBufferPosition& send_buffer_position,
   std::vector< SpikeDataT >& send_buffer ) const
 {
-<<<<<<< HEAD
   SCOREP_USER_FUNC_BEGIN();
-  for ( thread target_rank = assigned_ranks.begin;
-        target_rank < assigned_ranks.end;
-        ++target_rank )
-=======
   for ( thread target_rank = assigned_ranks.begin; target_rank < assigned_ranks.end; ++target_rank )
->>>>>>> nest-3
   {
     // Use last entry for completion marker. For possible collision
     // with end marker, see comment in set_end_and_invalid_markers_.
@@ -549,17 +543,8 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
   SpikeEvent se;
 
   // prepare Time objects for every possible time stamp within min_delay_
-<<<<<<< HEAD
-  std::vector< Time > prepared_timestamps(
-    kernel().connection_manager.get_min_delay() );
-  //SCOREP_USER_REGION_BEGIN( handle , "deliver_events_5g_", SCOREP_USER_REGION_TYPE_LOOP )
-  for ( size_t lag = 0;
-        lag < ( size_t ) kernel().connection_manager.get_min_delay();
-        ++lag )
-=======
   std::vector< Time > prepared_timestamps( kernel().connection_manager.get_min_delay() );
   for ( size_t lag = 0; lag < ( size_t ) kernel().connection_manager.get_min_delay(); ++lag )
->>>>>>> nest-3
   {
     prepared_timestamps[ lag ] = kernel().simulation_manager.get_clock() + Time::step( lag + 1 );
   }
