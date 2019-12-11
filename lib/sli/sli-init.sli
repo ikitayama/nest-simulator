@@ -789,6 +789,17 @@ def
 {
   cout exch info_d
 } bind addtotrie
+[/arraytype]
+{
+  /dictarray Set
+  dictarray length 1 eq dictarray 0 get type /dictionarytype eq and
+  {
+    dictarray 0 get cout exch info_d
+  }
+  {
+    (Argument of info must be a single element array containing a dictionary) M_ERROR message
+  } ifelse
+} bind addtotrie
 [/trietype]
 {
   cout 
@@ -2186,7 +2197,7 @@ SeeAlso: welcome
     {% $HOME/.slirc is not present
       (HOME) getenv pop % get home directory (we alrady know that $HOME is set)
       (/.nestrc) join /outfile Set
-      statusdict /prgdocdir get (/examples/nestrc.sli) join /infile Set  
+      statusdict /prgdocdir get (/extras/nestrc.sli) join /infile Set  
       
       infile outfile CopyFile 
       {

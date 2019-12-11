@@ -39,9 +39,7 @@ namespace nest
 
 template < class ModelT >
 index
-ModelManager::register_node_model( const Name& name,
-  bool private_model,
-  std::string deprecation_info )
+ModelManager::register_node_model( const Name& name, bool private_model, std::string deprecation_info )
 {
   if ( not private_model and modeldict_->known( name ) )
   {
@@ -52,8 +50,7 @@ ModelManager::register_node_model( const Name& name,
     throw NamingConflict( msg );
   }
 
-  Model* model =
-    new GenericModel< ModelT >( name.toString(), deprecation_info );
+  Model* model = new GenericModel< ModelT >( name.toString(), deprecation_info );
   return register_node_model_( model, private_model );
 }
 
@@ -73,8 +70,7 @@ ModelManager::register_preconf_node_model( const Name& name,
     throw NamingConflict( msg );
   }
 
-  Model* model =
-    new GenericModel< ModelT >( name.toString(), deprecation_info );
+  Model* model = new GenericModel< ModelT >( name.toString(), deprecation_info );
   conf->clear_access_flags();
   model->set_status( conf );
   std::string missed;
@@ -129,8 +125,8 @@ ModelManager::register_secondary_connection_model( const std::string& name,
   const bool requires_symmetric,
   const bool supports_wfr )
 {
-  ConnectorModel* cm = new GenericSecondaryConnectorModel< ConnectionT >(
-    name, has_delay, requires_symmetric, supports_wfr );
+  ConnectorModel* cm =
+    new GenericSecondaryConnectorModel< ConnectionT >( name, has_delay, requires_symmetric, supports_wfr );
 
   synindex syn_id = register_connection_model_( cm );
 
@@ -166,10 +162,13 @@ ModelManager::register_secondary_connection_model( const std::string& name,
 }
 
 inline Node*
-ModelManager::get_proxy_node( thread tid, index gid )
+ModelManager::get_proxy_node( thread tid, index node_id )
 {
-  return proxy_nodes_[ tid ].at(
-    kernel().modelrange_manager.get_model_id( gid ) );
+  const int model_id = kernel().modelrange_manager.get_model_id( node_id );
+  Node* proxy = proxy_nodes_[ tid ].at( model_id );
+  proxy->set_node_id_( node_id );
+  proxy->set_vp( kernel().vp_manager.suggest_vp_for_node_id( node_id ) );
+  return proxy;
 }
 
 

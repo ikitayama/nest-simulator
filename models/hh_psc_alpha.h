@@ -96,8 +96,8 @@ g_Na      nS      Sodium peak conductance
 E_K       mV      Potassium reversal potential
 g_K       nS      Potassium peak conductance
 Act_m     real    Activation variable m
-Act_h     real    Activation variable h
-Inact_n   real    Inactivation variable n
+Inact_h   real    Inactivation variable h
+Act_n     real    Activation variable n
 I_e       pA      External input current
 ========  ======  ============================================================
 \endverbatim
@@ -195,8 +195,8 @@ private:
 
     Parameters_(); //!< Sets default parameter values
 
-    void get( DictionaryDatum& ) const; //!< Store current values in dictionary
-    void set( const DictionaryDatum& ); //!< Set values from dicitonary
+    void get( DictionaryDatum& ) const;             //!< Store current values in dictionary
+    void set( const DictionaryDatum&, Node* node ); //!< Set values from dicitonary
   };
 
 public:
@@ -209,7 +209,6 @@ public:
    */
   struct State_
   {
-
     /**
      * Enumeration identifying elements in state array State_::y_.
      * The state vector must be passed to GSL as a C array. This enum
@@ -239,7 +238,7 @@ public:
     State_& operator=( const State_& );
 
     void get( DictionaryDatum& ) const;
-    void set( const DictionaryDatum& );
+    void set( const DictionaryDatum&, Node* node );
   };
 
   // ----------------------------------------------------------------
@@ -267,10 +266,9 @@ private:
     gsl_odeiv_evolve* e_;  //!< evolution function
     gsl_odeiv_system sys_; //!< struct describing system
 
-    // IntergrationStep_ should be reset with the neuron on ResetNetwork,
-    // but remain unchanged during calibration. Since it is initialized with
-    // step_, and the resolution cannot change after nodes have been created,
-    // it is safe to place both here.
+    // Since IntergrationStep_ is initialized with step_, and the resolution
+    // cannot change after nodes have been created, it is safe to place both
+    // here.
     double step_;            //!< step size in ms
     double IntegrationStep_; //!< current integration time step, updated by GSL
 
@@ -323,10 +321,7 @@ private:
 
 
 inline port
-hh_psc_alpha::send_test_event( Node& target,
-  rport receptor_type,
-  synindex,
-  bool )
+hh_psc_alpha::send_test_event( Node& target, rport receptor_type, synindex, bool )
 {
   SpikeEvent e;
   e.set_sender( *this );
@@ -379,9 +374,9 @@ inline void
 hh_psc_alpha::set_status( const DictionaryDatum& d )
 {
   Parameters_ ptmp = P_; // temporary copy in case of errors
-  ptmp.set( d );         // throws if BadProperty
+  ptmp.set( d, this );   // throws if BadProperty
   State_ stmp = S_;      // temporary copy in case of errors
-  stmp.set( d );         // throws if BadProperty
+  stmp.set( d, this );   // throws if BadProperty
 
   // We now know that (ptmp, stmp) are consistent. We do not
   // write them back to (P_, S_) before we are also sure that

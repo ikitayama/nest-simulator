@@ -156,7 +156,6 @@ private:
    */
   struct Parameters_
   {
-
     /** Time constant in ms. */
     double tau_;
 
@@ -188,7 +187,7 @@ private:
 
     void get( DictionaryDatum& ) const; //!< Store current values in dictionary
 
-    void set( const DictionaryDatum& );
+    void set( const DictionaryDatum&, Node* node );
   };
 
   // ----------------------------------------------------------------
@@ -210,7 +209,7 @@ private:
      * @param current parameters
      * @param Change in reversal potential E_L specified by this dict
      */
-    void set( const DictionaryDatum& );
+    void set( const DictionaryDatum&, Node* node );
   };
 
   // ----------------------------------------------------------------
@@ -227,20 +226,16 @@ private:
     // RateConnectionDelayed from excitatory neurons
     RingBuffer delayed_rates_in_; //!< buffer for rate vector received by
     // RateConnectionDelayed from inhibitory neurons
-    std::vector< double >
-      instant_rates_ex_; //!< buffer for rate vector received
+    std::vector< double > instant_rates_ex_; //!< buffer for rate vector received
     // by RateConnectionInstantaneous from excitatory neurons
-    std::vector< double >
-      instant_rates_in_; //!< buffer for rate vector received
+    std::vector< double > instant_rates_in_; //!< buffer for rate vector received
     // by RateConnectionInstantaneous from inhibitory neurons
-    std::vector< double >
-      last_y_values; //!< remembers y_values from last wfr_update
+    std::vector< double > last_y_values;  //!< remembers y_values from last wfr_update
     std::vector< double > random_numbers; //!< remembers the random_numbers in
     // order to apply the same random
     // numbers in each iteration when wfr
     // is used
-    UniversalDataLogger< rate_neuron_ipn >
-      logger_; //!< Logger for all analog data
+    UniversalDataLogger< rate_neuron_ipn > logger_; //!< Logger for all analog data
   };
 
   // ----------------------------------------------------------------
@@ -290,18 +285,14 @@ private:
 
 template < class TNonlinearities >
 inline void
-rate_neuron_ipn< TNonlinearities >::update( Time const& origin,
-  const long from,
-  const long to )
+rate_neuron_ipn< TNonlinearities >::update( Time const& origin, const long from, const long to )
 {
   update_( origin, from, to, false );
 }
 
 template < class TNonlinearities >
 inline bool
-rate_neuron_ipn< TNonlinearities >::wfr_update( Time const& origin,
-  const long from,
-  const long to )
+rate_neuron_ipn< TNonlinearities >::wfr_update( Time const& origin, const long from, const long to )
 {
   State_ old_state = S_; // save state before wfr update
   const bool wfr_tol_exceeded = update_( origin, from, to, true );
@@ -312,9 +303,7 @@ rate_neuron_ipn< TNonlinearities >::wfr_update( Time const& origin,
 
 template < class TNonlinearities >
 inline port
-rate_neuron_ipn< TNonlinearities >::handles_test_event(
-  InstantaneousRateConnectionEvent&,
-  rport receptor_type )
+rate_neuron_ipn< TNonlinearities >::handles_test_event( InstantaneousRateConnectionEvent&, rport receptor_type )
 {
   if ( receptor_type != 0 )
   {
@@ -325,9 +314,7 @@ rate_neuron_ipn< TNonlinearities >::handles_test_event(
 
 template < class TNonlinearities >
 inline port
-rate_neuron_ipn< TNonlinearities >::handles_test_event(
-  DelayedRateConnectionEvent&,
-  rport receptor_type )
+rate_neuron_ipn< TNonlinearities >::handles_test_event( DelayedRateConnectionEvent&, rport receptor_type )
 {
   if ( receptor_type != 0 )
   {
@@ -338,8 +325,7 @@ rate_neuron_ipn< TNonlinearities >::handles_test_event(
 
 template < class TNonlinearities >
 inline port
-rate_neuron_ipn< TNonlinearities >::handles_test_event( DataLoggingRequest& dlr,
-  rport receptor_type )
+rate_neuron_ipn< TNonlinearities >::handles_test_event( DataLoggingRequest& dlr, rport receptor_type )
 {
   if ( receptor_type != 0 )
   {
@@ -365,9 +351,9 @@ inline void
 rate_neuron_ipn< TNonlinearities >::set_status( const DictionaryDatum& d )
 {
   Parameters_ ptmp = P_; // temporary copy in case of errors
-  ptmp.set( d );         // throws if BadProperty
+  ptmp.set( d, this );   // throws if BadProperty
   State_ stmp = S_;      // temporary copy in case of errors
-  stmp.set( d );         // throws if BadProperty
+  stmp.set( d, this );   // throws if BadProperty
 
   // We now know that (ptmp, stmp) are consistent. We do not
   // write them back to (P_, S_) before we are also sure that
@@ -379,7 +365,7 @@ rate_neuron_ipn< TNonlinearities >::set_status( const DictionaryDatum& d )
   P_ = ptmp;
   S_ = stmp;
 
-  nonlinearities_.set( d );
+  nonlinearities_.set( d, this );
 }
 
 } // namespace

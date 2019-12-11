@@ -185,30 +185,23 @@ will result in an error. This conveniently protects us from making
 integer division errors, which are hard to catch.
 
 Next we create a ``multimeter``, a *device* we can use to record the
-membrane voltage of a neuron over time. We set its property ``withtime``
-such that it will also record the points in time at which it samples the
-membrane voltage. The property ``record_from`` expects a list of the
-names of the variables we would like to record. The variables exposed to
-the multimeter vary from model to model. For a specific model, you can
-check the names of the exposed variables by looking at the neuron’s
-property ``recordables``.
+membrane voltage of a neuron over time. The property ``record_from``
+expects a list of the names of the variables we would like to
+record. The variables exposed to the multimeter vary from model to
+model. For a specific model, you can check the names of the exposed
+variables by looking at the neuron’s property ``recordables``.
 
 ::
 
     multimeter = nest.Create("multimeter")
-    nest.SetStatus(multimeter, {"withtime":True, "record_from":["V_m"]})
+    nest.SetStatus(multimeter, {"record_from":["V_m"]})
 
 We now create a ``spikedetector``, another device that records the
-spiking events produced by a neuron. We use the optional keyword
-argument ``params`` to set its properties. This is an alternative to
-using ``SetStatus``. The property ``withgid`` indicates whether the
-spike detector is to record the source id from which it received the
-event (i.e. the id of our neuron).
+spiking events produced by a neuron.
 
 ::
 
-    spikedetector = nest.Create("spike_detector",
-                    params={"withgid": True, "withtime": True})
+    spikedetector = nest.Create("spike_detector"})
 
 A short note on naming: here we have called the neuron ``neuron``, the
 multimeter ``multimeter`` and so on. Of course, you can assign your
@@ -401,8 +394,8 @@ the synaptic model.
 
     syn_dict_ex = {"weight": 1.2}
     syn_dict_in = {"weight": -2.0}
-    nest.Connect([noise_ex], neuron, syn_spec=syn_dict_ex)
-    nest.Connect([noise_in], neuron, syn_spec=syn_dict_in)
+    nest.Connect(noise_ex, neuron, syn_spec=syn_dict_ex)
+    nest.Connect(noise_in, neuron, syn_spec=syn_dict_in)
 
 
 .. _vm_one_neuron_noise:
@@ -453,7 +446,7 @@ a constant input current, and add a second neuron.
     nest.SetStatus(neuron1, {"I_e": 376.0})
     neuron2 = nest.Create("iaf_psc_alpha")
     multimeter = nest.Create("multimeter")
-    nest.SetStatus(multimeter, {"withtime":True, "record_from":["V_m"]}
+    nest.SetStatus(multimeter, {"record_from":["V_m"]}
 
 We now connect ``neuron1`` to ``neuron2``, and record the membrane
 potential from ``neuron2`` so we can observe the postsynaptic potentials
@@ -522,8 +515,8 @@ and worked examples.
    default) and synapse type (``"static_synapse"`` by default). Details
    depend on the connectivity rule. Note: Connect does not iterate over
    subnets, it only connects explicitly specified nodes. ``pre`` -
-   presynaptic neurons, given as list of GIDs ``post`` - presynaptic
-   neurons, given as list of GIDs ``conn_spec`` - name or dictionary
+   presynaptic neurons, given as list of node IDs ``post`` - presynaptic
+   neurons, given as list of node IDs ``conn_spec`` - name or dictionary
    specifying connectivity rule, see below ``syn_spec`` - name or
    dictionary specifying synapses, see below
 
@@ -534,8 +527,8 @@ Connectivity is either specified as a string containing the name of a
 connectivity rule (default: ``"one_to_one"``) or as a dictionary
 specifying the rule and rule-specific parameters (e.g. ``"indegree"``),
 which must be given. In addition switches allowing self-connections
-(``"autapses"``, default: ``True``) and multiple connections between a
-pair of neurons (``"multapses"``, default: ``True``) can be contained in
+(``"allow_autapses"``, default: ``True``) and multiple connections between a
+pair of neurons (``"allow_multapses"``, default: ``True``) can be contained in
 the dictionary.
 
 Synapse
@@ -578,4 +571,3 @@ References
 
 .. [4] Hunter JD. 2007 Matplotlib: A 2d graphics environment.
    9(3):90–95.
-

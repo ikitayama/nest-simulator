@@ -105,7 +105,7 @@ public:
   has_proxies() const
   {
     return false;
-  } // a copy on each process
+  }
   bool
   one_node_per_process() const
   {
@@ -176,10 +176,7 @@ private:
 };
 
 inline port
-music_event_in_proxy::send_test_event( Node& target,
-  rport receptor_type,
-  synindex,
-  bool )
+music_event_in_proxy::send_test_event( Node& target, rport receptor_type, synindex, bool )
 {
   SpikeEvent e;
   e.set_sender( *this );

@@ -192,7 +192,6 @@ private:
    */
   struct Parameters_
   {
-
     /** Number of neurons in the population. */
     long N_;
 
@@ -239,9 +238,9 @@ private:
     /** Binomial random number switch */
     bool BinoRand_;
 
-    Parameters_();                      //!< Sets default parameter values
-    void get( DictionaryDatum& ) const; //!< Store current values in dictionary
-    void set( const DictionaryDatum& ); //!< Set values from dictionary
+    Parameters_();                                  //!< Sets default parameter values
+    void get( DictionaryDatum& ) const;             //!< Store current values in dictionary
+    void set( const DictionaryDatum&, Node* node ); //!< Set values from dictionary
   };
 
   // ----------------------------------------------------------------
@@ -251,7 +250,6 @@ private:
    */
   struct State_
   {
-
     double y0_;        // DC input current
     double I_syn_ex_;  // synaptic current
     double I_syn_in_;  // synaptic current
@@ -266,7 +264,7 @@ private:
     State_(); //!< Default initialization
 
     void get( DictionaryDatum&, const Parameters_& ) const;
-    void set( const DictionaryDatum&, const Parameters_& );
+    void set( const DictionaryDatum&, const Parameters_&, Node* );
   };
 
   // ----------------------------------------------------------------
@@ -313,9 +311,8 @@ private:
 
     librandom::RngPtr rng_; // random number generator of own thread
 
-    librandom::PoissonRandomDev poisson_dev_; // Poisson random number generator
-    librandom::GSL_BinomialRandomDev
-      bino_dev_; // Binomial random number generator
+    librandom::PoissonRandomDev poisson_dev_;   // Poisson random number generator
+    librandom::GSL_BinomialRandomDev bino_dev_; // Binomial random number generator
 
     double x_;                     // internal variable of population dynamics
     double z_;                     // internal variable of population dynamics
@@ -393,10 +390,7 @@ private:
 };
 
 inline port
-gif_pop_psc_exp::send_test_event( Node& target,
-  rport receptor_type,
-  synindex,
-  bool )
+gif_pop_psc_exp::send_test_event( Node& target, rport receptor_type, synindex, bool )
 {
   SpikeEvent e;
   e.set_sender( *this );
@@ -425,8 +419,7 @@ gif_pop_psc_exp::handles_test_event( CurrentEvent&, rport receptor_type )
 }
 
 inline port
-gif_pop_psc_exp::handles_test_event( DataLoggingRequest& dlr,
-  rport receptor_type )
+gif_pop_psc_exp::handles_test_event( DataLoggingRequest& dlr, rport receptor_type )
 {
   if ( receptor_type != 0 )
   {
@@ -451,10 +444,10 @@ gif_pop_psc_exp::get_status( DictionaryDatum& d ) const
 inline void
 gif_pop_psc_exp::set_status( const DictionaryDatum& d )
 {
-  Parameters_ ptmp = P_; // temporary copy in case of errors
-  ptmp.set( d );         // throws if BadProperty
-  State_ stmp = S_;      // temporary copy in case of errors
-  stmp.set( d, ptmp );   // throws if BadProperty
+  Parameters_ ptmp = P_;     // temporary copy in case of errors
+  ptmp.set( d, this );       // throws if BadProperty
+  State_ stmp = S_;          // temporary copy in case of errors
+  stmp.set( d, ptmp, this ); // throws if BadProperty
 
   // We now know that (ptmp, stmp) are consistent. We do not
   // write them back to (P_, S_) before we are also sure that

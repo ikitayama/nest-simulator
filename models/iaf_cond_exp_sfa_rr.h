@@ -54,8 +54,7 @@ namespace nest
  *       through a function pointer.
  * @param void* Pointer to model neuron instance.
  */
-extern "C" int
-iaf_cond_exp_sfa_rr_dynamics( double, const double*, double*, void* );
+extern "C" int iaf_cond_exp_sfa_rr_dynamics( double, const double*, double*, void* );
 
 /** @BeginDocumentation
 @ingroup Neurons
@@ -177,8 +176,7 @@ private:
   // Friends --------------------------------------------------------
 
   // make dynamics function quasi-member
-  friend int
-  iaf_cond_exp_sfa_rr_dynamics( double, const double*, double*, void* );
+  friend int iaf_cond_exp_sfa_rr_dynamics( double, const double*, double*, void* );
 
   // The next two classes need to be friends to access the State_ class/member
   friend class RecordablesMap< iaf_cond_exp_sfa_rr >;
@@ -213,8 +211,8 @@ private:
 
     Parameters_(); //!< Sets default parameter values
 
-    void get( DictionaryDatum& ) const; //!< Store current values in dictionary
-    void set( const DictionaryDatum& ); //!< Set values from dicitonary
+    void get( DictionaryDatum& ) const;             //!< Store current values in dictionary
+    void set( const DictionaryDatum&, Node* node ); //!< Set values from dicitonary
   };
 
 public:
@@ -227,7 +225,6 @@ public:
    */
   struct State_
   {
-
     //! Symbolic indices to the elements of the state vector y
     enum StateVecElems
     {
@@ -248,7 +245,7 @@ public:
     State_& operator=( const State_& );
 
     void get( DictionaryDatum& ) const;
-    void set( const DictionaryDatum&, const Parameters_& );
+    void set( const DictionaryDatum&, const Parameters_&, Node* );
   };
 
 private:
@@ -277,10 +274,9 @@ private:
     gsl_odeiv_evolve* e_;  //!< evolution function
     gsl_odeiv_system sys_; //!< struct describing system
 
-    // IntergrationStep_ should be reset with the neuron on ResetNetwork,
-    // but remain unchanged during calibration. Since it is initialized with
-    // step_, and the resolution cannot change after nodes have been created,
-    // it is safe to place both here.
+    // Since IntergrationStep_ is initialized with step_, and the resolution
+    // cannot change after nodes have been created, it is safe to place both
+    // here.
     double step_;            //!< step size in ms
     double IntegrationStep_; //!< current integration time step, updated by GSL
 
@@ -327,10 +323,7 @@ private:
 
 
 inline port
-nest::iaf_cond_exp_sfa_rr::send_test_event( Node& target,
-  rport receptor_type,
-  synindex,
-  bool )
+nest::iaf_cond_exp_sfa_rr::send_test_event( Node& target, rport receptor_type, synindex, bool )
 {
   SpikeEvent e;
   e.set_sender( *this );
@@ -358,8 +351,7 @@ iaf_cond_exp_sfa_rr::handles_test_event( CurrentEvent&, rport receptor_type )
 }
 
 inline port
-iaf_cond_exp_sfa_rr::handles_test_event( DataLoggingRequest& dlr,
-  rport receptor_type )
+iaf_cond_exp_sfa_rr::handles_test_event( DataLoggingRequest& dlr, rport receptor_type )
 {
   if ( receptor_type != 0 )
   {
@@ -382,10 +374,10 @@ iaf_cond_exp_sfa_rr::get_status( DictionaryDatum& d ) const
 inline void
 iaf_cond_exp_sfa_rr::set_status( const DictionaryDatum& d )
 {
-  Parameters_ ptmp = P_; // temporary copy in case of errors
-  ptmp.set( d );         // throws if BadProperty
-  State_ stmp = S_;      // temporary copy in case of errors
-  stmp.set( d, ptmp );   // throws if BadProperty
+  Parameters_ ptmp = P_;     // temporary copy in case of errors
+  ptmp.set( d, this );       // throws if BadProperty
+  State_ stmp = S_;          // temporary copy in case of errors
+  stmp.set( d, ptmp, this ); // throws if BadProperty
 
   // We now know that (ptmp, stmp) are consistent. We do not
   // write them back to (P_, S_) before we are also sure that

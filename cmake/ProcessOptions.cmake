@@ -193,7 +193,11 @@ function( NEST_PROCESS_STATIC_LIBRARIES )
       set( CMAKE_FIND_LIBRARY_SUFFIXES ".a;.lib;.dylib;.so" PARENT_SCOPE )
     endif ()
 
+    if ( Fugaku )
+    set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Bstatic" PARENT_SCOPE )
+    else()
     set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static" PARENT_SCOPE )
+    endif()
 
   else ()
     set( BUILD_SHARED_LIBS ON PARENT_SCOPE )
@@ -543,6 +547,27 @@ function( NEST_PROCESS_WITH_MUSIC )
   endif ()
 endfunction()
 
+function( NEST_PROCESS_WITH_SIONLIB )
+  set( HAVE_SIONLIB OFF )
+  if ( with-sionlib )
+    if ( NOT ${with-sionlib} STREQUAL "ON" )
+      set( SIONLIB_ROOT_DIR "${with-sionlib}" CACHE INTERNAL "cmake sucks" )
+    endif()
+
+    if ( NOT HAVE_MPI )
+      message( FATAL_ERROR "SIONlib requires -Dwith-mpi=ON." )
+    endif ()
+
+    find_package( SIONlib )
+    include_directories( ${SIONLIB_INCLUDE} )
+
+    # is linked in nestkernel/CMakeLists.txt
+    if ( SIONLIB_FOUND )
+      set( HAVE_SIONLIB ON CACHE INTERNAL "cmake sucks" )
+    endif ()
+  endif ()
+endfunction()
+
 function( NEST_PROCESS_WITH_BOOST )
   # Find Boost
   set( HAVE_BOOST OFF PARENT_SCOPE )
@@ -594,3 +619,15 @@ function( NEST_DEFAULT_MODULES )
     endforeach ()
     set( SLI_MODULE_INCLUDE_DIRS ${SLI_MODULE_INCLUDE_DIRS} PARENT_SCOPE )
 endfunction()
+
+function( NEST_PROCESS_WITH_MPI4PY )
+  if ( HAVE_MPI AND HAVE_PYTHON )
+    include( FindPythonModule )
+    find_python_module(mpi4py)
+
+    if ( HAVE_MPI4PY )
+      include_directories( "${PY_MPI4PY}/include" )
+    endif ()
+
+  endif ()
+endfunction ()

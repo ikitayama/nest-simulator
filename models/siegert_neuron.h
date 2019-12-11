@@ -203,7 +203,7 @@ private:
 
     void get( DictionaryDatum& ) const; //!< Store current values in dictionary
 
-    void set( const DictionaryDatum& );
+    void set( const DictionaryDatum&, Node* node );
   };
 
   // ----------------------------------------------------------------
@@ -218,7 +218,7 @@ private:
     State_(); //!< Default initialization
 
     void get( DictionaryDatum& ) const;
-    void set( const DictionaryDatum& );
+    void set( const DictionaryDatum&, Node* node );
   };
 
   // ----------------------------------------------------------------
@@ -231,14 +231,11 @@ private:
     Buffers_( siegert_neuron& );
     Buffers_( const Buffers_&, siegert_neuron& );
 
-    std::vector< double >
-      drift_input_; //!< buffer for drift term received by DiffusionConnection
+    std::vector< double > drift_input_;     //!< buffer for drift term received by DiffusionConnection
     std::vector< double > diffusion_input_; //!< buffer for diffusion term
     // received by DiffusionConnection
-    std::vector< double >
-      last_y_values; //!< remembers y_values from last wfr_update
-    UniversalDataLogger< siegert_neuron >
-      logger_; //!< Logger for all analog data
+    std::vector< double > last_y_values;           //!< remembers y_values from last wfr_update
+    UniversalDataLogger< siegert_neuron > logger_; //!< Logger for all analog data
   };
 
   // ----------------------------------------------------------------
@@ -291,8 +288,7 @@ siegert_neuron::wfr_update( Time const& origin, const long from, const long to )
 }
 
 inline port
-siegert_neuron::handles_test_event( DiffusionConnectionEvent&,
-  rport receptor_type )
+siegert_neuron::handles_test_event( DiffusionConnectionEvent&, rport receptor_type )
 {
   if ( receptor_type == 0 )
   {
@@ -309,8 +305,7 @@ siegert_neuron::handles_test_event( DiffusionConnectionEvent&,
 }
 
 inline port
-siegert_neuron::handles_test_event( DataLoggingRequest& dlr,
-  rport receptor_type )
+siegert_neuron::handles_test_event( DataLoggingRequest& dlr, rport receptor_type )
 {
   if ( receptor_type != 0 )
   {
@@ -332,9 +327,9 @@ inline void
 siegert_neuron::set_status( const DictionaryDatum& d )
 {
   Parameters_ ptmp = P_; // temporary copy in case of errors
-  ptmp.set( d );         // throws if BadProperty
+  ptmp.set( d, this );   // throws if BadProperty
   State_ stmp = S_;      // temporary copy in case of errors
-  stmp.set( d );         // throws if BadProperty
+  stmp.set( d, this );   // throws if BadProperty
 
   // We now know that (ptmp, stmp) are consistent. We do not
   // write them back to (P_, S_) before we are also sure that

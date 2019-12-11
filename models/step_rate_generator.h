@@ -101,6 +101,12 @@ public:
   step_rate_generator();
   step_rate_generator( const step_rate_generator& );
 
+  bool
+  has_proxies() const
+  {
+    return false;
+  }
+
   // port send_test_event( Node&, rport, synindex, bool );
   void
   sends_secondary_event( DelayedRateConnectionEvent& )
@@ -126,6 +132,12 @@ public:
   local_receiver() const
   {
     return true;
+  }
+
+  Name
+  get_element_type() const
+  {
+    return names::stimulator;
   }
 
 private:
@@ -158,7 +170,7 @@ private:
 
     void get( DictionaryDatum& ) const; //!< Store current values in dictionary
     //! Set values from dictionary
-    void set( const DictionaryDatum&, Buffers_& );
+    void set( const DictionaryDatum&, Buffers_&, Node* );
 
     /**
      * Return time as Time object if valid, otherwise throw BadProperty
@@ -216,10 +228,7 @@ private:
 };
 
 inline port
-step_rate_generator::send_test_event( Node& target,
-  rport receptor_type,
-  synindex syn_id,
-  bool )
+step_rate_generator::send_test_event( Node& target, rport receptor_type, synindex syn_id, bool )
 {
   device_.enforce_single_syn_type( syn_id );
 
@@ -230,8 +239,7 @@ step_rate_generator::send_test_event( Node& target,
 }
 
 inline port
-step_rate_generator::handles_test_event( DataLoggingRequest& dlr,
-  rport receptor_type )
+step_rate_generator::handles_test_event( DataLoggingRequest& dlr, rport receptor_type )
 {
   if ( receptor_type != 0 )
   {
@@ -252,8 +260,8 @@ step_rate_generator::get_status( DictionaryDatum& d ) const
 inline void
 step_rate_generator::set_status( const DictionaryDatum& d )
 {
-  Parameters_ ptmp = P_; // temporary copy in case of errors
-  ptmp.set( d, B_ );     // throws if BadProperty
+  Parameters_ ptmp = P_;   // temporary copy in case of errors
+  ptmp.set( d, B_, this ); // throws if BadProperty
 
   // We now know that ptmp is consistent. We do not write it back
   // to P_ before we are also sure that the properties to be set

@@ -40,7 +40,9 @@
 
 // Includes from nestkernel:
 #include "device_node.h"
+#include "node_collection.h"
 #include "nest_types.h"
+#include "device_node.h"
 
 // Includes from sli:
 #include "arraydatum.h"
@@ -70,13 +72,13 @@ started for the first time.
 In case of multiple recordables the data can be read out (PyNEST only) of the
 receiving buffer via the following access pattern:
 
-    buffer[ target_gid_index ][ recordable_index] = buffer[ target_gid_index *
+    buffer[ target_node_id_index ][ recordable_index] = buffer[ target_node_id_index *
     record_from.size() + recordable_index ]
 
     For example:
-    target_gids = [ 2, 5, 4 ], record_from = ["V_m"] and
+    target_node_ids = [ 2, 5, 4 ], record_from = ["V_m"] and
 
-    we want to get "V_m" for neuron with GID 5: buffer[ 1*1 + 0 ]
+    we want to get "V_m" for neuron with node ID 5: buffer[ 1*1 + 0 ]
 
 Parameters:
 
@@ -168,31 +170,27 @@ private:
 
   struct Parameters_
   {
-    Parameters_(); //!< Sets default parameter values
-    Parameters_(
-      const Parameters_& ); //!< Copy constructor for parameter values
+    Parameters_();                     //!< Sets default parameter values
+    Parameters_( const Parameters_& ); //!< Copy constructor for parameter values
 
     Time interval_;                   //!< sampling interval, in ms
     std::string port_name_;           //!< the name of MUSIC port to connect to
     std::vector< Name > record_from_; //!< recordables to record from
-    std::vector< long > target_gids_; //!< Neuron GIDs to be observed
+    NodeCollectionPTR targets_;       //!< nodes to be observed
 
     void get( DictionaryDatum& ) const; //!< Store current values in dictionary
-    void set( const DictionaryDatum&,
-      const Node&,
-      const State_&,
-      const Buffers_& ); //!< Set values from dictionary
+    void set( const DictionaryDatum&, const Node&, const State_&, const Buffers_& ); //!< Set values from dictionary
   };
 
   // ------------------------------------------------------------
 
   struct State_
   {
-    State_();                //!< Sets default state value
-    State_( const State_& ); //!< Copy constructor for state values
-    bool published_;         //!< indicates whether this node has been published
-                             //!< already with MUSIC
-    size_t port_width_;      //!< the width of the MUSIC port
+    State_();                           //!< Sets default state value
+    State_( const State_& );            //!< Copy constructor for state values
+    bool published_;                    //!< indicates whether this node has been published
+                                        //!< already with MUSIC
+    size_t port_width_;                 //!< the width of the MUSIC port
     void get( DictionaryDatum& ) const; //!< Store current values in dictionary
   };
 
@@ -202,8 +200,8 @@ private:
   {
     Buffers_();                  //!< Initializes default buffer
     Buffers_( const Buffers_& ); //!< Copy constructor for the data buffer
-    bool has_targets_; //!< Indicates whether the proxy is recording from any
-                       //!neurons or not
+    bool has_targets_;           //!< Indicates whether the proxy is recording from any
+                                 //!neurons or not
     std::vector< double > data_; //!< Recorded data
   };
 

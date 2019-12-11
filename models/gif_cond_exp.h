@@ -277,8 +277,8 @@ private:
 
     Parameters_(); //!< Sets default parameter values
 
-    void get( DictionaryDatum& ) const; //!< Store current values in dictionary
-    void set( const DictionaryDatum& ); //!< Set values from dictionary
+    void get( DictionaryDatum& ) const;             //!< Store current values in dictionary
+    void set( const DictionaryDatum&, Node* node ); //!< Set values from dictionary
   };
 
   // ----------------------------------------------------------------
@@ -301,8 +301,8 @@ private:
     double neuron_state_[ STATE_VEC_SIZE ];
 
     double I_stim_; //!< This is piecewise constant external current
-    double sfa_; //!< This is the change of the 'threshold' due to adaptation.
-    double stc_; //!< Spike-triggered current.
+    double sfa_;    //!< This is the change of the 'threshold' due to adaptation.
+    double stc_;    //!< Spike-triggered current.
 
     std::vector< double > sfa_elems_; //!< Vector of adaptation parameters.
     std::vector< double > stc_elems_; //!< Vector of spike-triggered parameters.
@@ -315,7 +315,7 @@ private:
     State_& operator=( const State_& );
 
     void get( DictionaryDatum&, const Parameters_& ) const;
-    void set( const DictionaryDatum&, const Parameters_& );
+    void set( const DictionaryDatum&, const Parameters_&, Node* );
   };
 
   // ----------------------------------------------------------------
@@ -342,10 +342,9 @@ private:
     gsl_odeiv_evolve* e_;  //!< evolution function
     gsl_odeiv_system sys_; //!< struct describing system
 
-    // IntergrationStep_ should be reset with the neuron on ResetNetwork,
-    // but remain unchanged during calibration. Since it is initialized with
-    // step_, and the resolution cannot change after nodes have been created,
-    // it is safe to place both here.
+    // Since IntergrationStep_ is initialized with step_, and the resolution
+    // cannot change after nodes have been created, it is safe to place both
+    // here.
     double step_;            //!< step size in ms
     double IntegrationStep_; //!< current integration time step, updated by GSL
   };
@@ -357,8 +356,7 @@ private:
    */
   struct Variables_
   {
-    std::vector< double >
-      P_sfa_; // decay terms of spike-triggered current elements
+    std::vector< double > P_sfa_; // decay terms of spike-triggered current elements
     std::vector< double > P_stc_; // decay terms of adaptive threshold elements
 
     librandom::RngPtr rng_; // random number generator of my own thread
@@ -409,10 +407,7 @@ private:
 };
 
 inline port
-gif_cond_exp::send_test_event( Node& target,
-  rport receptor_type,
-  synindex,
-  bool )
+gif_cond_exp::send_test_event( Node& target, rport receptor_type, synindex, bool )
 {
   SpikeEvent e;
   e.set_sender( *this );
@@ -463,10 +458,10 @@ gif_cond_exp::get_status( DictionaryDatum& d ) const
 inline void
 gif_cond_exp::set_status( const DictionaryDatum& d )
 {
-  Parameters_ ptmp = P_; // temporary copy in case of errors
-  ptmp.set( d );         // throws if BadProperty
-  State_ stmp = S_;      // temporary copy in case of errors
-  stmp.set( d, ptmp );   // throws if BadProperty
+  Parameters_ ptmp = P_;     // temporary copy in case of errors
+  ptmp.set( d, this );       // throws if BadProperty
+  State_ stmp = S_;          // temporary copy in case of errors
+  stmp.set( d, ptmp, this ); // throws if BadProperty
 
   // We now know that (ptmp, stmp) are consistent. We do not
   // write them back to (P_, S_) before we are also sure that

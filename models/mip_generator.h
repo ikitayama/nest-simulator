@@ -130,6 +130,12 @@ public:
     return false;
   }
 
+  Name
+  get_element_type() const
+  {
+    return names::stimulator;
+  }
+
   /**
    * Import sets of overloaded virtual functions.
    * @see Technical Issues / Virtual Functions: Overriding, Overloading, and
@@ -160,21 +166,20 @@ private:
    * Store independent parameters of the model.
    * Mother RNG is a parameter since it can be changed. Not entirely in
    * keeping with persistence rules, since it changes state during
-   * updates. But okay in the sense that it thus is not reset on
-   * ResetNetwork. Should go once we have proper global RNG scheme.
+   * updates. Should go once we have proper global RNG scheme.
    */
   struct Parameters_
   {
-    double rate_;   //!< process rate in Hz
-    double p_copy_; //!< copy probability for each spike in the mother process
+    double rate_;               //!< process rate in Hz
+    double p_copy_;             //!< copy probability for each spike in the mother process
     unsigned long mother_seed_; //!< seed of the mother process
     librandom::RngPtr rng_;     //!< random number generator for mother process
 
     Parameters_(); //!< Sets default parameter values
     Parameters_( const Parameters_& );
 
-    void get( DictionaryDatum& ) const; //!< Store current values in dictionary
-    void set( const DictionaryDatum& ); //!< Set values from dicitonary
+    void get( DictionaryDatum& ) const;             //!< Store current values in dictionary
+    void set( const DictionaryDatum&, Node* node ); //!< Set values from dicitonary
   };
 
   // ------------------------------------------------------------
@@ -192,10 +197,7 @@ private:
 };
 
 inline port
-mip_generator::send_test_event( Node& target,
-  rport receptor_type,
-  synindex syn_id,
-  bool dummy_target )
+mip_generator::send_test_event( Node& target, rport receptor_type, synindex syn_id, bool dummy_target )
 {
   device_.enforce_single_syn_type( syn_id );
 
@@ -224,7 +226,7 @@ inline void
 mip_generator::set_status( const DictionaryDatum& d )
 {
   Parameters_ ptmp = P_; // temporary copy in case of errors
-  ptmp.set( d );         // throws if BadProperty
+  ptmp.set( d, this );   // throws if BadProperty
 
   // We now know that ptmp is consistent. We do not write it back
   // to P_ before we are also sure that the properties to be set

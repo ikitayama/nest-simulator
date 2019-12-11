@@ -62,8 +62,7 @@ namespace nest
  *       through a function pointer.
  * @param void* Pointer to model neuron instance.
  */
-extern "C" int
-hh_psc_alpha_gap_dynamics( double, const double*, double*, void* );
+extern "C" int hh_psc_alpha_gap_dynamics( double, const double*, double*, void* );
 
 /** @BeginDocumentation
 @ingroup Neurons
@@ -99,7 +98,7 @@ Parameters:
 The following parameters can be set in the status dictionary.
 
 \verbatim embed:rst
-===========  ======  ============================================================
+===========  ====== ============================================================
 tau_ex       ms      Rise time of the excitatory synaptic alpha function
 tau_in       ms      Rise time of the inhibitory synaptic alpha function
 g_K          nS      Potassium peak conductance
@@ -115,10 +114,10 @@ E_K          mV      Potassium reversal potential
 g_Kv1        nS      Potassium peak conductance
 g_Kv3        nS      Potassium peak conductance
 Act_m        real    Activation variable m
-Act_h        real    Activation variable h
-Inact_n      real    Inactivation variable n
+Inact_h      real    Inactivation variable h
+Act_n        real    Activation variable n
 I_e          pA      External input current
-===========  ======  ============================================================
+===========  ====== ============================================================
 \endverbatim
 
 References:
@@ -234,8 +233,8 @@ private:
 
     Parameters_(); //!< Sets default parameter values
 
-    void get( DictionaryDatum& ) const; //!< Store current values in dictionary
-    void set( const DictionaryDatum& ); //!< Set values from dicitonary
+    void get( DictionaryDatum& ) const;             //!< Store current values in dictionary
+    void set( const DictionaryDatum&, Node* node ); //!< Set values from dicitonary
   };
 
 public:
@@ -248,7 +247,6 @@ public:
    */
   struct State_
   {
-
     /**
      * Enumeration identifying elements in state array State_::y_.
      * The state vector must be passed to GSL as a C array. This enum
@@ -278,7 +276,7 @@ public:
     State_& operator=( const State_& );
 
     void get( DictionaryDatum& ) const;
-    void set( const DictionaryDatum& );
+    void set( const DictionaryDatum&, Node* node );
   };
 
   // ----------------------------------------------------------------
@@ -307,10 +305,9 @@ private:
     gsl_odeiv_evolve* e_;  //!< evolution function
     gsl_odeiv_system sys_; //!< struct describing system
 
-    // IntergrationStep_ should be reset with the neuron on ResetNetwork,
-    // but remain unchanged during calibration. Since it is initialized with
-    // step_, and the resolution cannot change after nodes have been created,
-    // it is safe to place both here.
+    // Since IntergrationStep_ is initialized with step_, and the resolution
+    // cannot change after nodes have been created, it is safe to place both
+    // here.
     double step_;            //!< step size in ms
     double IntegrationStep_; //!< current integration time step, updated by GSL
 
@@ -377,9 +374,7 @@ hh_psc_alpha_gap::update( Time const& origin, const long from, const long to )
 }
 
 inline bool
-hh_psc_alpha_gap::wfr_update( Time const& origin,
-  const long from,
-  const long to )
+hh_psc_alpha_gap::wfr_update( Time const& origin, const long from, const long to )
 {
   SCOREP_USER_FUNC_BEGIN();
   State_ old_state = S_; // save state before wfr_update
@@ -391,10 +386,7 @@ hh_psc_alpha_gap::wfr_update( Time const& origin,
 }
 
 inline port
-hh_psc_alpha_gap::send_test_event( Node& target,
-  rport receptor_type,
-  synindex,
-  bool )
+hh_psc_alpha_gap::send_test_event( Node& target, rport receptor_type, synindex, bool )
 {
   SpikeEvent se;
   se.set_sender( *this );
@@ -423,8 +415,7 @@ hh_psc_alpha_gap::handles_test_event( CurrentEvent&, rport receptor_type )
 }
 
 inline port
-hh_psc_alpha_gap::handles_test_event( DataLoggingRequest& dlr,
-  rport receptor_type )
+hh_psc_alpha_gap::handles_test_event( DataLoggingRequest& dlr, rport receptor_type )
 {
   if ( receptor_type != 0 )
   {
@@ -457,9 +448,9 @@ inline void
 hh_psc_alpha_gap::set_status( const DictionaryDatum& d )
 {
   Parameters_ ptmp = P_; // temporary copy in case of errors
-  ptmp.set( d );         // throws if BadProperty
+  ptmp.set( d, this );   // throws if BadProperty
   State_ stmp = S_;      // temporary copy in case of errors
-  stmp.set( d );         // throws if BadProperty
+  stmp.set( d, this );   // throws if BadProperty
 
   // We now know that (ptmp, stmp) are consistent. We do not
   // write them back to (P_, S_) before we are also sure that

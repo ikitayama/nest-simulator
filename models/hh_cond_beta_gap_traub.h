@@ -57,8 +57,7 @@ namespace nest
  *       through a function pointer.
  * @param void* Pointer to model neuron instance.
  */
-extern "C" int
-hh_cond_beta_gap_traub_dynamics( double, const double*, double*, void* );
+extern "C" int hh_cond_beta_gap_traub_dynamics( double, const double*, double*, void* );
 
 /** @BeginDocumentation
 @ingroup Neurons
@@ -225,8 +224,7 @@ private:
   // Friends --------------------------------------------------------
 
   // make dynamics function quasi-member
-  friend int
-  hh_cond_beta_gap_traub_dynamics( double, const double*, double*, void* );
+  friend int hh_cond_beta_gap_traub_dynamics( double, const double*, double*, void* );
 
   // The next two classes need to be friends to access the State_ class/member
   friend class RecordablesMap< hh_cond_beta_gap_traub >;
@@ -349,10 +347,9 @@ public:
     gsl_odeiv_evolve* e_;  //!< evolution function
     gsl_odeiv_system sys_; //!< struct describing system
 
-    // IntergrationStep_ should be reset with the neuron on ResetNetwork,
-    // but remain unchanged during calibration. Since it is initialized with
-    // step_, and the resolution cannot change after nodes have been created,
-    // it is safe to place both here.
+    // Since IntergrationStep_ is initialized with step_, and the resolution
+    // cannot change after nodes have been created, it is safe to place both
+    // here.
     double step_;            //!< step size in ms
     double IntegrationStep_; //!< current integration time step, updated by GSL
 
@@ -398,17 +395,13 @@ public:
 };
 
 inline void
-hh_cond_beta_gap_traub::update( Time const& origin,
-  const long from,
-  const long to )
+hh_cond_beta_gap_traub::update( Time const& origin, const long from, const long to )
 {
   update_( origin, from, to, false );
 }
 
 inline bool
-hh_cond_beta_gap_traub::wfr_update( Time const& origin,
-  const long from,
-  const long to )
+hh_cond_beta_gap_traub::wfr_update( Time const& origin, const long from, const long to )
 {
   State_ old_state = S_; // save state before wfr_update
   const bool wfr_tol_exceeded = update_( origin, from, to, true );
@@ -418,10 +411,7 @@ hh_cond_beta_gap_traub::wfr_update( Time const& origin,
 }
 
 inline port
-hh_cond_beta_gap_traub::send_test_event( Node& target,
-  rport receptor_type,
-  synindex,
-  bool )
+hh_cond_beta_gap_traub::send_test_event( Node& target, rport receptor_type, synindex, bool )
 {
   SpikeEvent e;
   e.set_sender( *this );
@@ -451,8 +441,7 @@ hh_cond_beta_gap_traub::handles_test_event( CurrentEvent&, rport receptor_type )
 }
 
 inline port
-hh_cond_beta_gap_traub::handles_test_event( DataLoggingRequest& dlr,
-  rport receptor_type )
+hh_cond_beta_gap_traub::handles_test_event( DataLoggingRequest& dlr, rport receptor_type )
 {
   if ( receptor_type != 0 )
   {
@@ -462,8 +451,7 @@ hh_cond_beta_gap_traub::handles_test_event( DataLoggingRequest& dlr,
 }
 
 inline port
-hh_cond_beta_gap_traub::handles_test_event( GapJunctionEvent&,
-  rport receptor_type )
+hh_cond_beta_gap_traub::handles_test_event( GapJunctionEvent&, rport receptor_type )
 {
   if ( receptor_type != 0 )
   {
