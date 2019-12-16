@@ -107,6 +107,7 @@ target_include_directories( nestkernel PRIVATE
     ${PROJECT_SOURCE_DIR}/librandom
     ${PROJECT_SOURCE_DIR}/sli
     ${PROJECT_SOURCE_DIR}/models
+    ${PROJECT_SOURCE_DIR}/nestkernel
     )
 
 install( TARGETS nestkernel

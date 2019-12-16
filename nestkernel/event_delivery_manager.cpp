@@ -41,18 +41,15 @@
 #include "vp_manager.h"
 #include "vp_manager_impl.h"
 
-#include "target_identifier.h"
-#include "connection.h"
-
-#include "static_connection.h"
-
 // Includes from sli:
 #include "dictutils.h"
 
+#include "target_identifier.h"
+#include "static_connection.h"
+
 namespace nest
 {
-class TargetIdentfierRport;
-
+//class StaticConnection;
 EventDeliveryManager::EventDeliveryManager()
   : off_grid_spiking_( false )
   , moduli_()
@@ -594,7 +591,6 @@ EventDeliveryManager::deliver_events_( const thread tid,
     kernel().model_manager.get_synapse_prototypes( tid );
 
   ConnectorModel* cmarray[cm.size()];
-  //GenericConnectorModel<StaticConnection<TargetIdentifierRport>>* cmarray[cm.size()];
   for (int i=0;i<cm.size();i++) {
      cmarray[i] = cm[i];
 
@@ -639,39 +635,31 @@ EventDeliveryManager::deliver_events_( const thread tid,
 //	thread_local_sources[i] = new index[1024*1024]; 
 
   kernel().connection_manager.copy_to(tid,thread_local_sources);
-  //Connector<StaticConnection<TargetIdentifierPtrRport > > connections[100];
   ConnectorBase *connections[100];
-  for (int i=0;i<100;i++) {
-	//static_cast< Connector< StaticConnection< TargetIdentifierPtrRport > > *>(connections[i]);
-	//std::cout << typeid(connections[i]).name() << std::endl;
-  }
 
   std::vector<ConnectorBase*> thread_local_v = kernel().connection_manager.get_thread_local_connections(tid);
 
   for (int i=0;i<100;i++) {
 	connections[i] = thread_local_v[i];
   }
-  Connector<StaticConnection<TargetIdentifierPtrRport > > *connections1[100];
-
   for (int i=0;i<100;i++) {
-	connections1[i] = static_cast<Connector<StaticConnection<TargetIdentifierPtrRport > > *>(connections[i]);
-        if (i == 20 or i==21 or i==0) connections1[i]->c1();
+        if (i == 20 or i==21 or i==0) static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>>*>(connections[i])->c1();
   }
   //std::cout << typeid(connections[0]).name() << std::endl; 
 
-#pragma omp target enter data map(to: connections1[0:100])
+#pragma omp target enter data map(to: connections[0:100])
 #pragma omp target enter data map(to: cmarray[0:100])
 //for (int i=1;i == 0 or i == 20 or i == 21;i++) {
-	#pragma omp target enter data map(to: connections1[0][0:1])
-	#pragma omp target enter data map(to: connections1[20][0:1])
-	#pragma omp target enter data map(to: connections1[21][0:1])
+	#pragma omp target enter data map(to: connections[0][0:1])
+	#pragma omp target enter data map(to: connections[20][0:1])
+	#pragma omp target enter data map(to: connections[21][0:1])
 	#pragma omp target enter data map(to: cmarray[0][0:1])
 	#pragma omp target enter data map(to: cmarray[20][0:1])
 	#pragma omp target enter data map(to: cmarray[21][0:1])
 //
 //}
 
-#pragma omp target parallel for map(to: connections1) map(tofrom: are_others_completed,r_buf) map(to: send_recv_count_spike_data_per_rank,nranks,spike_data,se,prepared_timestamps) map(to: cmarray) map(tofrom: thread_local_sources[0:100*1024*1024]) map(to: a1[0:1024])
+#pragma omp target parallel for map(to: connections) map(tofrom: are_others_completed,r_buf) map(to: send_recv_count_spike_data_per_rank,nranks,spike_data,se,prepared_timestamps) map(to: cmarray) map(tofrom: thread_local_sources[0:100*1024*1024]) map(to: a1[0:1024])
   for ( thread rank = 0; rank < nranks;
         ++rank )
   {
@@ -713,7 +701,7 @@ EventDeliveryManager::deliver_events_( const thread tid,
         //Connector<Connection< TargetIdentifierIndex > > *p = static_cast<Connector<Connection< TargetIdentifierIndex> > *>(connections[syn_id]);
         //Connector<StaticConnection< TargetIdentifierPtrRport > > *p = static_cast<Connector<StaticConnection< TargetIdentifierPtrRport > > *>(connections1[syn_id]);
         //p->Connector<StaticConnection< TargetIdentifierPtrRport > >::send_offload(tid, lcid, cmarray, se, thread_local_sources);
-        connections1[syn_id]->Connector<StaticConnection< TargetIdentifierPtrRport > >::send_offload(tid, lcid, cmarray, se, thread_local_sources);
+        static_cast<Connector<StaticConnection< TargetIdentifierPtrRport >> *>(connections[syn_id])->Connector<StaticConnection< TargetIdentifierPtrRport > >::send_offload(tid, lcid, cmarray, se, thread_local_sources);
         //Connector<StaticConnection< TargetIdentifierPrtRport > > *p = connections1[syn_id]->send_offload(tid, lcid, cmarray, se, thread_local_sources);
         //connections1[0]->send_offload(tid, lcid, cmarray, se, thread_local_sources);
       }
@@ -725,10 +713,10 @@ EventDeliveryManager::deliver_events_( const thread tid,
     }
   }
 
-#pragma omp target exit data map(from: connections1[0][0:1])
-#pragma omp target exit data map(from: connections1[20][0:1])
-#pragma omp target exit data map(from: connections1[21][0:1])
-#pragma omp target exit data map(from: connections1[0:100])
+#pragma omp target exit data map(from: connections[0][0:1])
+#pragma omp target exit data map(from: connections[20][0:1])
+#pragma omp target exit data map(from: connections[21][0:1])
+#pragma omp target exit data map(from: connections[0:100])
 
   return are_others_completed;
 }

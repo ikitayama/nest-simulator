@@ -218,19 +218,11 @@ public:
     default_connection_.check_synapse_params( syn_spec );
   }
 
-  inline typename ConnectionT::CommonPropertiesType const&
+  typename ConnectionT::CommonPropertiesType const&
   get_common_properties() const
   {
     return cp_;
   }
-
-#pragma omp declare target
-  typename ConnectionT::CommonPropertiesType const&
-  get_common_properties1() const
-  {
-    return cp_;
-  }
-#pragma omp end declare target
 
   void set_syn_id( synindex syn_id );
 
