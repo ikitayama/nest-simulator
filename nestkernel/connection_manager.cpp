@@ -1509,35 +1509,20 @@ nest::ConnectionManager::compute_target_data_buffer_size()
 }
 
 void
-nest::ConnectionManager::copy_to(const thread tid, index *thread_local_sources) {
+nest::ConnectionManager::copy_to(const thread tid, index **thread_local_sources) {
        std::vector< BlockVector< Source > > tmp = source_table_.get_thread_local_sources(tid);
-       for (int j=0;j<tmp.size();j++) {
-         //std::cout << j << " " << tmp[j].size() << std::endl;  
-       for (int i=0; i<tmp[j].size();i++) {
-	//std::cout << tmp[j][i].get_gid() << std::endl;
-       }
-       }
 
        int n_syn_types = tmp.size();
-       //thread_local_sources = new index*[n_syn_types];
+       thread_local_sources = new index*[n_syn_types];
        for (int i=0;i<n_syn_types;i++) {
-        int tmp1 = tmp[i].size();
-        //thread_local_sources[i] = new index[1024*1024];
+        thread_local_sources[i] = new index[1024*1024]; // revisit this hard-coded value
        }
 
-       int len[n_syn_types];
        for (int j=0;j<n_syn_types;j++) {
-        len[j]= tmp[j].size(); // get number of sources tied to the synapse type
+	for (int k=0;k<tmp[j].size();k++) {
+		thread_local_sources[j][k] = tmp[j][k].get_gid();
+	}
        }
-       for (int j=0;j<n_syn_types;j++) {
-        if (len[j] == 0) continue; 
-	for (int k=0;k<len[j];k++) {
-		thread_local_sources[j + sizeof(index)*k ] = tmp[j][k].get_gid();
-                if (j==20) {
-                  //std::cout << "syn_id 20, " << k << " gid " << thread_local_sources[j][k] << std::endl;
-                }
-	}
-	}
 
 }
 /*

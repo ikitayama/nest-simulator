@@ -461,9 +461,10 @@ public:
     ConnectorModel* cmarray[100],
     Event& e , index* thread_local_thread)
   {
-    printf("ddd\n"); 
-    typename ConnectionT::CommonPropertiesType const &cp =
+    //typename ConnectionT::CommonPropertiesType const &cp =
       static_cast<GenericConnectorModel< ConnectionT >* >( cmarray[ syn_id_ ])->GenericConnectorModel< ConnectionT >::get_common_properties();
+    GenericConnectorModel< ConnectionT > * p = static_cast<GenericConnectorModel< ConnectionT >* >( cmarray[ syn_id_ ]);
+    typename ConnectionT::CommonPropertiesType const &cp = p->GenericConnectorModel< ConnectionT >::get_common_properties();
     // check if we can call CommonSynapseProperties::get_vt_gid(), which always returns -1.
     //long tmp1 = cp.get_vt_gid();
     //printf("get_vt_gid() returns %d\n", tmp1);
