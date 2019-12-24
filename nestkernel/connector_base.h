@@ -469,7 +469,6 @@ public:
     //long tmp1 = cp.get_vt_gid();
     //printf("get_vt_gid() returns %d\n", tmp1);
     index lcid_offset = 0;
-    /*	
     while ( true )
     { 
       ConnectionT conn = C_1[ lcid + lcid_offset ]; 
@@ -480,7 +479,7 @@ public:
       e.set_port( lcid + lcid_offset );
       if ( not is_disabled )
       {
-        //conn.send( e, tid, cp );
+        conn.send( e, tid, cp );
         //send_weight_event1( tid, lcid + lcid_offset, e, cp, thread_local_thread );
       }
       if ( not has_source_subsequent_targets )
@@ -488,7 +487,7 @@ public:
         break;
       }
       ++lcid_offset;
-    }*/
+    }
 
     return 1 + lcid_offset; // event was delivered to at least one target 
   }

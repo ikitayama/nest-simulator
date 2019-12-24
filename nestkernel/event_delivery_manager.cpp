@@ -650,31 +650,23 @@ EventDeliveryManager::deliver_events_( const thread tid,
         if (i == 20 or i==21 or i==0) static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>>*>(connections[i])->c1();
   }
   //std::cout << typeid(connections[0]).name() << std::endl; 
-//#pragma omp target enter data map(to: connections[0:100])
-//#pragma omp target enter data map(to: cmarray[0:100])
+
+#pragma omp target enter data map(to: connections[0:100])
+#pragma omp target enter data map(to: cmarray[0:100])
 //for (int i=1;i == 0 or i == 20 or i == 21;i++) {
-//	#pragma omp target enter data map(to: connections[0][0:1])
-//	#pragma omp target enter data map(to: connections[20][0:1])
-//	#pragma omp target enter data map(to: connections[21][0:1])
-//	#pragma omp target enter data map(to: cmarray[0][0:1])
-//	#pragma omp target enter data map(to: cmarray[20][0:1])
-//	#pragma omp target enter data map(to: cmarray[21][0:1])
+	#pragma omp target enter data map(to: connections[0][0:1])
+	#pragma omp target enter data map(to: connections[20][0:1])
+	#pragma omp target enter data map(to: connections[21][0:1])
+	#pragma omp target enter data map(to: cmarray[0][0:1])
+	#pragma omp target enter data map(to: cmarray[20][0:1])
+	#pragma omp target enter data map(to: cmarray[21][0:1])
 //
 //}
-   int tmp1=1;
-   int *p1 = &tmp1;
-//#pragma omp target enter data map(to: tmp1)
 
-
-#pragma omp target parallel for
-	for (int i =0;i<10;i++) {
-	}
-//#pragma omp target parallel for map(tofrom: are_others_completed,r_buf) map(to: send_recv_count_spike_data_per_rank,nranks,spike_data,se,prepared_timestamps) map(to: cmarray[0:100]) map(to: a1[0:1024]) map(to: connections[0:100])
-// map(to: send_recv_count_spike_data_per_rank,nranks,spike_data,se,prepared_timestamps) //map(to: cmarray[0:100]) map(to: a1[0:1024]) //map(to: connections[0:100])
+#pragma omp target parallel for map(tofrom: are_others_completed,r_buf) map(to: send_recv_count_spike_data_per_rank,nranks,spike_data,se,prepared_timestamps) map(to: cmarray[0:100]) map(to: a1[0:1024]) map(to: connections[0:100])
   for ( thread rank = 0; rank < nranks;
         ++rank )
-  {/*
-	printf("XXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
+  {
     // check last entry for completed marker; needs to be done before
     // checking invalid marker to assure that this is always read
     if ( not r_buf[ ( rank + 1 ) * send_recv_count_spike_data_per_rank
@@ -711,7 +703,7 @@ EventDeliveryManager::deliver_events_( const thread tid,
         //se.
         //kernel().connection_manager.send( tid, syn_id, lcid, cm, se );
         //Connector<Connection< TargetIdentifierIndex > > *p = static_cast<Connector<Connection< TargetIdentifierIndex> > *>(connections[syn_id]);
-        static_cast<Connector<StaticConnection< TargetIdentifierPtrRport >> *>(connections[syn_id])->Connector<StaticConnection< TargetIdentifierPtrRport > >::send_offload(tid, lcid, cmarray, se, a);
+        //static_cast<Connector<StaticConnection< TargetIdentifierPtrRport >> *>(connections[syn_id])->Connector<StaticConnection< TargetIdentifierPtrRport > >::send_offload(tid, lcid, cmarray, se, a);
       }
       // break if this was the last valid entry from this rank
       if ( spike_data.is_end_marker() )
@@ -719,19 +711,19 @@ EventDeliveryManager::deliver_events_( const thread tid,
         //break;
       }
     }
-	*/
   }
 
-//#pragma omp target exit data map(from: connections[0][0:1])
-//##pragma omp target exit data map(from: connections[20][0:1])
-//##pragma omp target exit data map(from: connections[21][0:1])
-//#pragma omp target exit data map(from: connections[0:100])
-//#pragma omp target exit data map(from: cmarray[0][0:1])
-//#pragma omp target exit data map(from: cmarray[20][0:1])
-//#pragma omp target exit data map(from: cmarray[21][0:1])
-//#pragma omp target exit data map(from: cmarray[0:100])
+#pragma omp target exit data map(from: connections[0][0:1])
+#pragma omp target exit data map(from: connections[20][0:1])
+#pragma omp target exit data map(from: connections[21][0:1])
+#pragma omp target exit data map(from: connections[0:100])
+#pragma omp target exit data map(from: cmarray[0][0:1])
+#pragma omp target exit data map(from: cmarray[20][0:1])
+#pragma omp target exit data map(from: cmarray[21][0:1])
+#pragma omp target exit data map(from: cmarray[0:100])
 
   return are_others_completed;
+
 }
 
 void
