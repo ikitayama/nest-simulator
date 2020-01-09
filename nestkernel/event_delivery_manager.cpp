@@ -663,7 +663,7 @@ EventDeliveryManager::deliver_events_( const thread tid,
 //
 //}
 
-#pragma omp target parallel for map(tofrom: are_others_completed,r_buf) map(to: send_recv_count_spike_data_per_rank,nranks,spike_data,se,prepared_timestamps) map(to: cmarray[0:100]) map(to: a1[0:1024]) map(to: connections[0:100])
+#pragma omp target parallel for map(tofrom: are_others_completed,r_buf) map(to: send_recv_count_spike_data_per_rank,nranks,spike_data,se,prepared_timestamps) map(to: cmarray[0:100]) map(to: a1[0:1024]) map(to: connections)
   for ( thread rank = 0; rank < nranks;
         ++rank )
   {
@@ -703,7 +703,8 @@ EventDeliveryManager::deliver_events_( const thread tid,
         //se.
         //kernel().connection_manager.send( tid, syn_id, lcid, cm, se );
         //Connector<Connection< TargetIdentifierIndex > > *p = static_cast<Connector<Connection< TargetIdentifierIndex> > *>(connections[syn_id]);
-        //static_cast<Connector<StaticConnection< TargetIdentifierPtrRport >> *>(connections[syn_id])->Connector<StaticConnection< TargetIdentifierPtrRport > >::send_offload(tid, lcid, cmarray, se, a);
+        printf("syn_id is %d\n", syn_id); 
+        static_cast<Connector<StaticConnection< TargetIdentifierPtrRport >> *>(connections[syn_id])->Connector<StaticConnection< TargetIdentifierPtrRport > >::send_offload(tid, lcid, cmarray, se, a);
       }
       // break if this was the last valid entry from this rank
       if ( spike_data.is_end_marker() )

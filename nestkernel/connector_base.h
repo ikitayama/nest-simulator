@@ -252,7 +252,7 @@ class Connector : public ConnectorBase
 {
 private:
   BlockVector< ConnectionT > C_;
-  ConnectionT C_1[8210000];
+  ConnectionT *C_1 = new ConnectionT[8210000];
   const synindex syn_id_;
 
 public:
@@ -318,6 +318,7 @@ public:
     for (typename BlockVector< ConnectionT >::const_iterator iter = C_.begin();
 	iter != C_.end();iter++) {
 	C_1[i] = *iter;
+	//std::cout << "i " << i << std::endl;
         i++;
     } 
  }
@@ -462,24 +463,29 @@ public:
     Event& e , index* thread_local_thread)
   {
     //typename ConnectionT::CommonPropertiesType const &cp =
-      static_cast<GenericConnectorModel< ConnectionT >* >( cmarray[ syn_id_ ])->GenericConnectorModel< ConnectionT >::get_common_properties();
+    //  static_cast<GenericConnectorModel< ConnectionT >* >( cmarray[ syn_id_ ])->GenericConnectorModel< ConnectionT >::get_common_properties();
+    printf("XXXXXXXXXXXXXXXXXXXXXXX syn_id_ is %d\n", 1);
+    //printf("%d\n", a[0]);
     GenericConnectorModel< ConnectionT > * p = static_cast<GenericConnectorModel< ConnectionT >* >( cmarray[ syn_id_ ]);
     typename ConnectionT::CommonPropertiesType const &cp = p->GenericConnectorModel< ConnectionT >::get_common_properties();
     // check if we can call CommonSynapseProperties::get_vt_gid(), which always returns -1.
-    //long tmp1 = cp.get_vt_gid();
-    //printf("get_vt_gid() returns %d\n", tmp1);
-    index lcid_offset = 0;
+    long tmp1 = cp.get_vt_gid();
+    printf("get_vt_gid() returns %d\n", tmp1);
+    
+    index lcid_offset = 0; 
     while ( true )
     { 
+   
       ConnectionT conn = C_1[ lcid + lcid_offset ]; 
+      printf("XXXXXXXXXXXXX counter %d\n", lcid_offset); 
       //std::cout << typeid(conn).name() << std::endl;    
       const bool is_disabled = conn.is_disabled();
       const bool has_source_subsequent_targets = conn.has_source_subsequent_targets();
-      
+      printf("is_disabled %d has_  %d\n", is_disabled, has_source_subsequent_targets);      
       e.set_port( lcid + lcid_offset );
       if ( not is_disabled )
       {
-        conn.send( e, tid, cp );
+        //conn.send( e, tid, cp );
         //send_weight_event1( tid, lcid + lcid_offset, e, cp, thread_local_thread );
       }
       if ( not has_source_subsequent_targets )
@@ -487,6 +493,7 @@ public:
         break;
       }
       ++lcid_offset;
+      if (lcid_offset >100) break;
     }
 
     return 1 + lcid_offset; // event was delivered to at least one target 

@@ -265,7 +265,7 @@ public:
    *
    * @see set_has_source_subsequent_targets
    */
-  bool
+  inline bool
   has_source_subsequent_targets() const
   {
     return syn_id_delay_.has_source_subsequent_targets();
@@ -287,7 +287,7 @@ public:
    *
    * @see disable
    */
-  bool
+  inline bool
   is_disabled() const
   {
     return syn_id_delay_.is_disabled();
