@@ -615,7 +615,7 @@ EventDeliveryManager::deliver_events_( const thread tid,
       kernel().simulation_manager.get_clock() + Time::step( lag + 1 );
   }
 
-  int len= recv_buffer.size();
+  int len = recv_buffer.size();
   SpikeDataT r_buf[len];
   for (int i=0;i<len;i++)
 	r_buf[i] = recv_buffer[i];
@@ -663,10 +663,11 @@ EventDeliveryManager::deliver_events_( const thread tid,
 //
 //}
 
-#pragma omp target parallel for map(tofrom: are_others_completed,r_buf) map(to: send_recv_count_spike_data_per_rank,nranks,spike_data,se,prepared_timestamps) map(to: cmarray[0:100]) map(to: a1[0:1024]) map(to: connections)
+#pragma omp target parallel for map(tofrom: are_others_completed,r_buf) map(to: send_recv_count_spike_data_per_rank,nranks,spike_data,se,prepared_timestamps) map(to: cmarray[0:100]) map(to: a1[0:1024]) map(to: connections[0:100])
   for ( thread rank = 0; rank < nranks;
         ++rank )
-  {
+  { 
+    
     // check last entry for completed marker; needs to be done before
     // checking invalid marker to assure that this is always read
     if ( not r_buf[ ( rank + 1 ) * send_recv_count_spike_data_per_rank
@@ -697,14 +698,16 @@ EventDeliveryManager::deliver_events_( const thread tid,
         //const index source_gid = kernel().connection_manager.get_source_gid( tid, syn_id, lcid );
         //const index source_gid = source.get_gid( tid, syn_id, lcid );
         //std::cout << "syn_id " << syn_id << " lcid " << lcid << std::endl;
-        const index source_gid = 1;//thread_local_sources[syn_id + sizeof(index)*lcid];
+        const index source_gid = 1;//thread_local_sources[syn_id][lcid];
         unsigned long *a;
         // se is mapped.
         //se.
         //kernel().connection_manager.send( tid, syn_id, lcid, cm, se );
         //Connector<Connection< TargetIdentifierIndex > > *p = static_cast<Connector<Connection< TargetIdentifierIndex> > *>(connections[syn_id]);
-        printf("syn_id is %d\n", syn_id); 
-        static_cast<Connector<StaticConnection< TargetIdentifierPtrRport >> *>(connections[syn_id])->Connector<StaticConnection< TargetIdentifierPtrRport > >::send_offload(tid, lcid, cmarray, se, a);
+        //static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(connections[syn_id])->send_1(tid, lcid, cmarray, se, a);
+	//Connector<StaticConnection<TargetIdentifierPtrRport>> connector(*static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(connections[syn_id]));
+	Connector<StaticConnection<TargetIdentifierPtrRport>> connector(0);
+        //connector.Connector<StaticConnection<TargetIdentifierPtrRport>>::test1();
       }
       // break if this was the last valid entry from this rank
       if ( spike_data.is_end_marker() )

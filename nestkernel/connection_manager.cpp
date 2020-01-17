@@ -1515,7 +1515,7 @@ nest::ConnectionManager::copy_to(const thread tid, index **thread_local_sources)
        int n_syn_types = tmp.size();
        thread_local_sources = new index*[n_syn_types];
        for (int i=0;i<n_syn_types;i++) {
-        thread_local_sources[i] = new index[1024*1024]; // revisit this hard-coded value
+        thread_local_sources[i] = new index[tmp[i].size()]; // revisit this hard-coded value
        }
 
        for (int j=0;j<n_syn_types;j++) {
