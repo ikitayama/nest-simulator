@@ -59,8 +59,6 @@
 #define SCOREP_USER_FUNC_BEGIN()
 #define SCOREP_USER_FUNC_END()
 #endif
-const DictionaryDatum nest::ConnBuilder::dummy_param_ = new Dictionary;
-
 
 nest::ConnBuilder::ConnBuilder( NodeCollectionPTR sources,
   NodeCollectionPTR targets,
@@ -77,6 +75,7 @@ nest::ConnBuilder::ConnBuilder( NodeCollectionPTR sources,
   , weight_( 0 )
   , delay_( 0 )
   , param_dicts_()
+  , dummy_param_dicts_()
   , parameters_requiring_skipping_()
 {
   // read out rule-related parameters -------------------------
@@ -218,6 +217,13 @@ nest::ConnBuilder::ConnBuilder( NodeCollectionPTR sources,
         }
       }
     }
+  }
+
+  // Create dummy dictionaries, one per thread
+  dummy_param_dicts_.resize( kernel().vp_manager.get_num_threads() );
+#pragma omp parallel
+  {
+    dummy_param_dicts_[ kernel().vp_manager.get_thread_id() ] = new Dictionary();
   }
 
   // If make_symmetric_ is requested call reset on all parameters in order
@@ -425,7 +431,8 @@ nest::ConnBuilder::single_connect_( index snode_id, Node& target, thread target_
   {
     if ( default_weight_and_delay_ )
     {
-      kernel().connection_manager.connect( snode_id, &target, target_thread, synapse_model_id_, dummy_param_ );
+      kernel().connection_manager.connect(
+        snode_id, &target, target_thread, synapse_model_id_, dummy_param_dicts_[ target_thread ] );
     }
     else if ( default_weight_ )
     {
@@ -433,7 +440,7 @@ nest::ConnBuilder::single_connect_( index snode_id, Node& target, thread target_
         &target,
         target_thread,
         synapse_model_id_,
-        dummy_param_,
+        dummy_param_dicts_[ target_thread ],
         delay_->value_double( target_thread, rng, snode_id, &target ) );
     }
     else if ( default_delay_ )
@@ -442,7 +449,7 @@ nest::ConnBuilder::single_connect_( index snode_id, Node& target, thread target_
         &target,
         target_thread,
         synapse_model_id_,
-        dummy_param_,
+        dummy_param_dicts_[ target_thread ],
         numerics::nan,
         weight_->value_double( target_thread, rng, snode_id, &target ) );
     }
@@ -451,7 +458,7 @@ nest::ConnBuilder::single_connect_( index snode_id, Node& target, thread target_
       double delay = delay_->value_double( target_thread, rng, snode_id, &target );
       double weight = weight_->value_double( target_thread, rng, snode_id, &target );
       kernel().connection_manager.connect(
-        snode_id, &target, target_thread, synapse_model_id_, dummy_param_, delay, weight );
+        snode_id, &target, target_thread, synapse_model_id_, dummy_param_dicts_[ target_thread ], delay, weight );
     }
   }
   else
@@ -1475,7 +1482,13 @@ nest::FixedTotalNumberBuilder::connect_()
 
   for ( int k = 0; k < M; k++ )
   {
-    if ( number_of_targets_on_vp[ k ] > 0 and sum_partitions != N_ )
+    // If we have distributed all connections on the previous processes we exit the loop. It is important to
+    // have this check here, as N - sum_partition is set as n value for GSL, and this must be larger than 0.
+    if ( N_ == sum_partitions )
+    {
+      break;
+    }
+    if ( number_of_targets_on_vp[ k ] > 0 )
     {
       double num_local_targets = static_cast< double >( number_of_targets_on_vp[ k ] );
       double p_local = num_local_targets / ( size_targets - sum_dist );

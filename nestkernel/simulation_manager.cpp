@@ -30,6 +30,7 @@
 
 // Includes from libnestutil:
 #include "compose.hpp"
+#include "numerics.h"
 
 // Includes from nestkernel:
 #include "connection_manager_impl.h"
@@ -38,7 +39,6 @@
 
 // Includes from sli:
 #include "dictutils.h"
-#include "psignal.h"
 
 #ifdef SCOREP_USER_ENABLE
 #include "scorep/SCOREP_User.h"
@@ -57,7 +57,6 @@ nest::SimulationManager::SimulationManager()
   , t_real_( 0L )
   , simulating_( false )
   , simulated_( false )
-  , exit_on_user_signal_( false )
   , inconsistent_state_( false )
   , print_time_( false )
   , use_wfr_( true )
@@ -78,7 +77,6 @@ nest::SimulationManager::initialize()
   prepared_ = false;
   simulating_ = false;
   simulated_ = false;
-  exit_on_user_signal_ = false;
   inconsistent_state_ = false;
 }
 
@@ -142,7 +140,6 @@ nest::SimulationManager::set_status( const DictionaryDatum& d )
   bool tics_per_ms_updated = updateValue< double >( d, names::tics_per_ms, tics_per_ms );
   double resd = 0.0;
   bool res_updated = updateValue< double >( d, names::resolution, resd );
-  double integer_part; // Dummy variable to be used with std::modf().
 
   if ( tics_per_ms_updated or res_updated )
   {
@@ -170,6 +167,22 @@ nest::SimulationManager::set_status( const DictionaryDatum& d )
         "created. Please call ResetKernel first." );
       throw KernelException();
     }
+    else if ( kernel().model_manager.has_user_models() or kernel().model_manager.has_user_prototypes() )
+    {
+      LOG( M_ERROR,
+        "SimulationManager::set_status",
+        "Cannot change time representation when user models have been "
+        "created. Please call ResetKernel first." );
+      throw KernelException();
+    }
+    else if ( kernel().model_manager.are_model_defaults_modified() )
+    {
+      LOG( M_ERROR,
+        "SimulationManager::set_status",
+        "Cannot change time representation after model defaults have "
+        "been modified. Please call ResetKernel first." );
+      throw KernelException();
+    }
     else if ( res_updated and tics_per_ms_updated ) // only allow TICS_PER_MS to
                                                     // be changed together with
                                                     // resolution
@@ -182,7 +195,7 @@ nest::SimulationManager::set_status( const DictionaryDatum& d )
           "unchanged." );
         throw KernelException();
       }
-      else if ( std::modf( resd * tics_per_ms, &integer_part ) != 0 )
+      else if ( not is_integer( resd * tics_per_ms ) )
       {
         LOG( M_ERROR,
           "SimulationManager::set_status",
@@ -218,7 +231,7 @@ nest::SimulationManager::set_status( const DictionaryDatum& d )
           "unchanged." );
         throw KernelException();
       }
-      else if ( std::modf( resd / Time::get_ms_per_tic(), &integer_part ) != 0 )
+      else if ( not is_integer( resd / Time::get_ms_per_tic() ) )
       {
         LOG( M_ERROR,
           "SimulationManager::set_status",
@@ -663,12 +676,6 @@ nest::SimulationManager::call_update_()
 
   kernel().mpi_manager.synchronize();
 
-  if ( exit_on_user_signal_ )
-  {
-    LOG( M_WARNING, "SimulationManager::run", String::compose( "Exiting on user signal %1.", SLIsignalflag ) );
-    SLIsignalflag = 0;
-  }
-
   LOG( M_INFO, "SimulationManager::run", "Simulation finished." );
 }
 
@@ -713,8 +720,8 @@ nest::SimulationManager::update_connection_infrastructure( const thread tid )
 #pragma omp single
   {
     kernel().node_manager.set_have_nodes_changed( false );
-    kernel().connection_manager.set_have_connections_changed( false );
   }
+  kernel().connection_manager.unset_have_connections_changed( tid );
 }
 
 bool
@@ -730,7 +737,6 @@ nest::SimulationManager::update_()
   std::vector< bool > done;
   bool done_all = true;
   delay old_to_step;
-  exit_on_user_signal_ = false;
 
   std::vector< std::shared_ptr< WrappedThreadException > > exceptions_raised( kernel().vp_manager.get_num_threads() );
 // parallel section begins
@@ -942,12 +948,6 @@ nest::SimulationManager::update_()
       {
         advance_time_();
 
-        if ( SLIsignalflag != 0 )
-        {
-          LOG( M_INFO, "SimulationManager::update", "Simulation exiting on user signal." );
-          exit_on_user_signal_ = true;
-        }
-
         if ( print_time_ )
         {
           gettimeofday( &t_slice_end_, NULL );
@@ -959,7 +959,7 @@ nest::SimulationManager::update_()
       kernel().io_manager.post_step_hook();
 // enforce synchronization after post-step activities of the recording backends
 #pragma omp barrier
-    } while ( to_do_ > 0 and not exit_on_user_signal_ and not exceptions_raised.at( tid ) );
+    } while ( to_do_ > 0 and not exceptions_raised.at( tid ) );
 
     // End of the slice, we update the number of synaptic elements
     for ( SparseNodeArray::const_iterator i = kernel().node_manager.get_local_nodes( tid ).begin();
