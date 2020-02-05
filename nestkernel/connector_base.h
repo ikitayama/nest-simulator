@@ -50,10 +50,16 @@
 #include "arraydatum.h"
 #include "dictutils.h"
 
+//#include "connection.h"
+
+//#include "static_connection.h"
+//#include "target_identifier.h"
 // for OpenMP Offloading work
 //#include "target_identifier.h"
-class StaticConnection;
-class TargetIdentifierPtrRport;
+//template<typename targetidentifierptrrpo>
+//class StaticConnection;
+
+//class TargetIdentifierPtrRport;
 
 namespace nest
 {
@@ -72,7 +78,7 @@ public:
   // behavior, avoid possible memory leak and needs to be defined to
   // avoid linker error, see, e.g., Meyers, S. (2005) p40ff
   virtual ~ConnectorBase(){};
-
+  virtual void fff() = 0;
   /**
    * Return syn_id_ of the synapse type of this Connector (index in
    * list of synapse prototypes).
@@ -242,6 +248,8 @@ public:
    */
   virtual void remove_disabled_connections(
     const index first_disabled_index ) = 0;
+  virtual void map_in() = 0;
+  virtual void map_out() = 0;
 };
 
 /**
@@ -252,10 +260,22 @@ class Connector : public ConnectorBase
 {
 private:
   BlockVector< ConnectionT > C_;
+  ConnectionT *C_1 =  new ConnectionT[8210000];
   const synindex syn_id_;
+  int i_;
 
 public:
-  ConnectionT *C_1 = new ConnectionT[8210000];
+  virtual void map_in() {
+        std::cout << "I am .. " << typeid(this).name() << std::endl;
+        std::cout << "sizeof" << sizeof(*this) << std::endl;
+   
+	#pragma omp target enter data map(to:this[0:1])
+	#pragma omp target enter data map(to:this->C_1[0:8210000])
+  }
+  virtual void map_out() {
+	#pragma omp target exit data map(to:this[0:1])
+	#pragma omp target exit data map(from:this->C_1[0:8210000])
+  }
   Connector( const synindex syn_id )
     : syn_id_( syn_id )
   {
@@ -319,7 +339,8 @@ public:
 	iter != C_.end();iter++) {
 	C_1[i] = *iter;
         i++;
-    } 
+    }
+    i_=1;
  }
 
   void
@@ -454,9 +475,12 @@ public:
     Event& e )
   {
   }
-
-  int test1()
+  int test1( ConnectorModel* cmarray)
   {
+	//GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> > * p;// = static_cast<GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> >* >( cmarray[ syn_id_ ]);
+//	GenericConnectorModel< ConnectionT > * p;// = static_cast<GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> >* >( cmarray[ syn_id_ ]);
+    //typename ConnectionT::CommonPropertiesType const &cp = p->GenericConnectorModel< ConnectionT >::get_common_properties();
+    //ConnectionT conn = C_1[0];
   }
 
   index
@@ -464,14 +488,30 @@ public:
     const index lcid,
     ConnectorModel* cmarray[100],
     Event& e , index* thread_local_thread)
-  {
+  {}
+
+  void fff() {
+//A
+//ConnectionT conn = C_1[0];
+printf("XXXXXXXXXXXXXXXXXXXXXXX %d\n", i_);
+  }
+
+  index
+  ff( const thread tid,
+    const index lcid,
+    //ConnectorModel* cmarray[100],
+    typename ConnectionT::CommonPropertiesType const &cp,
+    //StaticConnection<TargetIdentifierPtrRport>::CommonPropertiesType const &cp,
+    Event& e , index* thread_local_thread)
+  {/*
     //typename ConnectionT::CommonPropertiesType const &cp =
     //  static_cast<GenericConnectorModel< ConnectionT >* >( cmarray[ syn_id_ ])->GenericConnectorModel< ConnectionT >::get_common_properties();
-    GenericConnectorModel< ConnectionT > * p = static_cast<GenericConnectorModel< ConnectionT >* >( cmarray[ syn_id_ ]);
-    typename ConnectionT::CommonPropertiesType const &cp = p->GenericConnectorModel< ConnectionT >::get_common_properties();
+    //GenericConnectorModel< ConnectionT > * p = static_cast<GenericConnectorModel< ConnectionT >* >( cmarray[ syn_id_ ]);
+    //typename ConnectionT::CommonPropertiesType const &cp = p->GenericConnectorModel< ConnectionT >::get_common_properties();
     // check if we can call CommonSynapseProperties::get_vt_gid(), which always returns -1.
     long tmp1 = cp.get_vt_gid();
     printf("get_vt_gid() returns %d\n", tmp1); 
+    */
     /*  
     index lcid_offset = 0; 
     while ( true )
