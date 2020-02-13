@@ -266,15 +266,15 @@ private:
 
 public:
   virtual void map_in() {
-        std::cout << "I am .. " << typeid(this).name() << std::endl;
-        std::cout << "sizeof" << sizeof(*this) << std::endl;
+        //std::cout << "I am .. " << typeid(this).name() << std::endl;
+        //std::cout << "sizeof" << sizeof(*this) << std::endl;
    
 	#pragma omp target enter data map(to:this[0:1])
 	#pragma omp target enter data map(to:this->C_1[0:8210000])
   }
   virtual void map_out() {
 	#pragma omp target exit data map(to:this[0:1])
-	#pragma omp target exit data map(from:this->C_1[0:8210000])
+	//#pragma omp target exit data map(from:this->C_1[0:8210000])
   }
   Connector( const synindex syn_id )
     : syn_id_( syn_id )
@@ -495,7 +495,10 @@ public:
 //ConnectionT conn = C_1[0];
 printf("XXXXXXXXXXXXXXXXXXXXXXX %d\n", i_);
   }
-
+  void ffff() {
+	ConnectionT conn = C_1[0];
+	printf("xxx%d\n", i_);
+  }
   index
   ff( const thread tid,
     const index lcid,

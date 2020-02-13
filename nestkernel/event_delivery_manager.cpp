@@ -46,7 +46,8 @@
 
 #include "target_identifier.h"
 #include "static_connection.h"
-
+//#include "connector_base.h"
+//#include "libnestutil/block_vector.h"
 namespace nest
 {
 //class StaticConnection;
@@ -644,27 +645,26 @@ EventDeliveryManager::deliver_events_( const thread tid,
   std::vector<ConnectorBase*> thread_local_v = kernel().connection_manager.get_thread_local_connections(tid);
 
   for (int i=0;i<100;i++) {
-	connections[i] = thread_local_v[i];
+	if (i==0) connections[i] = thread_local_v[i];
   }
   for (int i=0;i<100;i++) {
         if (i==0) static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>>*>(connections[i])->c1();
   }
   //std::cout << typeid(connections[0]).name() << std::endl; 
-  connections[0]->map_in();
-//#pragma omp target enter data map(to: connections[0:100])
-//#pragma omp target enter data map(to: myp[0:1])
+  static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(connections[0])->map_in();
+#pragma omp target enter data map(to: connections[0:100])
 #pragma omp target enter data map(to: cmarray[0:100])
 //for (int i=1;i == 0 or i == 20 or i == 21;i++) {
-	//#pragma omp target enter data map(to: connections[0][0:1])
+	#pragma omp target enter data map(to: connections[0][0:1])
 	//#pragma omp target enter data map(to: connections[20][0:1])
 	//#pragma omp target enter data map(to: connections[21][0:1])
-	#pragma omp target enter data map(to: cmarray[0][0:1])
+	//#pragma omp target enter data map(to: cmarray[0][0:1])
 	//#pragma omp target enter data map(to: cmarray[20][0:1])
 	//#pragma omp target enter data map(to: cmarray[21][0:1])
 //
 //}
 
-#pragma omp target parallel for map(tofrom: are_others_completed,r_buf) map(to: send_recv_count_spike_data_per_rank,nranks,spike_data,se,prepared_timestamps) map(to: cmarray[0:100]) map(to: a1[0:1024]) 
+#pragma omp target parallel for map(tofrom: are_others_completed,r_buf) map(to: send_recv_count_spike_data_per_rank,nranks,spike_data,se,prepared_timestamps) map(to: a1[0:1024]) 
   for ( thread rank = 0; rank < nranks;
         ++rank )
   { 
@@ -708,14 +708,17 @@ EventDeliveryManager::deliver_events_( const thread tid,
         //static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(connections[syn_id])->send_1(tid, lcid, cmarray, se, a);i
         //Connector<StaticConnection<TargetIdentifierPtrRport>> tmp(*static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(connections[0]));
         //tmp.test1(cmarray);
-        typename StaticConnection<TargetIdentifierPtrRport>::CommonPropertiesType const &cp =
-        static_cast<GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> >* >( cmarray[ 0 ])->GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> >::get_common_properties();
+        //typename StaticConnection<TargetIdentifierPtrRport>::CommonPropertiesType const &cp =
+        //static_cast<GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> >* >( cmarray[ 0 ])->GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> >::get_common_properties();
         //static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(connections[0])->ff(tid, lcid, cp, se, a);
-        static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(connections[0])->fff();
+        //static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(connections[0])->ffff();
         //myp->test1(cmarray[0]);
         //myp->ff(tid, lcid, cp, se, a);
         //myp->fff(se);
-	//Connector<StaticConnection<TargetIdentifierPtrRport>> connector(*static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(connections[syn_id]));
+	Connector<StaticConnection<TargetIdentifierPtrRport>> c(*static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(connections[0]));
+	//Connector<StaticConnection<TargetIdentifierPtrRport>> c(0);
+	//c.ffff();
+	//(*static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(connections[syn_id]));
 	//Connector<StaticConnection<TargetIdentifierPtrRport>> connector(0);
         //connector.Connector<StaticConnection<TargetIdentifierPtrRport>>::test1();
       }
@@ -727,14 +730,14 @@ EventDeliveryManager::deliver_events_( const thread tid,
     }
   }
 
-#pragma omp target exit data map(from: connections[0][0:1])
-#pragma omp target exit data map(from: connections[20][0:1])
-#pragma omp target exit data map(from: connections[21][0:1])
-#pragma omp target exit data map(from: connections[0:100])
-#pragma omp target exit data map(from: cmarray[0][0:1])
+//#pragma omp target exit data map(from: connections[0][0:1])
+//#pragma omp target exit data map(from: connections[20][0:1])
+//#pragma omp target exit data map(from: connections[21][0:1])
+//#pragma omp target exit data map(from: connections[0:100])
+//#pragma omp target exit data map(from: cmarray[0][0:1])
 //#pragma omp target exit data map(from: cmarray[20][0:1])
 //#pragma omp target exit data map(from: cmarray[21][0:1])
-#pragma omp target exit data map(from: cmarray[0:100])
+//#pragma omp target exit data map(from: cmarray[0:100])
 
   return are_others_completed;
 
