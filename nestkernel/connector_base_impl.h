@@ -39,7 +39,7 @@ Connector< ConnectionT >::send_weight_event( const thread tid,
   const CommonSynapseProperties& cp )
 {
   if ( cp.get_weight_recorder() )
-  {
+  {/*
     // Create new event to record the weight and copy relevant content.
     WeightRecorderEvent wr_e;
     wr_e.set_port( e.get_port() );
@@ -53,23 +53,22 @@ Connector< ConnectionT >::send_weight_event( const thread tid,
     // Set weight_recorder as receiver
     wr_e.set_receiver( *cp.get_weight_recorder()->get_thread_sibling( tid ) );
     // Put the gid of the postsynaptic node as receiver gid
-    wr_e.set_receiver_gid( e.get_receiver().get_gid() );
-    wr_e();
+    wr_e.set_receiver_gid( e.get_receiver().get_gid() );*/
+    //wr_e();
   }
 }
 
-#pragma omp declare target
 template < typename ConnectionT >
 void
 Connector< ConnectionT >::send_weight_event1( const thread tid,
   const unsigned int lcid,
   Event& e,
-  const CommonSynapseProperties& cp, index* source_id )
+  const CommonSynapseProperties& cp, index* source_id, WeightRecorderEvent& wr_e )
 {
   if ( cp.get_weight_recorder() )
   {
     // Create new event to record the weight and copy relevant content.
-    WeightRecorderEvent wr_e;
+    //WeightRecorderEvent wr_e;
     wr_e.set_port( e.get_port() );
     wr_e.set_rport( e.get_rport() );
     wr_e.set_stamp( e.get_stamp() );
@@ -84,7 +83,6 @@ Connector< ConnectionT >::send_weight_event1( const thread tid,
     //wr_e();
   }
 }
-#pragma omp end declare target
 
 } // of namespace nest
 

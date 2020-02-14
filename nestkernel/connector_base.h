@@ -191,12 +191,6 @@ public:
     Event& e,
     const CommonSynapseProperties& cp ) = 0;
 
-  virtual void send_weight_event1( const thread tid,
-    const unsigned int lcid,
-    Event& e,
-    const CommonSynapseProperties& cp,
-    index * ) = 0;
-
   /**
    * Update weights of dopamine modulated STDP connections.
    */
@@ -505,7 +499,7 @@ printf("XXXXXXXXXXXXXXXXXXXXXXX %d\n", i_);
     //ConnectorModel* cmarray[100],
     typename ConnectionT::CommonPropertiesType const &cp,
     //StaticConnection<TargetIdentifierPtrRport>::CommonPropertiesType const &cp,
-    Event& e , index* thread_local_thread)
+    Event& e , index* thread_local_thread, WeightRecorderEvent& wr_e)
   {/*
     //typename ConnectionT::CommonPropertiesType const &cp =
     //  static_cast<GenericConnectorModel< ConnectionT >* >( cmarray[ syn_id_ ])->GenericConnectorModel< ConnectionT >::get_common_properties();
@@ -515,7 +509,7 @@ printf("XXXXXXXXXXXXXXXXXXXXXXX %d\n", i_);
     long tmp1 = cp.get_vt_gid();
     printf("get_vt_gid() returns %d\n", tmp1); 
     */
-    /*  
+      
     index lcid_offset = 0; 
     while ( true )
     { 
@@ -527,8 +521,8 @@ printf("XXXXXXXXXXXXXXXXXXXXXXX %d\n", i_);
       e.set_port( lcid + lcid_offset );
       if ( not is_disabled )
       {
-        //conn.send( e, tid, cp );
-        //send_weight_event1( tid, lcid + lcid_offset, e, cp, thread_local_thread );
+        conn.send( e, tid, cp );
+        send_weight_event1( tid, lcid + lcid_offset, e, cp, thread_local_thread, wr_e );
       }
       if ( not has_source_subsequent_targets )
       {
@@ -537,7 +531,7 @@ printf("XXXXXXXXXXXXXXXXXXXXXXX %d\n", i_);
       ++lcid_offset;
     }
 
-    return 1 + lcid_offset; // event was delivered to at least one target */
+    return 1 + lcid_offset; // event was delivered to at least one target 
   }
   
   // Implemented in connector_base_impl.h
@@ -550,7 +544,7 @@ printf("XXXXXXXXXXXXXXXXXXXXXXX %d\n", i_);
     const unsigned int lcid,
     Event& e,
     const CommonSynapseProperties& cp,
-    index *);
+    index *, WeightRecorderEvent& wr_e);
 
   void
   trigger_update_weight( const long vt_gid,

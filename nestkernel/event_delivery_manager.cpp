@@ -658,13 +658,13 @@ EventDeliveryManager::deliver_events_( const thread tid,
 	#pragma omp target enter data map(to: connections[0][0:1])
 	//#pragma omp target enter data map(to: connections[20][0:1])
 	//#pragma omp target enter data map(to: connections[21][0:1])
-	//#pragma omp target enter data map(to: cmarray[0][0:1])
+	#pragma omp target enter data map(to: cmarray[0][0:1])
 	//#pragma omp target enter data map(to: cmarray[20][0:1])
 	//#pragma omp target enter data map(to: cmarray[21][0:1])
 //
 //}
-
-#pragma omp target parallel for map(tofrom: are_others_completed,r_buf) map(to: send_recv_count_spike_data_per_rank,nranks,spike_data,se,prepared_timestamps) map(to: a1[0:1024]) 
+WeightRecorderEvent wr_e;
+#pragma omp target parallel for map(tofrom: are_others_completed,r_buf) map(to: send_recv_count_spike_data_per_rank,nranks,spike_data,se,prepared_timestamps) map(to: a1[0:1024]) map(to: wr_e)
   for ( thread rank = 0; rank < nranks;
         ++rank )
   { 
@@ -708,14 +708,13 @@ EventDeliveryManager::deliver_events_( const thread tid,
         //static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(connections[syn_id])->send_1(tid, lcid, cmarray, se, a);i
         //Connector<StaticConnection<TargetIdentifierPtrRport>> tmp(*static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(connections[0]));
         //tmp.test1(cmarray);
-        //typename StaticConnection<TargetIdentifierPtrRport>::CommonPropertiesType const &cp =
-        //static_cast<GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> >* >( cmarray[ 0 ])->GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> >::get_common_properties();
+        typename StaticConnection<TargetIdentifierPtrRport>::CommonPropertiesType const &cp = static_cast<GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> >* >( cmarray[ 0 ])->GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> >::get_common_properties();
         //static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(connections[0])->ff(tid, lcid, cp, se, a);
-        //static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(connections[0])->ffff();
+        static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(connections[0])->ff(tid, lcid, cp, se, a, wr_e);
         //myp->test1(cmarray[0]);
         //myp->ff(tid, lcid, cp, se, a);
         //myp->fff(se);
-	Connector<StaticConnection<TargetIdentifierPtrRport>> c(*static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(connections[0]));
+	//Connector<StaticConnection<TargetIdentifierPtrRport>> c(*static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(connections[0]));
 	//Connector<StaticConnection<TargetIdentifierPtrRport>> c(0);
 	//c.ffff();
 	//(*static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(connections[syn_id]));
