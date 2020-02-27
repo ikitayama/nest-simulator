@@ -65,7 +65,12 @@ Connector< ConnectionT >::send_weight_event1( const thread tid,
   Event& e,
   const CommonSynapseProperties& cp, index* source_id, WeightRecorderEvent& wr_e )
 {
-  if ( cp.get_weight_recorder() )
+  // Comment:
+  // cp.get_weight_recorder() always returns false
+  // e.get_receiver().get_gid leads to a runtime failure
+
+  //if ( cp.get_weight_recorder() )
+  if ( true )
   {
     // Create new event to record the weight and copy relevant content.
     //WeightRecorderEvent wr_e;
@@ -73,13 +78,14 @@ Connector< ConnectionT >::send_weight_event1( const thread tid,
     wr_e.set_rport( e.get_rport() );
     wr_e.set_stamp( e.get_stamp() );
     wr_e.set_sender( e.get_sender() );
-    wr_e.set_sender_gid( source_id[syn_id_ + sizeof(index)*lcid] );
+    //wr_e.set_sender_gid( source_id[syn_id_ + sizeof(index)*lcid] ); // this needs some care.
     wr_e.set_weight( e.get_weight() );
     wr_e.set_delay_steps( e.get_delay_steps() );
     // Set weight_recorder as receiver
-    wr_e.set_receiver( *cp.get_weight_recorder()->get_thread_sibling( tid ) );
+    
+    //wr_e.set_receiver( *cp.get_weight_recorder()->get_thread_sibling( tid ) );
     // Put the gid of the postsynaptic node as receiver gid
-    wr_e.set_receiver_gid( e.get_receiver().get_gid() );
+    //wr_e.set_receiver_gid( e.get_receiver().get_gid() ); //not.
     //wr_e();
   }
 }

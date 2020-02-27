@@ -517,7 +517,7 @@ printf("XXXXXXXXXXXXXXXXXXXXXXX %d\n", i_);
       //std::cout << typeid(conn).name() << std::endl;    
       const bool is_disabled = conn.is_disabled();
       const bool has_source_subsequent_targets = conn.has_source_subsequent_targets();
-      printf("is_disabled %d has_  %d\n", is_disabled, has_source_subsequent_targets);      
+     // printf("is_disabled %d has_  %d\n", is_disabled, has_source_subsequent_targets);      
       e.set_port( lcid + lcid_offset );
       if ( not is_disabled )
       {

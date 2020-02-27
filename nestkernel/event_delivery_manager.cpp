@@ -634,7 +634,7 @@ EventDeliveryManager::deliver_events_( const thread tid,
   index **thread_local_sources;
   thread_local_sources = new index*[100];
   for (int i=0;i<100;i++)
-	thread_local_sources[i] = new index[1024*1024];
+	thread_local_sources[i] = new index[1024*1024*10];
  // array size needs to be estimated correctly
   //for (int i=0;i<100;i++)
 //	thread_local_sources[i] = new index[1024*1024]; 
@@ -709,7 +709,7 @@ WeightRecorderEvent wr_e;
         //static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(connections[syn_id])->send_1(tid, lcid, cmarray, se, a);i
         //Connector<StaticConnection<TargetIdentifierPtrRport>> tmp(*static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(connections[0]));
         //tmp.test1(cmarray);
-       typename StaticConnection<TargetIdentifierPtrRport>::CommonPropertiesType const &cp = static_cast<GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> >* >( cmarray[ 0 ])->GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> >::get_common_properties();
+        typename StaticConnection<TargetIdentifierPtrRport>::CommonPropertiesType const &cp = static_cast<GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> >* >( cmarray[ 0 ])->GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> >::get_common_properties();
         //static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(connections[0])->ff(tid, lcid, cp, se, a);
         static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(connections[0])->ff(tid, lcid, cp, se, a, wr_e);
         //myp->test1(cmarray[0]);
