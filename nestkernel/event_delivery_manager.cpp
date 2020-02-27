@@ -652,8 +652,8 @@ EventDeliveryManager::deliver_events_( const thread tid,
   }
   //std::cout << typeid(connections[0]).name() << std::endl; 
   static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(connections[0])->map_in();
-#pragma omp target enter data map(to: connections[0:100])
-#pragma omp target enter data map(to: cmarray[0:100])
+//#pragma omp target enter data map(to: connections[0:100])
+//#pragma omp target enter data map(to: cmarray[0:100])
 //for (int i=1;i == 0 or i == 20 or i == 21;i++) {
 	#pragma omp target enter data map(to: connections[0][0:1])
 	//#pragma omp target enter data map(to: connections[20][0:1])
@@ -663,12 +663,13 @@ EventDeliveryManager::deliver_events_( const thread tid,
 	//#pragma omp target enter data map(to: cmarray[21][0:1])
 //
 //}
+
+#pragma omp target enter data map(to: thread_local_sources[0][0:1])
 WeightRecorderEvent wr_e;
 #pragma omp target parallel for map(tofrom: are_others_completed,r_buf) map(to: send_recv_count_spike_data_per_rank,nranks,spike_data,se,prepared_timestamps) map(to: a1[0:1024]) map(to: wr_e)
   for ( thread rank = 0; rank < nranks;
         ++rank )
   { 
-    
     // check last entry for completed marker; needs to be done before
     // checking invalid marker to assure that this is always read
     if ( not r_buf[ ( rank + 1 ) * send_recv_count_spike_data_per_rank
@@ -699,7 +700,7 @@ WeightRecorderEvent wr_e;
         //const index source_gid = kernel().connection_manager.get_source_gid( tid, syn_id, lcid );
         //const index source_gid = source.get_gid( tid, syn_id, lcid );
         //std::cout << "syn_id " << syn_id << " lcid " << lcid << std::endl;
-        const index source_gid = 1;//thread_local_sources[syn_id][lcid];
+        const index source_gid = thread_local_sources[syn_id][lcid];
         unsigned long *a;
         // se is mapped.
         //se.
@@ -708,7 +709,7 @@ WeightRecorderEvent wr_e;
         //static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(connections[syn_id])->send_1(tid, lcid, cmarray, se, a);i
         //Connector<StaticConnection<TargetIdentifierPtrRport>> tmp(*static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(connections[0]));
         //tmp.test1(cmarray);
-        typename StaticConnection<TargetIdentifierPtrRport>::CommonPropertiesType const &cp = static_cast<GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> >* >( cmarray[ 0 ])->GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> >::get_common_properties();
+       typename StaticConnection<TargetIdentifierPtrRport>::CommonPropertiesType const &cp = static_cast<GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> >* >( cmarray[ 0 ])->GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> >::get_common_properties();
         //static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(connections[0])->ff(tid, lcid, cp, se, a);
         static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(connections[0])->ff(tid, lcid, cp, se, a, wr_e);
         //myp->test1(cmarray[0]);
