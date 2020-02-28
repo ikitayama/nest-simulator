@@ -604,7 +604,8 @@ EventDeliveryManager::deliver_events_( const thread tid,
     == kernel().connection_manager.get_min_delay() );
 
   SpikeEvent se;
-
+  Node &mynode = se.get_receiver();
+  //se.map_in();
   // prepare Time objects for every possible time stamp within min_delay_
   int min_delay = kernel().connection_manager.get_min_delay();
   Time prepared_timestamps[min_delay];
@@ -666,7 +667,7 @@ EventDeliveryManager::deliver_events_( const thread tid,
 
 #pragma omp target enter data map(to: thread_local_sources[0][0:1])
 WeightRecorderEvent wr_e;
-#pragma omp target parallel for map(tofrom: are_others_completed,r_buf) map(to: send_recv_count_spike_data_per_rank,nranks,spike_data,se,prepared_timestamps) map(to: a1[0:1024]) map(to: wr_e)
+#pragma omp target parallel for map(tofrom: are_others_completed,r_buf) map(to: send_recv_count_spike_data_per_rank,nranks,spike_data,se,prepared_timestamps) map(to: a1[0:1024]) map(to: wr_e) map(to: mynode)
   for ( thread rank = 0; rank < nranks;
         ++rank )
   { 

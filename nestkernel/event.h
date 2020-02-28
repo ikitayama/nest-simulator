@@ -37,7 +37,6 @@
 #include "nest_time.h"
 #include "nest_types.h"
 #include "vp_manager.h"
-
 // Includes from sli:
 #include "name.h"
 
@@ -100,6 +99,7 @@ public:
    */
   virtual Event* clone() const = 0;
 
+  virtual void map_in() = 0;
   /**
    * Deliver the event to receiver.
    *
@@ -353,6 +353,9 @@ protected:
 class SpikeEvent : public Event
 {
 public:
+  virtual void map_in() {
+	#pragma omp target enter data map(to: receiver_[0:1])
+  }
   SpikeEvent();
   void operator()();
   SpikeEvent* clone() const;
@@ -396,6 +399,7 @@ class WeightRecorderEvent : public Event
 public:
   WeightRecorderEvent();
   WeightRecorderEvent* clone() const;
+  virtual void map_in() {}
   void operator()();
 
   /**
@@ -471,6 +475,7 @@ class RateEvent : public Event
   double r_;
 
 public:
+  virtual void map_in() {}
   void operator()();
   RateEvent* clone() const;
 
@@ -505,6 +510,7 @@ class CurrentEvent : public Event
   double c_;
 
 public:
+  virtual void map_in() {}
   void operator()();
   CurrentEvent* clone() const;
 
@@ -581,6 +587,7 @@ public:
 
   DataLoggingRequest* clone() const;
 
+  virtual void map_in() {}
   void operator()();
 
   /** Access to stored time interval.*/
@@ -742,6 +749,7 @@ class ConductanceEvent : public Event
   double g_;
 
 public:
+  virtual void map_in() {}
   void operator()();
   ConductanceEvent* clone() const;
 
@@ -810,6 +818,7 @@ DataEvent< D >::get_pointer() const
 class DoubleDataEvent : public DataEvent< double >
 {
 public:
+  virtual void map_in() {}
   void operator()();
   DoubleDataEvent* clone() const;
 };
@@ -1124,6 +1133,7 @@ public:
   {
   }
 
+  virtual void map_in() {}
   void operator()();
   GapJunctionEvent* clone() const;
 };
@@ -1140,7 +1150,7 @@ public:
   InstantaneousRateConnectionEvent()
   {
   }
-
+  virtual void map_in() {}
   void operator()();
   InstantaneousRateConnectionEvent* clone() const;
 };
@@ -1157,7 +1167,7 @@ public:
   DelayedRateConnectionEvent()
   {
   }
-
+virtual void map_in() {}
   void operator()();
   DelayedRateConnectionEvent* clone() const;
 };
@@ -1179,7 +1189,7 @@ public:
   DiffusionConnectionEvent()
   {
   }
-
+  virtual void map_in() {}
   void operator()();
   DiffusionConnectionEvent* clone() const;
 
@@ -1288,7 +1298,6 @@ Event::get_receiver( void ) const
 {
   return *receiver_;
 }
-
 inline Node&
 Event::get_sender( void ) const
 {
