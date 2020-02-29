@@ -40,6 +40,7 @@ Connector< ConnectionT >::send_weight_event( const thread tid,
 {
   if ( cp.get_weight_recorder() )
   {
+    std::cout << "bool " << cp.get_weight_recorder() << std::endl;
     // Create new event to record the weight and copy relevant content.
     WeightRecorderEvent wr_e;
     wr_e.set_port( e.get_port() );
