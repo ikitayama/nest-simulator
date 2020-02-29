@@ -78,7 +78,6 @@ public:
   // behavior, avoid possible memory leak and needs to be defined to
   // avoid linker error, see, e.g., Meyers, S. (2005) p40ff
   virtual ~ConnectorBase(){};
-  virtual void fff() = 0;
   /**
    * Return syn_id_ of the synapse type of this Connector (index in
    * list of synapse prototypes).
@@ -181,11 +180,6 @@ public:
     const std::vector< ConnectorModel* >& cm,
     Event& e ) = 0;
   
-  virtual index send_1( const thread tid,
-    const index lcid,
-    ConnectorModel* cmarray[100],
-    Event& e , index* thread_local_thread ) = 0;
- 
   virtual void send_weight_event( const thread tid,
     const unsigned int lcid,
     Event& e,
@@ -469,30 +463,7 @@ public:
     Event& e )
   {
   }
-  int test1( ConnectorModel* cmarray)
-  {
-	//GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> > * p;// = static_cast<GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> >* >( cmarray[ syn_id_ ]);
-//	GenericConnectorModel< ConnectionT > * p;// = static_cast<GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> >* >( cmarray[ syn_id_ ]);
-    //typename ConnectionT::CommonPropertiesType const &cp = p->GenericConnectorModel< ConnectionT >::get_common_properties();
-    //ConnectionT conn = C_1[0];
-  }
-
-  index
-  send_1( const thread tid,
-    const index lcid,
-    ConnectorModel* cmarray[100],
-    Event& e , index* thread_local_thread)
-  {}
-
-  void fff() {
-//A
-//ConnectionT conn = C_1[0];
-printf("XXXXXXXXXXXXXXXXXXXXXXX %d\n", i_);
-  }
-  void ffff() {
-	ConnectionT conn = C_1[0];
-	printf("xxx%d\n", i_);
-  }
+  
   index
   ff( const thread tid,
     const index lcid,
