@@ -152,6 +152,7 @@ public:
   void
   send( Event& e, const thread tid, const CommonSynapseProperties& )
   {
+    std::cout << "weight_ " << weight_ << " get_delay_steps() " << get_delay_steps() << " get_rport() " << get_rport() << std::endl;
     e.set_weight( weight_ );
     e.set_delay_steps( get_delay_steps() );
     e.set_receiver( *get_target( tid ) );
