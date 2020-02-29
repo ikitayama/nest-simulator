@@ -354,7 +354,7 @@ class SpikeEvent : public Event
 {
 public:
   virtual void map_in() {
-	#pragma omp target enter data map(to: receiver_[0:1])
+	//#pragma omp target enter data map(to: receiver_[0:1])
   }
   SpikeEvent();
   void operator()();
@@ -707,7 +707,7 @@ public:
 
   //! Construct with reference to data and time stamps to transmit
   DataLoggingReply( const Container& );
-
+  virtual void map_in() {}
   void operator()();
 
   //! Access referenced data

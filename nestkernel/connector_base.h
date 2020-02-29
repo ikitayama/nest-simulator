@@ -254,7 +254,7 @@ class Connector : public ConnectorBase
 {
 private:
   BlockVector< ConnectionT > C_;
-  ConnectionT *C_1 =  new ConnectionT[8210000];
+  ConnectionT *C_1 =  new ConnectionT[82100000];
   const synindex syn_id_;
   int i_;
 
@@ -264,7 +264,7 @@ public:
         //std::cout << "sizeof" << sizeof(*this) << std::endl;
    
 	#pragma omp target enter data map(to:this[0:1])
-	#pragma omp target enter data map(to:this->C_1[0:8210000])
+	#pragma omp target enter data map(to:this->C_1[0:82100000])
   }
   virtual void map_out() {
 	#pragma omp target exit data map(to:this[0:1])

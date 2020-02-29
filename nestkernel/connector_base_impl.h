@@ -69,8 +69,7 @@ Connector< ConnectionT >::send_weight_event1( const thread tid,
   // cp.get_weight_recorder() always returns false
   // e.get_receiver().get_gid leads to a runtime failure
 
-  //if ( cp.get_weight_recorder() )
-  if ( true )
+  if ( cp.get_weight_recorder() )
   {
     // Create new event to record the weight and copy relevant content.
     //WeightRecorderEvent wr_e;

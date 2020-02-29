@@ -604,7 +604,6 @@ EventDeliveryManager::deliver_events_( const thread tid,
     == kernel().connection_manager.get_min_delay() );
 
   SpikeEvent se;
-  Node &mynode = se.get_receiver();
   //se.map_in();
   // prepare Time objects for every possible time stamp within min_delay_
   int min_delay = kernel().connection_manager.get_min_delay();
@@ -624,9 +623,9 @@ EventDeliveryManager::deliver_events_( const thread tid,
   int nranks= kernel().mpi_manager.get_num_processes();
 
   std::vector<Node*> thread_local_nodes = kernel().node_manager.copy1(tid);
-  len = thread_local_nodes.size();
-  Node *a1[len];
-  for (int i=0;i<len;i++)
+  int nnodes = thread_local_nodes.size();
+  Node *a1[nnodes];
+  for (int i=0;i<nnodes;i++)
       a1[i] = thread_local_nodes[i];
 
   SpikeDataT spike_data;
@@ -667,7 +666,7 @@ EventDeliveryManager::deliver_events_( const thread tid,
 
 #pragma omp target enter data map(to: thread_local_sources[0][0:1])
 WeightRecorderEvent wr_e;
-#pragma omp target parallel for map(tofrom: are_others_completed,r_buf) map(to: send_recv_count_spike_data_per_rank,nranks,spike_data,se,prepared_timestamps) map(to: a1[0:1024]) map(to: wr_e) map(to: mynode)
+#pragma omp target parallel for map(tofrom: are_others_completed,r_buf) map(to: send_recv_count_spike_data_per_rank,nranks,spike_data,se,prepared_timestamps) map(to: a1[0:nnodes]) map(to: wr_e)
   for ( thread rank = 0; rank < nranks;
         ++rank )
   { 
