@@ -1525,12 +1525,7 @@ nest::ConnectionManager::copy_to(const thread tid, index **thread_local_sources)
        }
 
 }
-/*
-std::vector<ConnectorBase*> 
-nest::ConnectionManager::get_thread_local_connections(const thread tid) {
-        return connections_[tid];
-}
- */
+
 void
 nest::ConnectionManager::compute_compressed_secondary_recv_buffer_positions(
   const thread tid )

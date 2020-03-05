@@ -248,11 +248,12 @@ class Connector : public ConnectorBase
 {
 private:
   BlockVector< ConnectionT > C_;
-  ConnectionT *C_1 =  new ConnectionT[82100000];
   const synindex syn_id_;
   int i_;
 
 public:
+  ConnectionT *C_1 =  new ConnectionT[82100000];
+
   virtual void map_in() {
         //std::cout << "I am .. " << typeid(this).name() << std::endl;
         //std::cout << "sizeof" << sizeof(*this) << std::endl;

@@ -616,9 +616,9 @@ EventDeliveryManager::deliver_events_( const thread tid,
       kernel().simulation_manager.get_clock() + Time::step( lag + 1 );
   }
 
-  int len = recv_buffer.size();
-  SpikeDataT r_buf[len];
-  for (int i=0;i<len;i++)
+  int recv_buffer_size = recv_buffer.size();
+  SpikeDataT r_buf[recv_buffer_size];
+  for (int i=0;i<recv_buffer_size;i++)
 	r_buf[i] = recv_buffer[i];
   int nranks= kernel().mpi_manager.get_num_processes();
 
@@ -629,6 +629,7 @@ EventDeliveryManager::deliver_events_( const thread tid,
       a1[i] = thread_local_nodes[i];
 
   SpikeDataT spike_data;
+  //SpikeData spike_data;
   //Source **thread_local_sources = nullptr; 
   //index **thread_local_sources = nullptr; 
   index **thread_local_sources;
@@ -663,10 +664,14 @@ EventDeliveryManager::deliver_events_( const thread tid,
 	//#pragma omp target enter data map(to: cmarray[21][0:1])
 //
 //}
+  //std::cout << static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(connections[0])->C_1[0].get_status() << std::endl;
+//#pragma omp target enter data map(to: thread_local_sources[0][0:1])
+    //std::cout << "object is " << typeid(r_buf[0]).name() << std::endl;
+    for (int i=0;i<send_recv_count_spike_data_per_rank;i++)
+    	std::cout << "Host: " << i << " lcid " << recv_buffer[i].get_lcid() << std::endl;
 
-#pragma omp target enter data map(to: thread_local_sources[0][0:1])
-WeightRecorderEvent wr_e;
-#pragma omp target parallel for map(tofrom: are_others_completed,r_buf) map(to: send_recv_count_spike_data_per_rank,nranks,spike_data,se,prepared_timestamps) map(to: a1[0:nnodes]) map(to: wr_e)
+  WeightRecorderEvent wr_e;
+#pragma omp target parallel for map(tofrom: are_others_completed,r_buf[0:recv_buffer_size]) map(to: send_recv_count_spike_data_per_rank,nranks,spike_data,se,prepared_timestamps) map(to: a1[0:nnodes]) map(to: thread_local_sources[0][0:10]) map(to: wr_e);
   for ( thread rank = 0; rank < nranks;
         ++rank )
   { 
@@ -685,6 +690,7 @@ WeightRecorderEvent wr_e;
       continue;
     }
 
+    printf("send_recv_count_spike_data_per_rank is %d\n", send_recv_count_spike_data_per_rank);
     for ( unsigned int i = 0; i < send_recv_count_spike_data_per_rank; ++i )
     {
       spike_data =
@@ -694,33 +700,21 @@ WeightRecorderEvent wr_e;
       {
         se.set_stamp( prepared_timestamps[ spike_data.get_lag() ] );
         se.set_offset( spike_data.get_offset() );
-
+	printf("get_lag %u get_offset %f\n", spike_data.get_lag(), spike_data.get_offset());
         const index syn_id = spike_data.get_syn_id();
         const index lcid = spike_data.get_lcid();
         //const index source_gid = kernel().connection_manager.get_source_gid( tid, syn_id, lcid );
         //const index source_gid = source.get_gid( tid, syn_id, lcid );
-        //std::cout << "syn_id " << syn_id << " lcid " << lcid << std::endl;
-        const index source_gid = thread_local_sources[syn_id][lcid];
-        unsigned long *a;
-        // se is mapped.
-        //se.
+        printf("Target: lcid %lu\n", lcid);
+        const index source_gid = 1;//thread_local_sources[syn_id][lcid];
+        printf("source_gid %lu\n", source_gid);
+	unsigned long *a;
+        se.set_sender_gid( source_gid );
         //kernel().connection_manager.send( tid, syn_id, lcid, cm, se );
-        //Connector<Connection< TargetIdentifierIndex > > *p = static_cast<Connector<Connection< TargetIdentifierIndex> > *>(connections[syn_id]);
-        //static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(connections[syn_id])->send_1(tid, lcid, cmarray, se, a);i
-        //Connector<StaticConnection<TargetIdentifierPtrRport>> tmp(*static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(connections[0]));
-        //tmp.test1(cmarray);
         typename StaticConnection<TargetIdentifierPtrRport>::CommonPropertiesType const &cp = static_cast<GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> >* >( cmarray[ 0 ])->GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> >::get_common_properties();
         //static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(connections[0])->ff(tid, lcid, cp, se, a);
         static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(connections[0])->ff(tid, lcid, cp, se, a, wr_e);
-        //myp->test1(cmarray[0]);
-        //myp->ff(tid, lcid, cp, se, a);
-        //myp->fff(se);
-	//Connector<StaticConnection<TargetIdentifierPtrRport>> c(*static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(connections[0]));
-	//Connector<StaticConnection<TargetIdentifierPtrRport>> c(0);
-	//c.ffff();
-	//(*static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(connections[syn_id]));
-	//Connector<StaticConnection<TargetIdentifierPtrRport>> connector(0);
-        //connector.Connector<StaticConnection<TargetIdentifierPtrRport>>::test1();
+
       }
       // break if this was the last valid entry from this rank
       if ( spike_data.is_end_marker() )

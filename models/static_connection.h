@@ -152,7 +152,7 @@ public:
   void
   send( Event& e, const thread tid, const CommonSynapseProperties& )
   { 
-    //printf("weight_ %d get_delay_steps() %d get_rport() %d\n", weight_, get_delay_steps(), get_rport()); 
+    printf("weight_ %f get_delay_steps() %f get_rport() %ld\n", weight_, get_delay_steps(), get_rport()); 
     e.set_weight( weight_ ); 
     e.set_delay_steps( get_delay_steps() );
     e.set_receiver( *get_target( tid ) );
