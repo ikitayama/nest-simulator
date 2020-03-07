@@ -249,9 +249,9 @@ class Connector : public ConnectorBase
 private:
   BlockVector< ConnectionT > C_;
   const synindex syn_id_;
+  ConnectionT *C_1 =  new ConnectionT[82100000];
 
 public:
-  ConnectionT *C_1 =  new ConnectionT[82100000];
 
   virtual void map_in() {
         //std::cout << "I am .. " << typeid(this).name() << std::endl;
