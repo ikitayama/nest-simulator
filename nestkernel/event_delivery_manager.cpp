@@ -617,9 +617,9 @@ EventDeliveryManager::deliver_events_( const thread tid,
   }
 
   int recv_buffer_size = recv_buffer.size();
-  SpikeDataT r_buf[recv_buffer_size];
+  SpikeDataT recv_buffer_a[recv_buffer_size];
   for (int i=0;i<recv_buffer_size;i++)
-	r_buf[i] = recv_buffer[i];
+	recv_buffer_a[i] = recv_buffer[i];
   int nranks= kernel().mpi_manager.get_num_processes();
 
   std::vector<Node*> thread_local_nodes = kernel().node_manager.copy1(tid);
@@ -666,25 +666,25 @@ EventDeliveryManager::deliver_events_( const thread tid,
 //}
   //std::cout << static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(connections[0])->C_1[0].get_status() << std::endl;
 //#pragma omp target enter data map(to: thread_local_sources[0][0:1])
-    //std::cout << "object is " << typeid(r_buf[0]).name() << std::endl;
+    //std::cout << "object is " << typeid(recv_buffer_a[0]).name() << std::endl;
     for (int i=0;i<send_recv_count_spike_data_per_rank;i++)
     	std::cout << "Host: " << i << " lcid " << recv_buffer[i].get_lcid() << std::endl;
 
   WeightRecorderEvent wr_e;
-#pragma omp target parallel for map(tofrom: are_others_completed,r_buf[0:recv_buffer_size]) map(to: send_recv_count_spike_data_per_rank,nranks,spike_data,se,prepared_timestamps) map(to: a1[0:nnodes]) map(to: thread_local_sources[0][0:10]) map(to: wr_e);
+#pragma omp target parallel for map(tofrom: are_others_completed,recv_buffer_a[0:recv_buffer_size]) map(to: send_recv_count_spike_data_per_rank,nranks,spike_data,se,prepared_timestamps) map(to: a1[0:nnodes]) map(to: thread_local_sources[0][0:10]) map(to: wr_e);
   for ( thread rank = 0; rank < nranks;
         ++rank )
   { 
     // check last entry for completed marker; needs to be done before
     // checking invalid marker to assure that this is always read
-    if ( not r_buf[ ( rank + 1 ) * send_recv_count_spike_data_per_rank
+    if ( not recv_buffer_a[ ( rank + 1 ) * send_recv_count_spike_data_per_rank
                - 1 ].is_complete_marker() )
     {
       are_others_completed = false;
     }
 
     // continue with next rank if no spikes were sent by this rank
-    if ( r_buf[ rank * send_recv_count_spike_data_per_rank ]
+    if ( recv_buffer_a[ rank * send_recv_count_spike_data_per_rank ]
            .is_invalid_marker() )
     {
       continue;
@@ -694,7 +694,7 @@ EventDeliveryManager::deliver_events_( const thread tid,
     for ( unsigned int i = 0; i < send_recv_count_spike_data_per_rank; ++i )
     {
       spike_data =
-        r_buf[ rank * send_recv_count_spike_data_per_rank + i ];
+        recv_buffer_a[ rank * send_recv_count_spike_data_per_rank + i ];
 
       if ( spike_data.get_tid() == tid )
       {
