@@ -323,11 +323,14 @@ public:
   c1()
   {
     int i=0;    
+    size_t veclen = C_.size();
+    std::cout << veclen << " connections to copy to an array" << std::endl;
     for (typename BlockVector< ConnectionT >::const_iterator iter = C_.begin();
 	iter != C_.end();iter++) {
 	C_1[i] = *iter;
         i++;
     }
+    assert(i==veclen);
  }
 
   void
