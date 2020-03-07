@@ -249,7 +249,6 @@ class Connector : public ConnectorBase
 private:
   BlockVector< ConnectionT > C_;
   const synindex syn_id_;
-  int i_;
 
 public:
   ConnectionT *C_1 =  new ConnectionT[82100000];
@@ -329,7 +328,6 @@ public:
 	C_1[i] = *iter;
         i++;
     }
-    i_=1;
  }
 
   void
