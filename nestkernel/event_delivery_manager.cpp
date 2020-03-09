@@ -635,7 +635,7 @@ EventDeliveryManager::deliver_events_( const thread tid,
   index **thread_local_sources;
   thread_local_sources = new index*[100];
   for (int i=0;i<100;i++)
-	thread_local_sources[i] = new index[1024*1024*10];
+	thread_local_sources[i] = new index[81000000]; // hard-coded value
  // array size needs to be estimated correctly
   //for (int i=0;i<100;i++)
 //	thread_local_sources[i] = new index[1024*1024]; 

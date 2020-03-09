@@ -487,7 +487,6 @@ public:
     while ( true )
     { 
       ConnectionT conn = C_1[ lcid + lcid_offset ]; 
-      //std::cout << typeid(conn).name() << std::endl;    
       const bool is_disabled = conn.is_disabled();
       const bool has_source_subsequent_targets = conn.has_source_subsequent_targets();
      // printf("is_disabled %d has_  %d\n", is_disabled, has_source_subsequent_targets);      

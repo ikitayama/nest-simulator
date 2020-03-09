@@ -1510,17 +1510,18 @@ nest::ConnectionManager::compute_target_data_buffer_size()
 
 void
 nest::ConnectionManager::copy_to(const thread tid, index **thread_local_sources) {
-       std::vector< BlockVector< Source > > tmp = source_table_.get_thread_local_sources(tid);
+       std::vector< BlockVector< Source > > v = source_table_.get_thread_local_sources(tid);
 
-       int n_syn_types = tmp.size();
-       thread_local_sources = new index*[n_syn_types];
+       int n_syn_types = v.size();
+       std::cout << "Synapse types " << n_syn_types << std::endl;
        for (int i=0;i<n_syn_types;i++) {
-        thread_local_sources[i] = new index[tmp[i].size()]; // revisit this hard-coded value
-       }
-
-       for (int j=0;j<n_syn_types;j++) {
-	for (int k=0;k<tmp[j].size();k++) {
-		thread_local_sources[j][k] = tmp[j][k].get_gid();
+	BlockVector< Source >::iterator iter = v[i].begin();
+	int k=0;
+	std::cout << "i " << i << " sources " << v[i].size() << std::endl; 
+	for (; iter != v[i].end();iter++) {
+		thread_local_sources[i][k] = v[i][k].get_gid();
+		//std::cout << "i " << i << " k " << k << std::endl;
+		//k++;
 	}
        }
 
