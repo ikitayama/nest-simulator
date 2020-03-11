@@ -48,6 +48,8 @@
 #include "static_connection.h"
 //#include "connector_base.h"
 //#include "libnestutil/block_vector.h"
+#include "event.h"
+
 namespace nest
 {
 //class StaticConnection;
@@ -671,11 +673,12 @@ EventDeliveryManager::deliver_events_( const thread tid,
 #pragma omp target enter data map(to: thread_local_sources[0:100])
 #pragma omp target enter data map(to: thread_local_sources[0][0:81000000])
    
-    for (int i=0;i<send_recv_count_spike_data_per_rank;i++)
+   for (int i=0;i<send_recv_count_spike_data_per_rank;i++) {
     	//std::cout << "Host: " << i << " lcid " << recv_buffer[i].get_lcid() << std::endl;
+   }
+   WeightRecorderEvent wr_e;
 
-  WeightRecorderEvent wr_e;
-#pragma omp target parallel for map(tofrom: are_others_completed,recv_buffer_a[0:recv_buffer_size]) map(to: send_recv_count_spike_data_per_rank,nranks,spike_data,se,prepared_timestamps) map(to: a1[0:nnodes])
+#pragma omp target parallel for map(tofrom: are_others_completed,recv_buffer_a[0:recv_buffer_size]) map(to: send_recv_count_spike_data_per_rank,nranks,spike_data,se,prepared_timestamps) map(to: a1[0:nnodes]) map(to: wr_e)
   for ( thread rank = 0; rank < nranks;
         ++rank )
   { 
@@ -711,8 +714,7 @@ EventDeliveryManager::deliver_events_( const thread tid,
         //const index source_gid = kernel().connection_manager.get_source_gid( tid, syn_id, lcid );
         //const index source_gid = source.get_gid( tid, syn_id, lcid );
         //assert(lcid <= 81000000);
-        //const index source_gid = thread_local_sources[syn_id][lcid];
-        const index source_gid = thread_local_sources[syn_id][0];
+        const index source_gid = thread_local_sources[syn_id][lcid];
         printf("Target: syn_id %lu lcid %lu source_gid %lu\n", syn_id, lcid, source_gid);
 	unsigned long *a;
         se.set_sender_gid( source_gid );
@@ -738,6 +740,9 @@ EventDeliveryManager::deliver_events_( const thread tid,
 //#pragma omp target exit data map(from: cmarray[20][0:1])
 //#pragma omp target exit data map(from: cmarray[21][0:1])
 #pragma omp target exit data map(from: cmarray[0:100])
+
+#pragma omp target exit data map(from: thread_local_sources[0][0:81000000])
+#pragma omp target exit data map(from: thread_local_sources[0:100])
 
   return are_others_completed;
 
