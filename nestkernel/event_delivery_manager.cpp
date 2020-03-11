@@ -634,8 +634,13 @@ EventDeliveryManager::deliver_events_( const thread tid,
   //index **thread_local_sources = nullptr; 
   index **thread_local_sources;
   thread_local_sources = new index*[100];
-  for (int i=0;i<100;i++)
-	thread_local_sources[i] = new index[81000000]; // hard-coded value
+  for (int i=0;i<100;i++) {
+	if (i==0) thread_local_sources[i] = new index[81000000]; // hard-coded value
+  }
+  // check GIDs
+  for (int i=0;i<81000000;i++) {
+	//std::cout << *thread_local_sources[i] << std::endl;
+  }
  // array size needs to be estimated correctly
   //for (int i=0;i<100;i++)
 //	thread_local_sources[i] = new index[1024*1024]; 
@@ -651,10 +656,9 @@ EventDeliveryManager::deliver_events_( const thread tid,
   for (int i=0;i<100;i++) {
         if (i==0) static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>>*>(connections[i])->c1();
   }
-  //std::cout << typeid(connections[0]).name() << std::endl; 
   static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(connections[0])->map_in();
 //#pragma omp target enter data map(to: connections[0:100])
-//#pragma omp target enter data map(to: cmarray[0:100])
+#pragma omp target enter data map(to: cmarray[0:100])
 //for (int i=1;i == 0 or i == 20 or i == 21;i++) {
 	#pragma omp target enter data map(to: connections[0][0:1])
 	//#pragma omp target enter data map(to: connections[20][0:1])
@@ -664,17 +668,18 @@ EventDeliveryManager::deliver_events_( const thread tid,
 	//#pragma omp target enter data map(to: cmarray[21][0:1])
 //
 //}
-  //std::cout << static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(connections[0])->C_1[0].get_status() << std::endl;
-//#pragma omp target enter data map(to: thread_local_sources[0][0:1])
-    //std::cout << "object is " << typeid(recv_buffer_a[0]).name() << std::endl;
+#pragma omp target enter data map(to: thread_local_sources[0:100])
+#pragma omp target enter data map(to: thread_local_sources[0][0:81000000])
+   
     for (int i=0;i<send_recv_count_spike_data_per_rank;i++)
-    	std::cout << "Host: " << i << " lcid " << recv_buffer[i].get_lcid() << std::endl;
+    	//std::cout << "Host: " << i << " lcid " << recv_buffer[i].get_lcid() << std::endl;
 
   WeightRecorderEvent wr_e;
-#pragma omp target parallel for map(tofrom: are_others_completed,recv_buffer_a[0:recv_buffer_size]) map(to: send_recv_count_spike_data_per_rank,nranks,spike_data,se,prepared_timestamps) map(to: a1[0:nnodes]) map(to: thread_local_sources[0][0:10]) map(to: wr_e);
+#pragma omp target parallel for map(tofrom: are_others_completed,recv_buffer_a[0:recv_buffer_size]) map(to: send_recv_count_spike_data_per_rank,nranks,spike_data,se,prepared_timestamps) map(to: a1[0:nnodes])
   for ( thread rank = 0; rank < nranks;
         ++rank )
   { 
+    
     // check last entry for completed marker; needs to be done before
     // checking invalid marker to assure that this is always read
     if ( not recv_buffer_a[ ( rank + 1 ) * send_recv_count_spike_data_per_rank
@@ -705,15 +710,15 @@ EventDeliveryManager::deliver_events_( const thread tid,
         const index lcid = spike_data.get_lcid();
         //const index source_gid = kernel().connection_manager.get_source_gid( tid, syn_id, lcid );
         //const index source_gid = source.get_gid( tid, syn_id, lcid );
-        printf("Target: lcid %lu\n", lcid);
-        const index source_gid = 1;//thread_local_sources[syn_id][lcid];
-        printf("source_gid %lu\n", source_gid);
+        //assert(lcid <= 81000000);
+        //const index source_gid = thread_local_sources[syn_id][lcid];
+        const index source_gid = thread_local_sources[syn_id][0];
+        printf("Target: syn_id %lu lcid %lu source_gid %lu\n", syn_id, lcid, source_gid);
 	unsigned long *a;
         se.set_sender_gid( source_gid );
         //kernel().connection_manager.send( tid, syn_id, lcid, cm, se );
         typename StaticConnection<TargetIdentifierPtrRport>::CommonPropertiesType const &cp = static_cast<GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> >* >( cmarray[ 0 ])->GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> >::get_common_properties();
-        //static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(connections[0])->ff(tid, lcid, cp, se, a);
-        static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(connections[0])->ff(tid, lcid, cp, se, a, wr_e);
+        //static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(connections[0])->ff(tid, lcid, cp, se, a, wr_e);
 
       }
       // break if this was the last valid entry from this rank
@@ -724,14 +729,15 @@ EventDeliveryManager::deliver_events_( const thread tid,
     }
   }
 
-//#pragma omp target exit data map(from: connections[0][0:1])
+#pragma omp target exit data map(from: connections[0][0:1])
+  static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(connections[0])->map_out();
 //#pragma omp target exit data map(from: connections[20][0:1])
 //#pragma omp target exit data map(from: connections[21][0:1])
 //#pragma omp target exit data map(from: connections[0:100])
-//#pragma omp target exit data map(from: cmarray[0][0:1])
+#pragma omp target exit data map(from: cmarray[0][0:1])
 //#pragma omp target exit data map(from: cmarray[20][0:1])
 //#pragma omp target exit data map(from: cmarray[21][0:1])
-//#pragma omp target exit data map(from: cmarray[0:100])
+#pragma omp target exit data map(from: cmarray[0:100])
 
   return are_others_completed;
 

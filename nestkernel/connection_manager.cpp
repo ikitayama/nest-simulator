@@ -1513,15 +1513,17 @@ nest::ConnectionManager::copy_to(const thread tid, index **thread_local_sources)
        std::vector< BlockVector< Source > > v = source_table_.get_thread_local_sources(tid);
 
        int n_syn_types = v.size();
-       std::cout << "Synapse types " << n_syn_types << std::endl;
+       //std::cout << "Synapse types " << n_syn_types << std::endl;
        for (int i=0;i<n_syn_types;i++) {
 	BlockVector< Source >::iterator iter = v[i].begin();
 	int k=0;
-	std::cout << "i " << i << " sources " << v[i].size() << std::endl; 
+	//std::cout << "i " << i << " total sources " << v[i].size() << std::endl; 
+	if (v[i].size() == 0) continue;
+	//std::cout << "Synapsetype " << i << " elements " << v[i].size() << std::endl;
 	for (; iter != v[i].end();iter++) {
-		thread_local_sources[i][k] = v[i][k].get_gid();
-		//std::cout << "i " << i << " k " << k << std::endl;
-		//k++;
+		thread_local_sources[i][k] = iter->get_gid();
+		//std::cout << "i " << i << " gid " << v[i][k].get_gid() << std::endl;
+		k++;
 	}
        }
 

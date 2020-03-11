@@ -249,20 +249,17 @@ class Connector : public ConnectorBase
 private:
   BlockVector< ConnectionT > C_;
   const synindex syn_id_;
-  ConnectionT *C_1 =  new ConnectionT[82100000];
+  ConnectionT *C_1 =  new ConnectionT[81000000];
 
 public:
 
   virtual void map_in() {
-        //std::cout << "I am .. " << typeid(this).name() << std::endl;
-        //std::cout << "sizeof" << sizeof(*this) << std::endl;
-   
-	#pragma omp target enter data map(to:this[0:1])
-	#pragma omp target enter data map(to:this->C_1[0:82100000])
+	#pragma omp target enter data map(to: this[0:1])
+	#pragma omp target enter data map(to: this->C_1[0:81000000])
   }
   virtual void map_out() {
-	#pragma omp target exit data map(to:this[0:1])
-	//#pragma omp target exit data map(from:this->C_1[0:8210000])
+	#pragma omp target exit data map(from: this[0:1])
+	#pragma omp target exit data map(from: this->C_1[0:8100000])
   }
   Connector( const synindex syn_id )
     : syn_id_( syn_id )
@@ -324,7 +321,7 @@ public:
   {
     int i=0;    
     size_t veclen = C_.size();
-    std::cout << veclen << " connections to copy to an array" << std::endl;
+    //std::cout << veclen << " connections to copy to an array" << std::endl;
     for (typename BlockVector< ConnectionT >::const_iterator iter = C_.begin();
 	iter != C_.end();iter++) {
 	C_1[i] = *iter;
