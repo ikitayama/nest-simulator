@@ -678,7 +678,7 @@ EventDeliveryManager::deliver_events_( const thread tid,
    }
    WeightRecorderEvent wr_e;
 
-#pragma omp target parallel for map(tofrom: are_others_completed,recv_buffer_a[0:recv_buffer_size]) map(to: send_recv_count_spike_data_per_rank,nranks,spike_data,se,prepared_timestamps) map(to: a1[0:nnodes]) map(to: wr_e)
+#pragma omp target teams distribute parallel for num_teams(512) map(tofrom: are_others_completed,recv_buffer_a[0:recv_buffer_size],se) map(to: send_recv_count_spike_data_per_rank,nranks,spike_data,prepared_timestamps) map(to: a1[0:nnodes]) map(to: wr_e)
   for ( thread rank = 0; rank < nranks;
         ++rank )
   { 
@@ -743,7 +743,7 @@ EventDeliveryManager::deliver_events_( const thread tid,
 
 #pragma omp target exit data map(from: thread_local_sources[0][0:81000000])
 #pragma omp target exit data map(from: thread_local_sources[0:100])
-
+  std::cout << "get_delay_steps " << se.get_delay_steps() << std::endl;
   return are_others_completed;
 
 }
