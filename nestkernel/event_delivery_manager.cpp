@@ -639,15 +639,15 @@ EventDeliveryManager::deliver_events_( const thread tid,
   for (int i=0;i<100;i++) {
 	if (i==0) thread_local_sources[i] = new index[81000000]; // hard-coded value
   }
-  // check GIDs
-  for (int i=0;i<81000000;i++) {
-	//std::cout << *thread_local_sources[i] << std::endl;
-  }
  // array size needs to be estimated correctly
   //for (int i=0;i<100;i++)
 //	thread_local_sources[i] = new index[1024*1024]; 
 
   kernel().connection_manager.copy_to(tid, thread_local_sources);
+  // check GIDs
+  for (int i=0;i<81000000;i++) {
+             //std::cout << thread_local_sources[0][i] << std::endl;
+  }
   ConnectorBase *connections[100];
 
   std::vector<ConnectorBase*> thread_local_v = kernel().connection_manager.get_thread_local_connections(tid);
@@ -713,15 +713,16 @@ EventDeliveryManager::deliver_events_( const thread tid,
         const index lcid = spike_data.get_lcid();
         //const index source_gid = kernel().connection_manager.get_source_gid( tid, syn_id, lcid );
         //const index source_gid = source.get_gid( tid, syn_id, lcid );
-        //assert(lcid <= 81000000);
-        //const index source_gid = thread_local_sources[syn_id][lcid];
-        const index source_gid = 1;
+        if (lcid >= 81000000 or syn_id != 0) printf("lcid is %lu\n");
+        const index source_gid = thread_local_sources[syn_id][lcid];
+        //const index source_gid = 1;
         printf("Target: syn_id %lu lcid %lu source_gid %lu\n", syn_id, lcid, source_gid);
-	unsigned long *a;
+	index *a = nullptr;
         se.set_sender_gid( source_gid );
         //kernel().connection_manager.send( tid, syn_id, lcid, cm, se );
         typename StaticConnection<TargetIdentifierPtrRport>::CommonPropertiesType const &cp = static_cast<GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> >* >( cmarray[ 0 ])->GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> >::get_common_properties();
-        //static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(connections[0])->ff(tid, lcid, cp, se, a, wr_e);
+        static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(connections[0])->ff(tid, lcid, cp, se, a);
+        static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(connections[0])->f3();
 
       }
       // break if this was the last valid entry from this rank
