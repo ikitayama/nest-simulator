@@ -714,7 +714,8 @@ EventDeliveryManager::deliver_events_( const thread tid,
         //const index source_gid = kernel().connection_manager.get_source_gid( tid, syn_id, lcid );
         //const index source_gid = source.get_gid( tid, syn_id, lcid );
         //assert(lcid <= 81000000);
-        const index source_gid = thread_local_sources[syn_id][lcid];
+        //const index source_gid = thread_local_sources[syn_id][lcid];
+        const index source_gid = 1;
         printf("Target: syn_id %lu lcid %lu source_gid %lu\n", syn_id, lcid, source_gid);
 	unsigned long *a;
         se.set_sender_gid( source_gid );
