@@ -708,7 +708,7 @@ EventDeliveryManager::deliver_events_( const thread tid,
       {
         se.set_stamp( prepared_timestamps[ spike_data.get_lag() ] );
         se.set_offset( spike_data.get_offset() );
-	printf("get_lag %u get_offset %f\n", spike_data.get_lag(), spike_data.get_offset());
+	//printf("get_lag %u get_offset %f\n", spike_data.get_lag(), spike_data.get_offset());
         const index syn_id = spike_data.get_syn_id();
         const index lcid = spike_data.get_lcid();
         //const index source_gid = kernel().connection_manager.get_source_gid( tid, syn_id, lcid );
@@ -716,13 +716,15 @@ EventDeliveryManager::deliver_events_( const thread tid,
         if (lcid >= 81000000 or syn_id != 0) printf("lcid is %lu\n");
         const index source_gid = thread_local_sources[syn_id][lcid];
         //const index source_gid = 1;
-        printf("Target: syn_id %lu lcid %lu source_gid %lu\n", syn_id, lcid, source_gid);
+        //printf("Target: syn_id %lu lcid %lu source_gid %lu\n", syn_id, lcid, source_gid);
 	index *a = nullptr;
         se.set_sender_gid( source_gid );
         //kernel().connection_manager.send( tid, syn_id, lcid, cm, se );
         typename StaticConnection<TargetIdentifierPtrRport>::CommonPropertiesType const &cp = static_cast<GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> >* >( cmarray[ 0 ])->GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> >::get_common_properties();
+        //WeightRecorderEvent wr_e1;
+        //MyEvent myEvent;
+        //Event myEvent;
         static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(connections[0])->ff(tid, lcid, cp, se, a);
-        static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(connections[0])->f3();
 
       }
       // break if this was the last valid entry from this rank
@@ -745,7 +747,7 @@ EventDeliveryManager::deliver_events_( const thread tid,
 
 #pragma omp target exit data map(from: thread_local_sources[0][0:81000000])
 #pragma omp target exit data map(from: thread_local_sources[0:100])
-  std::cout << "get_delay_steps " << se.get_delay_steps() << std::endl;
+  //std::cout << "get_delay_steps " << se.get_delay_steps() << std::endl;
   return are_others_completed;
 
 }

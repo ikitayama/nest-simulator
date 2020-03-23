@@ -99,7 +99,6 @@ public:
    */
   virtual Event* clone() const = 0;
 
-  virtual void map_in() = 0;
   /**
    * Deliver the event to receiver.
    *
@@ -344,6 +343,13 @@ protected:
   weight w_;
 };
 
+class MyEvent : public Event
+{
+public:
+  MyEvent();
+  void operator()();
+  MyEvent* clone() const;
+};
 
 // Built-in event types
 /**
@@ -353,7 +359,7 @@ protected:
 class SpikeEvent : public Event
 {
 public:
-  virtual void map_in() {
+  void map_in() {
 	//#pragma omp target enter data map(to: receiver_[0:1])
   }
   SpikeEvent();
@@ -399,7 +405,7 @@ class WeightRecorderEvent : public Event
 public:
   WeightRecorderEvent();
   WeightRecorderEvent* clone() const;
-  virtual void map_in() {}
+  void map_in() {}
   void operator()();
 
   /**
