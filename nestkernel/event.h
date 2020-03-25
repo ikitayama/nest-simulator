@@ -343,14 +343,6 @@ protected:
   weight w_;
 };
 
-class MyEvent : public Event
-{
-public:
-  MyEvent();
-  void operator()();
-  MyEvent* clone() const;
-};
-
 // Built-in event types
 /**
  * Event for spike information.

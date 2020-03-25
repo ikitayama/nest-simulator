@@ -698,7 +698,7 @@ EventDeliveryManager::deliver_events_( const thread tid,
       continue;
     }
 
-    printf("send_recv_count_spike_data_per_rank is %d\n", send_recv_count_spike_data_per_rank);
+    //printf("send_recv_count_spike_data_per_rank is %d\n", send_recv_count_spike_data_per_rank);
     for ( unsigned int i = 0; i < send_recv_count_spike_data_per_rank; ++i )
     {
       spike_data =
@@ -722,8 +722,6 @@ EventDeliveryManager::deliver_events_( const thread tid,
         //kernel().connection_manager.send( tid, syn_id, lcid, cm, se );
         typename StaticConnection<TargetIdentifierPtrRport>::CommonPropertiesType const &cp = static_cast<GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> >* >( cmarray[ 0 ])->GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> >::get_common_properties();
         //WeightRecorderEvent wr_e1;
-        //MyEvent myEvent;
-        //Event myEvent;
         static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(connections[0])->ff(tid, lcid, cp, se, a);
 
       }
