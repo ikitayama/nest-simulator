@@ -423,7 +423,7 @@ inline WeightRecorderEvent::WeightRecorderEvent()
 inline WeightRecorderEvent*
 WeightRecorderEvent::clone() const
 {
-  return new WeightRecorderEvent( *this );
+  //return new WeightRecorderEvent( *this );
 }
 
 inline void
