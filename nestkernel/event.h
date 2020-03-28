@@ -37,6 +37,7 @@
 #include "nest_time.h"
 #include "nest_types.h"
 #include "vp_manager.h"
+
 // Includes from sli:
 #include "name.h"
 
@@ -343,6 +344,7 @@ protected:
   weight w_;
 };
 
+
 // Built-in event types
 /**
  * Event for spike information.
@@ -423,7 +425,7 @@ inline WeightRecorderEvent::WeightRecorderEvent()
 inline WeightRecorderEvent*
 WeightRecorderEvent::clone() const
 {
-  //return new WeightRecorderEvent( *this );
+  return new WeightRecorderEvent( *this );
 }
 
 inline void

@@ -26,7 +26,7 @@
 #include <algorithm> // rotate
 #include <iostream>
 #include <numeric> // accumulate
-
+#include <memory>
 // Includes from libnestutil:
 #include "logging.h"
 
@@ -631,11 +631,7 @@ EventDeliveryManager::deliver_events_( const thread tid,
       a1[i] = thread_local_nodes[i];
 
   SpikeDataT spike_data;
-  //SpikeData spike_data;
-  //Source **thread_local_sources = nullptr; 
-  //index **thread_local_sources = nullptr; 
-  index **thread_local_sources;
-  thread_local_sources = new index*[100];
+  index** thread_local_sources = new index*[100];
   for (int i=0;i<100;i++) {
 	if (i==0) thread_local_sources[i] = new index[81000000]; // hard-coded value
   }
@@ -746,6 +742,11 @@ EventDeliveryManager::deliver_events_( const thread tid,
 #pragma omp target exit data map(from: thread_local_sources[0][0:81000000])
 #pragma omp target exit data map(from: thread_local_sources[0:100])
   //std::cout << "get_delay_steps " << se.get_delay_steps() << std::endl;
+  for (int i=0;i<100;i++) {
+	if (i==0) delete[] thread_local_sources[i];
+  }
+  delete[] thread_local_sources;
+
   return are_others_completed;
 
 }
