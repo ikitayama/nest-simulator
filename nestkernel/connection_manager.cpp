@@ -1519,6 +1519,7 @@ nest::ConnectionManager::copy_to(const thread tid, index **thread_local_sources)
 	int k=0;
 	//std::cout << "i " << i << " total sources " << v[i].size() << std::endl; 
 	if (v[i].size() == 0) continue;
+	thread_local_sources[i] = new index[v[i].size()];
 	//std::cout << "Synapsetype " << i << " elements " << v[i].size() << std::endl;
 	for (; iter != v[i].end();iter++) {
 		thread_local_sources[i][k] = iter->get_gid();

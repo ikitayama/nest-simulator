@@ -633,17 +633,11 @@ EventDeliveryManager::deliver_events_( const thread tid,
   SpikeDataT spike_data;
   index** thread_local_sources = new index*[100];
   for (int i=0;i<100;i++) {
-	if (i==0) thread_local_sources[i] = new index[81000000]; // hard-coded value
+	//if (i==0) thread_local_sources[i] = new index[81000000]; // hard-coded value
   }
- // array size needs to be estimated correctly
-  //for (int i=0;i<100;i++)
-//	thread_local_sources[i] = new index[1024*1024]; 
 
   kernel().connection_manager.copy_to(tid, thread_local_sources);
-  // check GIDs
-  for (int i=0;i<81000000;i++) {
-             //std::cout << thread_local_sources[0][i] << std::endl;
-  }
+
   ConnectorBase *connections[100];
 
   std::vector<ConnectorBase*> thread_local_v = kernel().connection_manager.get_thread_local_connections(tid);
@@ -652,10 +646,7 @@ EventDeliveryManager::deliver_events_( const thread tid,
 	if (i==0) connections[i] = thread_local_v[i];
   }
   static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(connections[0])->map_in();
-  for (int i=0;i<100;i++) {
-        //if (i==0) static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>>*>(connections[i])->c1();
-  }
-//#pragma omp target enter data map(to: connections[0:100])
+
 #pragma omp target enter data map(to: cmarray[0:100])
 //for (int i=1;i == 0 or i == 20 or i == 21;i++) {
 	#pragma omp target enter data map(to: connections[0][0:1])
@@ -675,7 +666,7 @@ EventDeliveryManager::deliver_events_( const thread tid,
    WeightRecorderEvent wr_e;
 
 //#pragma omp target teams distribute parallel for num_teams(512) map(tofrom: are_others_completed,recv_buffer_a[0:recv_buffer_size],se) map(to: send_recv_count_spike_data_per_rank,nranks,spike_data,prepared_timestamps) map(to: a1[0:nnodes]) map(to: wr_e)
-#pragma omp target teams distribute parallel for map(tofrom: are_others_completed,recv_buffer_a[0:recv_buffer_size],se) map(to: send_recv_count_spike_data_per_rank,nranks,spike_data,prepared_timestamps) map(to: a1[0:nnodes]) map(to: wr_e)
+#pragma omp target teams distribute parallel for map(to: are_others_completed,recv_buffer_a[0:recv_buffer_size],se) map(to: send_recv_count_spike_data_per_rank,nranks,spike_data,prepared_timestamps) map(to: a1[0:nnodes]) map(to: wr_e)
   for ( thread rank = 0; rank < nranks;
         ++rank )
   { 
@@ -712,7 +703,6 @@ EventDeliveryManager::deliver_events_( const thread tid,
         //const index source_gid = source.get_gid( tid, syn_id, lcid );
         if (lcid >= 81000000 or syn_id != 0) printf("lcid is %lu\n");
         const index source_gid = thread_local_sources[syn_id][lcid];
-        //const index source_gid = 1;
         //printf("Target: syn_id %lu lcid %lu source_gid %lu\n", syn_id, lcid, source_gid);
 	index *a = nullptr;
         se.set_sender_gid( source_gid );
@@ -741,7 +731,7 @@ EventDeliveryManager::deliver_events_( const thread tid,
 #pragma omp target exit data map(from: cmarray[0:100])
 
 #pragma omp target exit data map(from: thread_local_sources[0][0:81000000])
-#pragma omp target exit data map(from: thread_local_sources[0:100])
+//#pragma omp target exit data map(from: thread_local_sources[0:100])
   //std::cout << "get_delay_steps " << se.get_delay_steps() << std::endl;
   for (int i=0;i<100;i++) {
 	if (i==0) delete[] thread_local_sources[i];

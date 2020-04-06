@@ -252,7 +252,6 @@ private:
   ConnectionT *C_1;
 
 public:
-
   virtual void map_in() {
 	size_t array_size = C_.size();
 	C_1 = new ConnectionT[array_size];
@@ -269,6 +268,7 @@ public:
 	#pragma omp target enter data map(to: this[0:1])
 	#pragma omp target enter data map(to: this->C_1[0:array_size])
   }
+
   virtual void map_out() {
 	size_t array_size = C_.size();
 	#pragma omp target exit data map(from: this[0:1])
