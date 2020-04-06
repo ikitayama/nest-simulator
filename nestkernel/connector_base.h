@@ -249,17 +249,30 @@ class Connector : public ConnectorBase
 private:
   BlockVector< ConnectionT > C_;
   const synindex syn_id_;
-  ConnectionT *C_1 =  new ConnectionT[81000000];
+  ConnectionT *C_1;
 
 public:
 
   virtual void map_in() {
+	size_t array_size = C_.size();
+	C_1 = new ConnectionT[array_size];
+
+    	int i=0;
+    	size_t veclen = array_size;
+        for (typename BlockVector< ConnectionT >::const_iterator iter = C_.begin();
+                iter != C_.end();iter++) {
+                        C_1[i] = *iter;
+                                i++;
+        }
+        assert(i==veclen);
+
 	#pragma omp target enter data map(to: this[0:1])
-	#pragma omp target enter data map(to: this->C_1[0:81000000])
+	#pragma omp target enter data map(to: this->C_1[0:array_size])
   }
   virtual void map_out() {
+	size_t array_size = C_.size();
 	#pragma omp target exit data map(from: this[0:1])
-	#pragma omp target exit data map(from: this->C_1[0:8100000])
+	#pragma omp target exit data map(from: this->C_1[0:array_size])
   }
   Connector( const synindex syn_id )
     : syn_id_( syn_id )
@@ -316,20 +329,6 @@ public:
     C_.push_back( c );
     return *this;
   }
-  
-  void
-  c1()
-  {
-    int i=0;    
-    size_t veclen = C_.size();
-    //std::cout << veclen << " connections to copy to an array" << std::endl;
-    for (typename BlockVector< ConnectionT >::const_iterator iter = C_.begin();
-	iter != C_.end();iter++) {
-	C_1[i] = *iter;
-        i++;
-    }
-    assert(i==veclen);
- }
 
   void
   get_connection( const index source_gid,

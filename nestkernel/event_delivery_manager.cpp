@@ -651,10 +651,10 @@ EventDeliveryManager::deliver_events_( const thread tid,
   for (int i=0;i<100;i++) {
 	if (i==0) connections[i] = thread_local_v[i];
   }
-  for (int i=0;i<100;i++) {
-        if (i==0) static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>>*>(connections[i])->c1();
-  }
   static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(connections[0])->map_in();
+  for (int i=0;i<100;i++) {
+        //if (i==0) static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>>*>(connections[i])->c1();
+  }
 //#pragma omp target enter data map(to: connections[0:100])
 #pragma omp target enter data map(to: cmarray[0:100])
 //for (int i=1;i == 0 or i == 20 or i == 21;i++) {
@@ -674,7 +674,8 @@ EventDeliveryManager::deliver_events_( const thread tid,
    }
    WeightRecorderEvent wr_e;
 
-#pragma omp target teams distribute parallel for num_teams(512) map(tofrom: are_others_completed,recv_buffer_a[0:recv_buffer_size],se) map(to: send_recv_count_spike_data_per_rank,nranks,spike_data,prepared_timestamps) map(to: a1[0:nnodes]) map(to: wr_e)
+//#pragma omp target teams distribute parallel for num_teams(512) map(tofrom: are_others_completed,recv_buffer_a[0:recv_buffer_size],se) map(to: send_recv_count_spike_data_per_rank,nranks,spike_data,prepared_timestamps) map(to: a1[0:nnodes]) map(to: wr_e)
+#pragma omp target teams distribute parallel for map(tofrom: are_others_completed,recv_buffer_a[0:recv_buffer_size],se) map(to: send_recv_count_spike_data_per_rank,nranks,spike_data,prepared_timestamps) map(to: a1[0:nnodes]) map(to: wr_e)
   for ( thread rank = 0; rank < nranks;
         ++rank )
   { 
