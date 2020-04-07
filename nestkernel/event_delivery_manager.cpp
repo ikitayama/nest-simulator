@@ -624,7 +624,7 @@ EventDeliveryManager::deliver_events_( const thread tid,
 	recv_buffer_a[i] = recv_buffer[i];
   int nranks= kernel().mpi_manager.get_num_processes();
 
-  std::vector<Node*> thread_local_nodes = kernel().node_manager.copy1(tid);
+  std::vector<Node*> thread_local_nodes = kernel().node_manager.get_nodes_on_thread(tid);
   int nnodes = thread_local_nodes.size();
   Node *a1[nnodes];
   for (int i=0;i<nnodes;i++)

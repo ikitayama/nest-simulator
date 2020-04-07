@@ -347,12 +347,6 @@ NodeManager::thread_lid_to_node( thread t, targetindex thread_local_id ) const
 }
 
 inline const std::vector< Node* >&
-NodeManager::copy1( thread t ) const
-{
-  return nodes_vec_[ t ];
-}
-
-inline const std::vector< Node* >&
 NodeManager::get_nodes_on_thread( thread t ) const
 {
   return nodes_vec_.at( t );
