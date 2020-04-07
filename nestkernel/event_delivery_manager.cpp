@@ -632,10 +632,6 @@ EventDeliveryManager::deliver_events_( const thread tid,
 
   SpikeDataT spike_data;
   index** thread_local_sources = new index*[100];
-  for (int i=0;i<100;i++) {
-	//if (i==0) thread_local_sources[i] = new index[81000000]; // hard-coded value
-  }
-
   kernel().connection_manager.copy_to(tid, thread_local_sources);
 
   ConnectorBase *connections[100];
