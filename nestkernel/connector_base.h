@@ -249,12 +249,11 @@ class Connector : public ConnectorBase
 private:
   BlockVector< ConnectionT > C_;
   const synindex syn_id_;
-  ConnectionT *C_1;
+  ConnectionT *C_1 = new ConnectionT[81000000];
 
 public:
   virtual void map_in() {
 	size_t array_size = C_.size();
-	C_1 = new ConnectionT[array_size];
 
     	int i=0;
     	size_t veclen = array_size;
