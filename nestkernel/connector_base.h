@@ -265,13 +265,13 @@ public:
         assert(i==veclen);
 
 	#pragma omp target enter data map(to: this[0:1])
-	#pragma omp target enter data map(to: this->C_1[0:array_size])
+	#pragma omp target enter data map(to: this->C_1[0:81000000])
   }
 
   virtual void map_out() {
 	size_t array_size = C_.size();
 	#pragma omp target exit data map(from: this[0:1])
-	#pragma omp target exit data map(from: this->C_1[0:array_size])
+	#pragma omp target exit data map(from: this->C_1[0:81000000])
   }
   Connector( const synindex syn_id )
     : syn_id_( syn_id )

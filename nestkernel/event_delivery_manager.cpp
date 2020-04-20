@@ -666,7 +666,6 @@ EventDeliveryManager::deliver_events_( const thread tid,
   for ( thread rank = 0; rank < nranks;
         ++rank )
   { 
-    
     // check last entry for completed marker; needs to be done before
     // checking invalid marker to assure that this is always read
     if ( not recv_buffer_a[ ( rank + 1 ) * send_recv_count_spike_data_per_rank
@@ -726,7 +725,7 @@ EventDeliveryManager::deliver_events_( const thread tid,
 //#pragma omp target exit data map(from: cmarray[21][0:1])
 #pragma omp target exit data map(from: cmarray[0:100])
 
-#pragma omp target exit data map(from: thread_local_sources[0][0:81000000])
+//#pragma omp target exit data map(from: thread_local_sources[0][0:81000000])
 //#pragma omp target exit data map(from: thread_local_sources[0:100])
   //std::cout << "get_delay_steps " << se.get_delay_steps() << std::endl;
   for (int i=0;i<100;i++) {
