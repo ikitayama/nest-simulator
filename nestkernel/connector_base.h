@@ -444,11 +444,6 @@ public:
     */
      
     index lcid_offset = 0; 
-    typename ConnectionT::CommonPropertiesType const& cp =
-      static_cast< GenericConnectorModel< ConnectionT >* >( cm[ syn_id_ ] )->get_common_properties();
-
-    index lcid_offset = 0;
-
     while ( true )
     { 
       ConnectionT conn = C_1[ lcid + lcid_offset ]; 

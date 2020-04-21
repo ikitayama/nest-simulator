@@ -538,7 +538,7 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
   assert( kernel().simulation_manager.get_to_step() == kernel().connection_manager.get_min_delay() );
 
   SpikeEvent se;
-  //se.map_in();
+
   // prepare Time objects for every possible time stamp within min_delay_
   std::vector< Time > prepared_timestamps( kernel().connection_manager.get_min_delay() );
   for ( size_t lag = 0; lag < ( size_t ) kernel().connection_manager.get_min_delay(); ++lag )
@@ -552,7 +552,7 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
 	recv_buffer_a[i] = recv_buffer[i];
   int nranks= kernel().mpi_manager.get_num_processes();
 
-  std::vector<Node*> thread_local_nodes = kernel().node_manager.get_nodes_on_thread(tid);
+  std::vector<Node*> thread_local_nodes;// = kernel().node_manager.get_nodes_on_thread(tid);
   int nnodes = thread_local_nodes.size();
   Node *a1[nnodes];
   for (int i=0;i<nnodes;i++)
@@ -596,19 +596,13 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
   { 
     // check last entry for completed marker; needs to be done before
     // checking invalid marker to assure that this is always read
-    if ( not recv_buffer_a[ ( rank + 1 ) * send_recv_count_spike_data_per_rank
-               - 1 ].is_complete_marker() )
-  for ( thread rank = 0; rank < kernel().mpi_manager.get_num_processes(); ++rank )
-  {
-    // check last entry for completed marker; needs to be done before
-    // checking invalid marker to assure that this is always read
-    if ( not recv_buffer[ ( rank + 1 ) * send_recv_count_spike_data_per_rank - 1 ].is_complete_marker() )
+    if ( not recv_buffer_a[ ( rank + 1 ) * send_recv_count_spike_data_per_rank - 1 ].is_complete_marker() )
     {
       are_others_completed = false;
     }
 
     // continue with next rank if no spikes were sent by this rank
-    if ( recv_buffer[ rank * send_recv_count_spike_data_per_rank ].is_invalid_marker() )
+    if ( recv_buffer_a[ rank * send_recv_count_spike_data_per_rank ].is_invalid_marker() )
     {
       continue;
     }
@@ -632,7 +626,7 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
         const index source_gid = thread_local_sources[syn_id][lcid];
         //printf("Target: syn_id %lu lcid %lu source_gid %lu\n", syn_id, lcid, source_gid);
 	index *a = nullptr;
-        se.set_sender_gid( source_gid );
+        //se.set_sender_gid( source_gid );
         //kernel().connection_manager.send( tid, syn_id, lcid, cm, se );
         typename StaticConnection<TargetIdentifierPtrRport>::CommonPropertiesType const &cp = static_cast<GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> >* >( cmarray[ 0 ])->GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> >::get_common_properties();
         //WeightRecorderEvent wr_e1;
