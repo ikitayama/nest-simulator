@@ -11,7 +11,7 @@
  *  (at your option) any later version.
  *
  *  NEST is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
  *
@@ -47,16 +47,26 @@ Description:
 
 threshold_lin_rate is an implementation of a nonlinear rate model with input
 function \f$ input(h) = min( max( g * ( h - \theta ), 0 ), \alpha ) \f$.
-Input transformation can either be applied to individual inputs
-or to the sum of all inputs.
+It either models a rate neuron with input noise (see rate_neuron_ipn),
+a rate neuron with output noise (see rate_neuron_opn) or a rate
+transformer (see rate_transformer_node). Input transformation can
+either be applied to individual inputs or to the sum of all inputs.
 
 The model supports connections to other rate models with either zero or
 non-zero delay, and uses the secondary_event concept introduced with
 the gap-junction framework.
 
+Nonlinear rate neurons can be created by typing
+nest.Create('threshold_lin_rate_ipn') or
+nest.Create('threshold_lin_rate_opn') for input noise or output noise,
+respectively. Nonlinear rate transformers can be created by typing
+nest.Create('rate_transformer_threshold_lin').
+
 Parameters:
 
-The following parameters can be set in the status dictionary.
+The following parameters can be set in the status dictionary. Note
+that some of the parameters only apply to rate neurons and not to rate
+transformers.
 
 \verbatim embed:rst
 ==================  ======= ==============================================
@@ -122,8 +132,8 @@ public:
   {
   }
 
-  void get( DictionaryDatum& ) const; //!< Store current values in dictionary
-  void set( const DictionaryDatum& ); //!< Set values from dicitonary
+  void get( DictionaryDatum& ) const;             //!< Store current values in dictionary
+  void set( const DictionaryDatum&, Node* node ); //!< Set values from dicitonary
 
   double input( double h );               // non-linearity on input
   double mult_coupling_ex( double rate ); // factor of multiplicative coupling
@@ -148,12 +158,9 @@ nonlinearities_threshold_lin_rate::mult_coupling_in( double rate )
   return 1.;
 }
 
-typedef rate_neuron_ipn< nest::nonlinearities_threshold_lin_rate >
-  threshold_lin_rate_ipn;
-typedef rate_neuron_opn< nest::nonlinearities_threshold_lin_rate >
-  threshold_lin_rate_opn;
-typedef rate_transformer_node< nest::nonlinearities_threshold_lin_rate >
-  rate_transformer_threshold_lin;
+typedef rate_neuron_ipn< nest::nonlinearities_threshold_lin_rate > threshold_lin_rate_ipn;
+typedef rate_neuron_opn< nest::nonlinearities_threshold_lin_rate > threshold_lin_rate_opn;
+typedef rate_transformer_node< nest::nonlinearities_threshold_lin_rate > rate_transformer_threshold_lin;
 
 template <>
 void RecordablesMap< threshold_lin_rate_ipn >::create();

@@ -70,9 +70,6 @@ using namespace std;
 // due to the lack of sstream support in libstdc++-2.7.2.x
 // This will change in the future.
 
-extern int SLIsignalflag;
-
-
 void
 MathLinkPutStringFunction::execute( SLIInterpreter* i ) const
 {
@@ -86,8 +83,7 @@ MathLinkPutStringFunction::execute( SLIInterpreter* i ) const
   {
     StringDatum const d;
     Token t = i->OStack.top();
-    throw TypeMismatch(
-      d.gettypename().toString(), t.datum()->gettypename().toString() );
+    throw TypeMismatch( d.gettypename().toString(), t.datum()->gettypename().toString() );
   }
 
   std::cout << "sending (" << *sd << ") to Mathematica" << std::endl;
@@ -121,8 +117,7 @@ XIfstreamFunction::execute( SLIInterpreter* i ) const
   {
     StringDatum const d;
     Token t = i->OStack.top();
-    throw TypeMismatch(
-      d.gettypename().toString(), t.datum()->gettypename().toString() );
+    throw TypeMismatch( d.gettypename().toString(), t.datum()->gettypename().toString() );
   }
 
   std::istream* in = new ifdstream( sd->c_str() );
@@ -166,8 +161,7 @@ IfstreamFunction::execute( SLIInterpreter* i ) const
   {
     StringDatum const d;
     Token t = i->OStack.top();
-    throw TypeMismatch(
-      d.gettypename().toString(), t.datum()->gettypename().toString() );
+    throw TypeMismatch( d.gettypename().toString(), t.datum()->gettypename().toString() );
   }
 
   //    std::ifstream *in = new std::ifstream(sd->c_str());
@@ -215,8 +209,7 @@ OfstreamFunction::execute( SLIInterpreter* i ) const
   {
     StringDatum const d;
     Token t = i->OStack.top();
-    throw TypeMismatch(
-      d.gettypename().toString(), t.datum()->gettypename().toString() );
+    throw TypeMismatch( d.gettypename().toString(), t.datum()->gettypename().toString() );
   }
 
   //    std::ofstream *out = new std::ofstream(sd->c_str());
@@ -280,8 +273,7 @@ OfsopenFunction::execute( SLIInterpreter* i ) const
     Token t1 = i->OStack.pick( 1 );
     Token t2 = i->OStack.top();
     throw TypeMismatch( d.gettypename().toString(),
-      t1.datum()->gettypename().toString() + " or "
-        + t2.datum()->gettypename().toString() );
+      t1.datum()->gettypename().toString() + " or " + t2.datum()->gettypename().toString() );
   }
 
   std::ostream* out = NULL;
@@ -342,8 +334,7 @@ IsstreamFunction::execute( SLIInterpreter* i ) const
   {
     StringDatum const d;
     Token t = i->OStack.top();
-    throw TypeMismatch(
-      d.gettypename().toString(), t.datum()->gettypename().toString() );
+    throw TypeMismatch( d.gettypename().toString(), t.datum()->gettypename().toString() );
   }
 
 #ifdef HAVE_SSTREAM
@@ -411,23 +402,19 @@ StrSStreamFunction::execute( SLIInterpreter* i ) const
 
   // call: ostrstream str -> string
 
-  OstreamDatum* ostreamdatum =
-    dynamic_cast< OstreamDatum* >( i->OStack.top().datum() );
+  OstreamDatum* ostreamdatum = dynamic_cast< OstreamDatum* >( i->OStack.top().datum() );
 
   if ( ostreamdatum == NULL )
   {
     OstreamDatum const d;
     Token t = i->OStack.top();
-    throw TypeMismatch(
-      d.gettypename().toString(), t.datum()->gettypename().toString() );
+    throw TypeMismatch( d.gettypename().toString(), t.datum()->gettypename().toString() );
   }
 
 #ifdef HAVE_SSTREAM
-  std::ostringstream* out =
-    dynamic_cast< std::ostringstream* >( ostreamdatum->get() );
+  std::ostringstream* out = dynamic_cast< std::ostringstream* >( ostreamdatum->get() );
 #else
-  std::ostrstream* out =
-    dynamic_cast< std::ostrstream* >( ostreamdatum->get() );
+  std::ostrstream* out = dynamic_cast< std::ostrstream* >( ostreamdatum->get() );
 #endif
   assert( out != NULL );
   ostreamdatum->unlock();
@@ -509,23 +496,19 @@ StrFunction::execute( SLIInterpreter* i ) const
   i->assert_stack_load( 1 );
   // call: std::ostrstream str -> string
 
-  OstreamDatum* ostreamdatum =
-    dynamic_cast< OstreamDatum* >( i->OStack.top().datum() );
+  OstreamDatum* ostreamdatum = dynamic_cast< OstreamDatum* >( i->OStack.top().datum() );
 
   if ( ostreamdatum == NULL )
   {
     OstreamDatum const d;
     Token t = i->OStack.top();
-    throw TypeMismatch(
-      d.gettypename().toString(), t.datum()->gettypename().toString() );
+    throw TypeMismatch( d.gettypename().toString(), t.datum()->gettypename().toString() );
   }
 
 #ifdef HAVE_SSTREAM
-  std::ostringstream* out =
-    dynamic_cast< std::ostringstream* >( ostreamdatum->get() );
+  std::ostringstream* out = dynamic_cast< std::ostringstream* >( ostreamdatum->get() );
 #else
-  std::ostrstream* out =
-    dynamic_cast< std::ostrstream* >( ostreamdatum->get() );
+  std::ostrstream* out = dynamic_cast< std::ostrstream* >( ostreamdatum->get() );
 #endif
   assert( out != NULL );
   ostreamdatum->unlock();
@@ -579,8 +562,7 @@ PrintFunction::execute( SLIInterpreter* i ) const
 
   // call: ostream obj -> ostream
 
-  OstreamDatum* ostreamdatum =
-    dynamic_cast< OstreamDatum* >( i->OStack.pick( 1 ).datum() );
+  OstreamDatum* ostreamdatum = dynamic_cast< OstreamDatum* >( i->OStack.pick( 1 ).datum() );
 
   if ( ostreamdatum == NULL )
   {
@@ -593,10 +575,6 @@ PrintFunction::execute( SLIInterpreter* i ) const
   if ( ( *ostreamdatum )->good() )
   {
     i->OStack.top()->print( **ostreamdatum );
-    if ( SLIsignalflag != 0 )
-    {
-      ( *ostreamdatum )->clear();
-    }
 
     i->OStack.pop();
     i->EStack.pop();
@@ -630,24 +608,19 @@ PrettyprintFunction::execute( SLIInterpreter* i ) const
 
   i->assert_stack_load( 2 );
 
-  OstreamDatum* ostreamdatum =
-    dynamic_cast< OstreamDatum* >( i->OStack.pick( 1 ).datum() );
+  OstreamDatum* ostreamdatum = dynamic_cast< OstreamDatum* >( i->OStack.pick( 1 ).datum() );
 
   if ( ostreamdatum == NULL || not ostreamdatum->valid() )
   {
     OstreamDatum const d;
     Token t = i->OStack.pick( 1 );
-    throw TypeMismatch(
-      d.gettypename().toString(), t.datum()->gettypename().toString() );
+    throw TypeMismatch( d.gettypename().toString(), t.datum()->gettypename().toString() );
   }
 
   if ( ( *ostreamdatum )->good() )
   {
     i->OStack.top()->pprint( **ostreamdatum );
-    if ( SLIsignalflag != 0 )
-    {
-      ( *ostreamdatum )->clear();
-    }
+
     i->OStack.pop();
     i->EStack.pop();
   }
@@ -667,15 +640,13 @@ FlushFunction::execute( SLIInterpreter* i ) const
   i->assert_stack_load( 1 );
   // call: ostream -> ostream
 
-  OstreamDatum* ostreamdatum =
-    dynamic_cast< OstreamDatum* >( i->OStack.top().datum() );
+  OstreamDatum* ostreamdatum = dynamic_cast< OstreamDatum* >( i->OStack.top().datum() );
 
   if ( ostreamdatum == NULL || not ostreamdatum->valid() )
   {
     OstreamDatum const d;
     Token t = i->OStack.top();
-    throw TypeMismatch(
-      d.gettypename().toString(), t.datum()->gettypename().toString() );
+    throw TypeMismatch( d.gettypename().toString(), t.datum()->gettypename().toString() );
   }
 
   if ( ( *ostreamdatum )->good() )
@@ -709,15 +680,13 @@ EndlFunction::execute( SLIInterpreter* i ) const
 
   i->assert_stack_load( 1 );
 
-  OstreamDatum* ostreamdatum =
-    dynamic_cast< OstreamDatum* >( i->OStack.top().datum() );
+  OstreamDatum* ostreamdatum = dynamic_cast< OstreamDatum* >( i->OStack.top().datum() );
 
   if ( ostreamdatum == NULL || not ostreamdatum->valid() )
   {
     OstreamDatum const d;
     Token t = i->OStack.top();
-    throw TypeMismatch(
-      d.gettypename().toString(), t.datum()->gettypename().toString() );
+    throw TypeMismatch( d.gettypename().toString(), t.datum()->gettypename().toString() );
   }
 
   if ( ( *ostreamdatum )->good() )
@@ -739,15 +708,13 @@ EndsFunction::execute( SLIInterpreter* i ) const
 
   i->assert_stack_load( 1 );
 
-  OstreamDatum* ostreamdatum =
-    dynamic_cast< OstreamDatum* >( i->OStack.pick( 1 ).datum() );
+  OstreamDatum* ostreamdatum = dynamic_cast< OstreamDatum* >( i->OStack.pick( 1 ).datum() );
 
   if ( ostreamdatum == NULL || not ostreamdatum->valid() )
   {
     OstreamDatum const d;
     Token t = i->OStack.pick( 1 );
-    throw TypeMismatch(
-      d.gettypename().toString(), t.datum()->gettypename().toString() );
+    throw TypeMismatch( d.gettypename().toString(), t.datum()->gettypename().toString() );
   }
 
   if ( ( *ostreamdatum )->good() )
@@ -766,15 +733,13 @@ EatwhiteFunction::execute( SLIInterpreter* i ) const
 {
   i->assert_stack_load( 1 );
 
-  IstreamDatum* istreamdatum =
-    dynamic_cast< IstreamDatum* >( i->OStack.top().datum() );
+  IstreamDatum* istreamdatum = dynamic_cast< IstreamDatum* >( i->OStack.top().datum() );
 
   if ( istreamdatum == NULL || not istreamdatum->valid() )
   {
     IstreamDatum const d;
     Token t = i->OStack.top();
-    throw TypeMismatch(
-      d.gettypename().toString(), t.datum()->gettypename().toString() );
+    throw TypeMismatch( d.gettypename().toString(), t.datum()->gettypename().toString() );
   }
 
   if ( ( *istreamdatum )->good() )
@@ -799,15 +764,13 @@ CloseistreamFunction::execute( SLIInterpreter* i ) const
 
   i->assert_stack_load( 1 );
 
-  IstreamDatum* istreamdatum =
-    dynamic_cast< IstreamDatum* >( i->OStack.top().datum() );
+  IstreamDatum* istreamdatum = dynamic_cast< IstreamDatum* >( i->OStack.top().datum() );
 
   if ( istreamdatum == NULL || not istreamdatum->valid() )
   {
     IstreamDatum const d;
     Token t = i->OStack.top();
-    throw TypeMismatch(
-      d.gettypename().toString(), t.datum()->gettypename().toString() );
+    throw TypeMismatch( d.gettypename().toString(), t.datum()->gettypename().toString() );
   }
 
   if ( istreamdatum->get() != &std::cin )
@@ -849,15 +812,13 @@ CloseostreamFunction::execute( SLIInterpreter* i ) const
 
   i->assert_stack_load( 1 );
 
-  OstreamDatum* ostreamdatum =
-    dynamic_cast< OstreamDatum* >( i->OStack.top().datum() );
+  OstreamDatum* ostreamdatum = dynamic_cast< OstreamDatum* >( i->OStack.top().datum() );
 
   if ( ostreamdatum == NULL )
   {
     OstreamDatum const d;
     Token t = i->OStack.top();
-    throw TypeMismatch(
-      d.gettypename().toString(), t.datum()->gettypename().toString() );
+    throw TypeMismatch( d.gettypename().toString(), t.datum()->gettypename().toString() );
   }
 
   if ( ostreamdatum->get() != &std::cout )
@@ -892,15 +853,13 @@ SetwFunction::execute( SLIInterpreter* i ) const
 
   i->assert_stack_load( 2 );
 
-  OstreamDatum* ostreamdatum =
-    dynamic_cast< OstreamDatum* >( i->OStack.pick( 1 ).datum() );
+  OstreamDatum* ostreamdatum = dynamic_cast< OstreamDatum* >( i->OStack.pick( 1 ).datum() );
 
   if ( ostreamdatum == NULL || not ostreamdatum->valid() )
   {
     OstreamDatum const d;
     Token t = i->OStack.pick( 1 );
-    throw TypeMismatch(
-      d.gettypename().toString(), t.datum()->gettypename().toString() );
+    throw TypeMismatch( d.gettypename().toString(), t.datum()->gettypename().toString() );
   }
 
   IntegerDatum* id = dynamic_cast< IntegerDatum* >( i->OStack.top().datum() );
@@ -909,8 +868,7 @@ SetwFunction::execute( SLIInterpreter* i ) const
   {
     IntegerDatum const d;
     Token t = i->OStack.top();
-    throw TypeMismatch(
-      d.gettypename().toString(), t.datum()->gettypename().toString() );
+    throw TypeMismatch( d.gettypename().toString(), t.datum()->gettypename().toString() );
   }
 
   if ( ( *ostreamdatum )->good() )
@@ -946,15 +904,13 @@ SetprecisionFunction::execute( SLIInterpreter* i ) const
 
   i->assert_stack_load( 2 );
 
-  OstreamDatum* ostreamdatum =
-    dynamic_cast< OstreamDatum* >( i->OStack.pick( 1 ).datum() );
+  OstreamDatum* ostreamdatum = dynamic_cast< OstreamDatum* >( i->OStack.pick( 1 ).datum() );
 
   if ( ostreamdatum == NULL || not ostreamdatum->valid() )
   {
     OstreamDatum const d;
     Token t = i->OStack.pick( 1 );
-    throw TypeMismatch(
-      d.gettypename().toString(), t.datum()->gettypename().toString() );
+    throw TypeMismatch( d.gettypename().toString(), t.datum()->gettypename().toString() );
   }
 
   IntegerDatum* id = dynamic_cast< IntegerDatum* >( i->OStack.top().datum() );
@@ -963,8 +919,7 @@ SetprecisionFunction::execute( SLIInterpreter* i ) const
   {
     IntegerDatum const d;
     Token t = i->OStack.top();
-    throw TypeMismatch(
-      d.gettypename().toString(), t.datum()->gettypename().toString() );
+    throw TypeMismatch( d.gettypename().toString(), t.datum()->gettypename().toString() );
   }
 
   if ( ( *ostreamdatum )->good() )
@@ -986,15 +941,13 @@ IOSFixedFunction::execute( SLIInterpreter* i ) const
 
   i->assert_stack_load( 1 );
 
-  OstreamDatum* ostreamdatum =
-    dynamic_cast< OstreamDatum* >( i->OStack.pick( 0 ).datum() );
+  OstreamDatum* ostreamdatum = dynamic_cast< OstreamDatum* >( i->OStack.pick( 0 ).datum() );
 
   if ( ostreamdatum == NULL || not ostreamdatum->valid() )
   {
     OstreamDatum const d;
     Token t = i->OStack.pick( 1 );
-    throw TypeMismatch(
-      d.gettypename().toString(), t.datum()->gettypename().toString() );
+    throw TypeMismatch( d.gettypename().toString(), t.datum()->gettypename().toString() );
   }
 
   if ( ( *ostreamdatum )->good() )
@@ -1016,15 +969,13 @@ IOSScientificFunction::execute( SLIInterpreter* i ) const
 
   i->assert_stack_load( 1 );
 
-  OstreamDatum* ostreamdatum =
-    dynamic_cast< OstreamDatum* >( i->OStack.pick( 0 ).datum() );
+  OstreamDatum* ostreamdatum = dynamic_cast< OstreamDatum* >( i->OStack.pick( 0 ).datum() );
 
   if ( ostreamdatum == NULL || not ostreamdatum->valid() )
   {
     OstreamDatum const d;
     Token t = i->OStack.top();
-    throw TypeMismatch(
-      d.gettypename().toString(), t.datum()->gettypename().toString() );
+    throw TypeMismatch( d.gettypename().toString(), t.datum()->gettypename().toString() );
   }
 
   if ( ( *ostreamdatum )->good() )
@@ -1046,15 +997,13 @@ IOSDefaultFunction::execute( SLIInterpreter* i ) const
 
   i->assert_stack_load( 1 );
 
-  OstreamDatum* ostreamdatum =
-    dynamic_cast< OstreamDatum* >( i->OStack.pick( 0 ).datum() );
+  OstreamDatum* ostreamdatum = dynamic_cast< OstreamDatum* >( i->OStack.pick( 0 ).datum() );
 
   if ( ostreamdatum == NULL || not ostreamdatum->valid() )
   {
     OstreamDatum const d;
     Token t = i->OStack.top();
-    throw TypeMismatch(
-      d.gettypename().toString(), t.datum()->gettypename().toString() );
+    throw TypeMismatch( d.gettypename().toString(), t.datum()->gettypename().toString() );
   }
 
   if ( ( *ostreamdatum )->good() )
@@ -1076,15 +1025,13 @@ IOSShowpointFunction::execute( SLIInterpreter* i ) const
 
   i->assert_stack_load( 1 );
 
-  OstreamDatum* ostreamdatum =
-    dynamic_cast< OstreamDatum* >( i->OStack.pick( 0 ).datum() );
+  OstreamDatum* ostreamdatum = dynamic_cast< OstreamDatum* >( i->OStack.pick( 0 ).datum() );
 
   if ( ostreamdatum == NULL || not ostreamdatum->valid() )
   {
     OstreamDatum const d;
     Token t = i->OStack.top();
-    throw TypeMismatch(
-      d.gettypename().toString(), t.datum()->gettypename().toString() );
+    throw TypeMismatch( d.gettypename().toString(), t.datum()->gettypename().toString() );
   }
 
   if ( ( *ostreamdatum )->good() )
@@ -1105,15 +1052,13 @@ IOSNoshowpointFunction::execute( SLIInterpreter* i ) const
 
   i->assert_stack_load( 1 );
 
-  OstreamDatum* ostreamdatum =
-    dynamic_cast< OstreamDatum* >( i->OStack.pick( 0 ).datum() );
+  OstreamDatum* ostreamdatum = dynamic_cast< OstreamDatum* >( i->OStack.pick( 0 ).datum() );
 
   if ( ostreamdatum == NULL || not ostreamdatum->valid() )
   {
     OstreamDatum const d;
     Token t = i->OStack.top();
-    throw TypeMismatch(
-      d.gettypename().toString(), t.datum()->gettypename().toString() );
+    throw TypeMismatch( d.gettypename().toString(), t.datum()->gettypename().toString() );
   }
 
   if ( ( *ostreamdatum )->good() )
@@ -1135,15 +1080,13 @@ IOSOctFunction::execute( SLIInterpreter* i ) const
 
   i->assert_stack_load( 1 );
 
-  OstreamDatum* ostreamdatum =
-    dynamic_cast< OstreamDatum* >( i->OStack.pick( 0 ).datum() );
+  OstreamDatum* ostreamdatum = dynamic_cast< OstreamDatum* >( i->OStack.pick( 0 ).datum() );
 
   if ( ostreamdatum == NULL || not ostreamdatum->valid() )
   {
     OstreamDatum const d;
     Token t = i->OStack.top();
-    throw TypeMismatch(
-      d.gettypename().toString(), t.datum()->gettypename().toString() );
+    throw TypeMismatch( d.gettypename().toString(), t.datum()->gettypename().toString() );
   }
 
   if ( ( *ostreamdatum )->good() )
@@ -1164,15 +1107,13 @@ IOSHexFunction::execute( SLIInterpreter* i ) const
 
   i->assert_stack_load( 1 );
 
-  OstreamDatum* ostreamdatum =
-    dynamic_cast< OstreamDatum* >( i->OStack.pick( 0 ).datum() );
+  OstreamDatum* ostreamdatum = dynamic_cast< OstreamDatum* >( i->OStack.pick( 0 ).datum() );
 
   if ( ostreamdatum == NULL || not ostreamdatum->valid() )
   {
     OstreamDatum const d;
     Token t = i->OStack.top();
-    throw TypeMismatch(
-      d.gettypename().toString(), t.datum()->gettypename().toString() );
+    throw TypeMismatch( d.gettypename().toString(), t.datum()->gettypename().toString() );
   }
 
   if ( ( *ostreamdatum )->good() )
@@ -1193,15 +1134,13 @@ IOSDecFunction::execute( SLIInterpreter* i ) const
 
   i->assert_stack_load( 1 );
 
-  OstreamDatum* ostreamdatum =
-    dynamic_cast< OstreamDatum* >( i->OStack.pick( 0 ).datum() );
+  OstreamDatum* ostreamdatum = dynamic_cast< OstreamDatum* >( i->OStack.pick( 0 ).datum() );
 
   if ( ostreamdatum == NULL || not ostreamdatum->valid() )
   {
     OstreamDatum const d;
     Token t = i->OStack.top();
-    throw TypeMismatch(
-      d.gettypename().toString(), t.datum()->gettypename().toString() );
+    throw TypeMismatch( d.gettypename().toString(), t.datum()->gettypename().toString() );
   }
 
   if ( ( *ostreamdatum )->good() )
@@ -1222,15 +1161,13 @@ IOSShowbaseFunction::execute( SLIInterpreter* i ) const
 
   i->assert_stack_load( 1 );
 
-  OstreamDatum* ostreamdatum =
-    dynamic_cast< OstreamDatum* >( i->OStack.pick( 0 ).datum() );
+  OstreamDatum* ostreamdatum = dynamic_cast< OstreamDatum* >( i->OStack.pick( 0 ).datum() );
 
   if ( ostreamdatum == NULL || not ostreamdatum->valid() )
   {
     OstreamDatum const d;
     Token t = i->OStack.top();
-    throw TypeMismatch(
-      d.gettypename().toString(), t.datum()->gettypename().toString() );
+    throw TypeMismatch( d.gettypename().toString(), t.datum()->gettypename().toString() );
   }
 
   if ( ( *ostreamdatum )->good() )
@@ -1251,15 +1188,13 @@ IOSNoshowbaseFunction::execute( SLIInterpreter* i ) const
 
   i->assert_stack_load( 1 );
 
-  OstreamDatum* ostreamdatum =
-    dynamic_cast< OstreamDatum* >( i->OStack.pick( 0 ).datum() );
+  OstreamDatum* ostreamdatum = dynamic_cast< OstreamDatum* >( i->OStack.pick( 0 ).datum() );
 
   if ( ostreamdatum == NULL || not ostreamdatum->valid() )
   {
     OstreamDatum const d;
     Token t = i->OStack.top();
-    throw TypeMismatch(
-      d.gettypename().toString(), t.datum()->gettypename().toString() );
+    throw TypeMismatch( d.gettypename().toString(), t.datum()->gettypename().toString() );
   }
 
   if ( ( *ostreamdatum )->good() )
@@ -1280,15 +1215,13 @@ IOSLeftFunction::execute( SLIInterpreter* i ) const
 
   i->assert_stack_load( 1 );
 
-  OstreamDatum* ostreamdatum =
-    dynamic_cast< OstreamDatum* >( i->OStack.pick( 0 ).datum() );
+  OstreamDatum* ostreamdatum = dynamic_cast< OstreamDatum* >( i->OStack.pick( 0 ).datum() );
 
   if ( ostreamdatum == NULL || not ostreamdatum->valid() )
   {
     OstreamDatum const d;
     Token t = i->OStack.top();
-    throw TypeMismatch(
-      d.gettypename().toString(), t.datum()->gettypename().toString() );
+    throw TypeMismatch( d.gettypename().toString(), t.datum()->gettypename().toString() );
   }
 
   if ( ( *ostreamdatum )->good() )
@@ -1311,15 +1244,13 @@ IOSRightFunction::execute( SLIInterpreter* i ) const
 
   i->assert_stack_load( 1 );
 
-  OstreamDatum* ostreamdatum =
-    dynamic_cast< OstreamDatum* >( i->OStack.pick( 0 ).datum() );
+  OstreamDatum* ostreamdatum = dynamic_cast< OstreamDatum* >( i->OStack.pick( 0 ).datum() );
 
   if ( ostreamdatum == NULL || not ostreamdatum->valid() )
   {
     OstreamDatum const d;
     Token t = i->OStack.top();
-    throw TypeMismatch(
-      d.gettypename().toString(), t.datum()->gettypename().toString() );
+    throw TypeMismatch( d.gettypename().toString(), t.datum()->gettypename().toString() );
   }
 
   if ( ( *ostreamdatum )->good() )
@@ -1342,15 +1273,13 @@ IOSInternalFunction::execute( SLIInterpreter* i ) const
 
   i->assert_stack_load( 1 );
 
-  OstreamDatum* ostreamdatum =
-    dynamic_cast< OstreamDatum* >( i->OStack.pick( 0 ).datum() );
+  OstreamDatum* ostreamdatum = dynamic_cast< OstreamDatum* >( i->OStack.pick( 0 ).datum() );
 
   if ( ostreamdatum == NULL || not ostreamdatum->valid() )
   {
     OstreamDatum const d;
     Token t = i->OStack.top();
-    throw TypeMismatch(
-      d.gettypename().toString(), t.datum()->gettypename().toString() );
+    throw TypeMismatch( d.gettypename().toString(), t.datum()->gettypename().toString() );
   }
 
   if ( ( *ostreamdatum )->good() )
@@ -1385,15 +1314,13 @@ GetcFunction::execute( SLIInterpreter* i ) const
 
   i->assert_stack_load( 1 );
 
-  IstreamDatum* istreamdatum =
-    dynamic_cast< IstreamDatum* >( i->OStack.top().datum() );
+  IstreamDatum* istreamdatum = dynamic_cast< IstreamDatum* >( i->OStack.top().datum() );
 
   if ( istreamdatum == NULL || not istreamdatum->valid() )
   {
     IstreamDatum const d;
     Token t = i->OStack.top();
-    throw TypeMismatch(
-      d.gettypename().toString(), t.datum()->gettypename().toString() );
+    throw TypeMismatch( d.gettypename().toString(), t.datum()->gettypename().toString() );
   }
 
   char c;
@@ -1406,16 +1333,7 @@ GetcFunction::execute( SLIInterpreter* i ) const
   }
   else
   {
-    if ( SLIsignalflag != 0 )
-    {
-      // else a SignalError will be raised by the interpreter cycle
-      ( *istreamdatum )->clear();
-      i->EStack.pop();
-    }
-    else
-    {
-      i->raiseerror( i->BadIOError );
-    }
+    i->raiseerror( i->BadIOError );
   }
 }
 
@@ -1436,15 +1354,13 @@ GetsFunction::execute( SLIInterpreter* i ) const
 
   i->assert_stack_load( 1 );
 
-  IstreamDatum* istreamdatum =
-    dynamic_cast< IstreamDatum* >( i->OStack.top().datum() );
+  IstreamDatum* istreamdatum = dynamic_cast< IstreamDatum* >( i->OStack.top().datum() );
 
   if ( istreamdatum == 0 || not istreamdatum->valid() )
   {
     IstreamDatum const d;
     Token t = i->OStack.top();
-    throw TypeMismatch(
-      d.gettypename().toString(), t.datum()->gettypename().toString() );
+    throw TypeMismatch( d.gettypename().toString(), t.datum()->gettypename().toString() );
   }
 
   //    char buffer[256];
@@ -1459,16 +1375,7 @@ GetsFunction::execute( SLIInterpreter* i ) const
   }
   else
   {
-    if ( SLIsignalflag == 0 )
-    {
-      i->raiseerror( i->BadIOError );
-    }
-    else
-    {
-      // else a SignalError will be raised by the interpreter cycle
-      ( *istreamdatum )->clear();
-      i->EStack.pop();
-    }
+    i->raiseerror( i->BadIOError );
   }
 }
 
@@ -1496,15 +1403,13 @@ GetlineFunction::execute( SLIInterpreter* i ) const
   */
   i->assert_stack_load( 1 );
 
-  IstreamDatum* istreamdatum =
-    dynamic_cast< IstreamDatum* >( i->OStack.top().datum() );
+  IstreamDatum* istreamdatum = dynamic_cast< IstreamDatum* >( i->OStack.top().datum() );
 
   if ( istreamdatum == 0 || not istreamdatum->valid() )
   {
     IstreamDatum const d;
     Token t = i->OStack.top();
-    throw TypeMismatch(
-      d.gettypename().toString(), t.datum()->gettypename().toString() );
+    throw TypeMismatch( d.gettypename().toString(), t.datum()->gettypename().toString() );
   }
 
   if ( ( *istreamdatum )->good() && not( *istreamdatum )->eof() )
@@ -1513,16 +1418,7 @@ GetlineFunction::execute( SLIInterpreter* i ) const
     getline( **istreamdatum, s );
     if ( not( *istreamdatum )->good() )
     {
-      if ( SLIsignalflag == 0 )
-      {
-        i->OStack.push( false );
-      }
-      else
-      {
-        // else a SignalError will be raised by the interpreter cycle
-        ( *istreamdatum )->clear();
-        return;
-      }
+      i->OStack.push( false );
     }
     else
     {
@@ -1561,15 +1457,13 @@ IGoodFunction::execute( SLIInterpreter* i ) const
 
   i->assert_stack_load( 1 );
 
-  IstreamDatum* istreamdatum =
-    dynamic_cast< IstreamDatum* >( i->OStack.top().datum() );
+  IstreamDatum* istreamdatum = dynamic_cast< IstreamDatum* >( i->OStack.top().datum() );
 
   if ( istreamdatum == 0 || not istreamdatum->valid() )
   {
     IstreamDatum const d;
     Token t = i->OStack.top();
-    throw TypeMismatch(
-      d.gettypename().toString(), t.datum()->gettypename().toString() );
+    throw TypeMismatch( d.gettypename().toString(), t.datum()->gettypename().toString() );
   }
 
   if ( ( *istreamdatum )->good() )
@@ -1604,15 +1498,13 @@ IClearFunction::execute( SLIInterpreter* i ) const
 
   i->assert_stack_load( 1 );
 
-  IstreamDatum* istreamdatum =
-    dynamic_cast< IstreamDatum* >( i->OStack.top().datum() );
+  IstreamDatum* istreamdatum = dynamic_cast< IstreamDatum* >( i->OStack.top().datum() );
 
   if ( istreamdatum == 0 || not istreamdatum->valid() )
   {
     IstreamDatum const d;
     Token t = i->OStack.top();
-    throw TypeMismatch(
-      d.gettypename().toString(), t.datum()->gettypename().toString() );
+    throw TypeMismatch( d.gettypename().toString(), t.datum()->gettypename().toString() );
   }
 
   ( *istreamdatum )->clear();
@@ -1640,15 +1532,13 @@ OClearFunction::execute( SLIInterpreter* i ) const
 
   i->assert_stack_load( 1 );
 
-  OstreamDatum* ostreamdatum =
-    dynamic_cast< OstreamDatum* >( i->OStack.top().datum() );
+  OstreamDatum* ostreamdatum = dynamic_cast< OstreamDatum* >( i->OStack.top().datum() );
 
   if ( ostreamdatum == 0 || not ostreamdatum->valid() )
   {
     OstreamDatum const d;
     Token t = i->OStack.top();
-    throw TypeMismatch(
-      d.gettypename().toString(), t.datum()->gettypename().toString() );
+    throw TypeMismatch( d.gettypename().toString(), t.datum()->gettypename().toString() );
   }
 
   ( *ostreamdatum )->clear();
@@ -1677,15 +1567,13 @@ IFailFunction::execute( SLIInterpreter* i ) const
 
   i->assert_stack_load( 1 );
 
-  IstreamDatum* istreamdatum =
-    dynamic_cast< IstreamDatum* >( i->OStack.top().datum() );
+  IstreamDatum* istreamdatum = dynamic_cast< IstreamDatum* >( i->OStack.top().datum() );
 
   if ( istreamdatum == 0 || not istreamdatum->valid() )
   {
     IstreamDatum const d;
     Token t = i->OStack.top();
-    throw TypeMismatch(
-      d.gettypename().toString(), t.datum()->gettypename().toString() );
+    throw TypeMismatch( d.gettypename().toString(), t.datum()->gettypename().toString() );
   }
 
   if ( ( *istreamdatum )->fail() )
@@ -1721,15 +1609,13 @@ OGoodFunction::execute( SLIInterpreter* i ) const
   */
   i->assert_stack_load( 1 );
 
-  OstreamDatum* ostreamdatum =
-    dynamic_cast< OstreamDatum* >( i->OStack.top().datum() );
+  OstreamDatum* ostreamdatum = dynamic_cast< OstreamDatum* >( i->OStack.top().datum() );
 
   if ( ostreamdatum == 0 || not ostreamdatum->valid() )
   {
     OstreamDatum const d;
     Token t = i->OStack.top();
-    throw TypeMismatch(
-      d.gettypename().toString(), t.datum()->gettypename().toString() );
+    throw TypeMismatch( d.gettypename().toString(), t.datum()->gettypename().toString() );
   }
 
   if ( ( *ostreamdatum )->good() )
@@ -1764,15 +1650,13 @@ IEofFunction::execute( SLIInterpreter* i ) const
   */
   i->assert_stack_load( 1 );
 
-  IstreamDatum* istreamdatum =
-    dynamic_cast< IstreamDatum* >( i->OStack.top().datum() );
+  IstreamDatum* istreamdatum = dynamic_cast< IstreamDatum* >( i->OStack.top().datum() );
 
   if ( istreamdatum == 0 || not istreamdatum->valid() )
   {
     IstreamDatum const d;
     Token t = i->OStack.top();
-    throw TypeMismatch(
-      d.gettypename().toString(), t.datum()->gettypename().toString() );
+    throw TypeMismatch( d.gettypename().toString(), t.datum()->gettypename().toString() );
   }
 
   if ( ( *istreamdatum )->eof() )
@@ -1808,15 +1692,13 @@ OEofFunction::execute( SLIInterpreter* i ) const
   */
   i->assert_stack_load( 1 );
 
-  OstreamDatum* ostreamdatum =
-    dynamic_cast< OstreamDatum* >( i->OStack.top().datum() );
+  OstreamDatum* ostreamdatum = dynamic_cast< OstreamDatum* >( i->OStack.top().datum() );
 
   if ( ostreamdatum == 0 || not ostreamdatum->valid() )
   {
     OstreamDatum const d;
     Token t = i->OStack.top();
-    throw TypeMismatch(
-      d.gettypename().toString(), t.datum()->gettypename().toString() );
+    throw TypeMismatch( d.gettypename().toString(), t.datum()->gettypename().toString() );
   }
 
   if ( ( *ostreamdatum )->eof() )
@@ -1865,15 +1747,13 @@ In_AvailFunction::execute( SLIInterpreter* i ) const
   */
   i->assert_stack_load( 1 );
 
-  IstreamDatum* istreamdatum =
-    dynamic_cast< IstreamDatum* >( i->OStack.top().datum() );
+  IstreamDatum* istreamdatum = dynamic_cast< IstreamDatum* >( i->OStack.top().datum() );
 
   if ( istreamdatum == 0 || not istreamdatum->valid() )
   {
     IstreamDatum const d;
     Token t = i->OStack.top();
-    throw TypeMismatch(
-      d.gettypename().toString(), t.datum()->gettypename().toString() );
+    throw TypeMismatch( d.gettypename().toString(), t.datum()->gettypename().toString() );
   }
 
   Token result_t( new IntegerDatum( ( *istreamdatum )->rdbuf()->in_avail() ) );
@@ -1893,15 +1773,13 @@ ReadDoubleFunction::execute( SLIInterpreter* i ) const
   */
   i->assert_stack_load( 1 );
 
-  IstreamDatum* istreamdatum =
-    dynamic_cast< IstreamDatum* >( i->OStack.top().datum() );
+  IstreamDatum* istreamdatum = dynamic_cast< IstreamDatum* >( i->OStack.top().datum() );
 
   if ( istreamdatum == 0 )
   {
     IstreamDatum const d;
     Token t = i->OStack.top();
-    throw TypeMismatch(
-      d.gettypename().toString(), t.datum()->gettypename().toString() );
+    throw TypeMismatch( d.gettypename().toString(), t.datum()->gettypename().toString() );
   }
 
   if ( istreamdatum->valid() )
@@ -1916,16 +1794,8 @@ ReadDoubleFunction::execute( SLIInterpreter* i ) const
     }
     else
     {
-      if ( SLIsignalflag == 0 )
-      {
-        i->OStack.push( false );
-        i->EStack.pop();
-      }
-      else
-      {
-        // else a SignalError will be raised by the interpreter cycle
-        ( *istreamdatum )->clear();
-      }
+      i->OStack.push( false );
+      i->EStack.pop();
     }
   }
   else
@@ -1945,15 +1815,13 @@ ReadIntFunction::execute( SLIInterpreter* i ) const
   */
   i->assert_stack_load( 1 );
 
-  IstreamDatum* istreamdatum =
-    dynamic_cast< IstreamDatum* >( i->OStack.top().datum() );
+  IstreamDatum* istreamdatum = dynamic_cast< IstreamDatum* >( i->OStack.top().datum() );
 
   if ( istreamdatum == 0 )
   {
     IstreamDatum const d;
     Token t = i->OStack.top();
-    throw TypeMismatch(
-      d.gettypename().toString(), t.datum()->gettypename().toString() );
+    throw TypeMismatch( d.gettypename().toString(), t.datum()->gettypename().toString() );
   }
 
   if ( istreamdatum->valid() )
@@ -1968,16 +1836,8 @@ ReadIntFunction::execute( SLIInterpreter* i ) const
     }
     else
     {
-      if ( SLIsignalflag == 0 )
-      {
-        i->OStack.push( false );
-        i->EStack.pop();
-      }
-      else
-      {
-        // else a SignalError will be raised by the interpreter cycle
-        ( *istreamdatum )->clear();
-      }
+      i->OStack.push( false );
+      i->EStack.pop();
     }
   }
   else
@@ -2004,15 +1864,13 @@ ReadWordFunction::execute( SLIInterpreter* i ) const
 
   i->assert_stack_load( 1 );
 
-  IstreamDatum* istreamdatum =
-    dynamic_cast< IstreamDatum* >( i->OStack.top().datum() );
+  IstreamDatum* istreamdatum = dynamic_cast< IstreamDatum* >( i->OStack.top().datum() );
 
   if ( istreamdatum == 0 || not istreamdatum->valid() )
   {
     IstreamDatum const d;
     Token t = i->OStack.top();
-    throw TypeMismatch(
-      d.gettypename().toString(), t.datum()->gettypename().toString() );
+    throw TypeMismatch( d.gettypename().toString(), t.datum()->gettypename().toString() );
   }
 
   //    char buffer[256];
@@ -2028,16 +1886,8 @@ ReadWordFunction::execute( SLIInterpreter* i ) const
   }
   else
   {
-    if ( SLIsignalflag == 0 )
-    {
-      i->OStack.push( false );
-      i->EStack.pop();
-    }
-    else
-    {
-      // else a SignalError will be raised by the interpreter cycle
-      ( *istreamdatum )->clear();
-    }
+    i->OStack.push( false );
+    i->EStack.pop();
   }
 }
 

@@ -33,6 +33,7 @@
 #include "connection.h"
 #include "device_node.h"
 #include "event.h"
+#include "nest_timeconverter.h"
 #include "nest_types.h"
 #include "stimulating_device.h"
 #include "universal_data_logger.h"
@@ -130,6 +131,19 @@ public:
     return false;
   }
 
+  //! Allow multimeter to connect to local instances
+  bool
+  local_receiver() const
+  {
+    return true;
+  }
+
+  Name
+  get_element_type() const
+  {
+    return names::stimulator;
+  }
+
   /**
    * Import sets of overloaded virtual functions.
    * @see Technical Issues / Virtual Functions: Overriding, Overloading, and
@@ -151,12 +165,7 @@ public:
   void get_status( DictionaryDatum& ) const;
   void set_status( const DictionaryDatum& );
 
-  //! Allow multimeter to connect to local instances
-  bool
-  local_receiver() const
-  {
-    return true;
-  }
+  void calibrate_time( const TimeConverter& tc );
 
 private:
   void init_state_( const Node& );
@@ -201,7 +210,7 @@ private:
 
     void get( DictionaryDatum& ) const; //!< Store current values in dictionary
     //! Set values from dictionary
-    void set( const DictionaryDatum&, const noise_generator& );
+    void set( const DictionaryDatum&, const noise_generator&, Node* node );
   };
 
   // ------------------------------------------------------------
@@ -242,7 +251,7 @@ private:
     long dt_steps_;                         //!< update interval in steps
     librandom::NormalRandomDev normal_dev_; //!< random deviate generator
     double omega_;                          //!< Angelfrequency i rad/s
-    double phi_rad_; //!< Phase of sine current (0-2Pi rad)
+    double phi_rad_;                        //!< Phase of sine current (0-2Pi rad)
 
     // The exact integration matrix
     double A_00_;
@@ -264,13 +273,12 @@ private:
   StimulatingDevice< CurrentEvent > device_;
   Parameters_ P_;
   State_ S_;
-  Variables_ V_;
   Buffers_ B_;
+  Variables_ V_;
 };
 
 inline port
-noise_generator::handles_test_event( DataLoggingRequest& dlr,
-  rport receptor_type )
+noise_generator::handles_test_event( DataLoggingRequest& dlr, rport receptor_type )
 {
   if ( receptor_type != 0 )
   {
@@ -294,7 +302,7 @@ noise_generator::set_status( const DictionaryDatum& d )
 {
   Parameters_ ptmp = P_;               // temporary copy in case of errors
   ptmp.num_targets_ = P_.num_targets_; // Copy Constr. does not copy connections
-  ptmp.set( d, *this );                // throws if BadProperty
+  ptmp.set( d, *this, this );          // throws if BadProperty
 
   // We now know that ptmp is consistent. We do not write it back
   // to P_ before we are also sure that the properties to be set
@@ -310,6 +318,12 @@ inline SignalType
 noise_generator::sends_signal() const
 {
   return ALL;
+}
+
+inline void
+noise_generator::calibrate_time( const TimeConverter& tc )
+{
+  P_.dt_ = tc.from_old_tics( P_.dt_.get_tics() );
 }
 
 } // namespace

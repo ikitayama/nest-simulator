@@ -78,8 +78,7 @@ expm1( double x )
     double term = x * x / 2;
     long n = 2;
 
-    while ( std::abs( term ) > std::abs( sum )
-        * std::numeric_limits< double >::epsilon() )
+    while ( std::abs( term ) > std::abs( sum ) * std::numeric_limits< double >::epsilon() )
     {
       sum += term;
       ++n;
@@ -131,5 +130,10 @@ double dround( double );
  */
 double dtruncate( double );
 
+/**
+ * Returns true if n is integer up to rounding error.
+ * @return bool
+ */
+bool is_integer( double );
 
 #endif

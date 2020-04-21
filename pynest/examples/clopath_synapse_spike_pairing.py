@@ -19,28 +19,33 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-'''
+"""
 Clopath Rule: Spike pairing experiment
-------------------
-This script simulates one aeif_psc_delta_clopath neuron that is connected with
-a Clopath connection. The synapse receives pairs of a pre- and a postsynaptic
-spikes that are separated by either 10ms (pre before post) or -10ms (post
+----------------------------------------
+
+This script simulates one ``aeif_psc_delta_clopath`` neuron that is connected with
+a Clopath connection [1]_. The synapse receives pairs of a pre- and a postsynaptic
+spikes that are separated by either 10 ms (pre before post) or -10 ms (post
 before pre). The change of the synaptic weight is measured after five of such
 pairs. This experiment is repeated five times with different rates of the
 sequence of the spike pairs: 10Hz, 20Hz, 30Hz, 40Hz, and 50Hz.
 
-References:  [1] Clopath et al. (2010) Connectivity reflects coding:
-                a model of voltage-based STDP with homeostasis.
-                Nature Neuroscience 13:3, 344--352
-'''
+References
+~~~~~~~~~~~
+
+.. [1] Clopath C, Büsing L, Vasilaki E, Gerstner W (2010). Connectivity reflects coding:
+       a model of voltage-based STDP with homeostasis.
+       Nature Neuroscience 13:3, 344--352
+"""
 
 import numpy as np
-import matplotlib.pyplot as pl
+import matplotlib.pyplot as plt
 import nest
 
-
+##############################################################################
 # First we specify the neuron parameters. To enable voltage dependent
-# prefactor A_LTD(u_bar_bar) add 'A_LTD_const': False to the dictionary.
+# prefactor ``A_LTD(u_bar_bar)`` add ``A_LTD_const: False`` to the dictionary.
+
 nrn_params = {'V_m': -70.6,
               'E_L': -70.6,
               'C_m': 281.0,
@@ -60,7 +65,9 @@ nrn_params = {'V_m': -70.6,
               }
 
 
+##############################################################################
 # Hardcoded spike times of presynaptic spike generator
+
 spike_times_pre = [
     # Presynaptic spike before the postsynaptic
     [20.,  120.,  220.,  320.,  420.],
@@ -75,7 +82,9 @@ spike_times_pre = [
     [45.,   70.,   95.,  120.,  145.,  170.],
     [40.,   60.,   80.,  100.,  120.,  140.]]
 
+##############################################################################
 # Hardcoded spike times of postsynaptic spike generator
+
 spike_times_post = [
     [10.,  110.,  210.,  310.,  410.],
     [10.,   60.,  110.,  160.,  210.],
@@ -91,7 +100,9 @@ init_w = 0.5
 syn_weights = []
 resolution = 0.1
 
+##############################################################################
 # Loop over pairs of spike trains
+
 for (s_t_pre, s_t_post) in zip(spike_times_pre, spike_times_post):
     nest.ResetKernel()
     nest.SetKernelStatus({"resolution": resolution})
@@ -121,8 +132,8 @@ for (s_t_pre, s_t_post) in zip(spike_times_pre, spike_times_post):
 
     # Create Clopath connection with weight recorder
     nest.CopyModel("clopath_synapse", "clopath_synapse_rec",
-                   {"weight_recorder": wr[0]})
-    syn_dict = {"model": "clopath_synapse_rec",
+                   {"weight_recorder": wr})
+    syn_dict = {"synapse_model": "clopath_synapse_rec",
                 "weight": init_w, "delay": resolution}
     nest.Connect(prrt_nrn, nrn, syn_spec=syn_dict)
 
@@ -131,8 +142,7 @@ for (s_t_pre, s_t_post) in zip(spike_times_pre, spike_times_post):
     nest.Simulate(simulation_time)
 
     # Extract and save synaptic weights
-    w_events = nest.GetStatus(wr)[0]["events"]
-    weights = w_events["weights"]
+    weights = wr.get("events", "weights")
     syn_weights.append(weights[-1])
 
 syn_weights = np.array(syn_weights)
@@ -140,7 +150,7 @@ syn_weights = np.array(syn_weights)
 syn_weights = 100.0*15.0*(syn_weights - init_w)/init_w + 100.0
 
 # Plot results
-fig1, axA = pl.subplots(1, sharex=False)
+fig1, axA = plt.subplots(1, sharex=False)
 axA.plot([10., 20., 30., 40., 50.], syn_weights[5:], color='b', lw=2.5, ls='-',
          label="pre-post pairing")
 axA.plot([10., 20., 30., 40., 50.], syn_weights[:5], color='g', lw=2.5, ls='-',
@@ -150,4 +160,4 @@ axA.set_xlabel("rho (Hz)")
 axA.legend()
 axA.set_title("synaptic weight")
 
-pl.show()
+plt.show()

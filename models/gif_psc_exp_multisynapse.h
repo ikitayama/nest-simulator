@@ -260,8 +260,8 @@ private:
 
     Parameters_(); //!< Sets default parameter values
 
-    void get( DictionaryDatum& ) const; //!< Store current values in dictionary
-    void set( const DictionaryDatum& ); //!< Set values from dictionary
+    void get( DictionaryDatum& ) const;             //!< Store current values in dictionary
+    void set( const DictionaryDatum&, Node* node ); //!< Set values from dictionary
 
     //! Return the number of receptor ports
     inline size_t
@@ -280,14 +280,13 @@ private:
   {
     double I_stim_; //!< This is piecewise constant external current
     double V_;      //!< This is the membrane potential
-    double sfa_; //!< This is the change of the 'threshold' due to adaptation.
-    double stc_; //!< Spike triggered current.
+    double sfa_;    //!< This is the change of the 'threshold' due to adaptation.
+    double stc_;    //!< Spike triggered current.
 
     std::vector< double > sfa_elems_; //!< Vector of adaptation parameters.
     std::vector< double > stc_elems_; //!< Vector of spike triggered parameters.
 
-    std::vector< double >
-      i_syn_; //!< instantaneous currents of different synapses.
+    std::vector< double > i_syn_; //!< instantaneous currents of different synapses.
 
     //!< absolute refractory counter (no membrane potential propagation)
     unsigned int r_ref_;
@@ -295,7 +294,7 @@ private:
     State_(); //!< Default initialization
 
     void get( DictionaryDatum&, const Parameters_& ) const;
-    void set( const DictionaryDatum&, const Parameters_& );
+    void set( const DictionaryDatum&, const Parameters_&, Node* );
   };
 
   // ----------------------------------------------------------------
@@ -327,13 +326,11 @@ private:
     double P33_; // decay term of membrane potential
     double P31_; // coefficient for solving membrane potential equation
 
-    std::vector< double >
-      P_sfa_; // decay terms of spike-triggered current elements
+    std::vector< double > P_sfa_; // decay terms of spike-triggered current elements
     std::vector< double > P_stc_; // decay terms of adaptive threshold elements
 
     std::vector< double > P11_syn_; // decay terms of synaptic currents
-    std::vector< double >
-      P21_syn_; // coefficients for solving membrane potential equation
+    std::vector< double > P21_syn_; // coefficients for solving membrane potential equation
 
     librandom::RngPtr rng_; // random number generator of my own thread
 
@@ -383,10 +380,7 @@ private:
 };
 
 inline port
-gif_psc_exp_multisynapse::send_test_event( Node& target,
-  rport receptor_type,
-  synindex,
-  bool )
+gif_psc_exp_multisynapse::send_test_event( Node& target, rport receptor_type, synindex, bool )
 {
   SpikeEvent e;
   e.set_sender( *this );
@@ -397,8 +391,7 @@ gif_psc_exp_multisynapse::send_test_event( Node& target,
 inline port
 gif_psc_exp_multisynapse::handles_test_event( SpikeEvent&, rport receptor_type )
 {
-  if ( receptor_type <= 0
-    || receptor_type > static_cast< port >( P_.n_receptors_() ) )
+  if ( receptor_type <= 0 || receptor_type > static_cast< port >( P_.n_receptors_() ) )
   {
     throw IncompatibleReceptorType( receptor_type, get_name(), "SpikeEvent" );
   }
@@ -408,8 +401,7 @@ gif_psc_exp_multisynapse::handles_test_event( SpikeEvent&, rport receptor_type )
 }
 
 inline port
-gif_psc_exp_multisynapse::handles_test_event( CurrentEvent&,
-  rport receptor_type )
+gif_psc_exp_multisynapse::handles_test_event( CurrentEvent&, rport receptor_type )
 {
   if ( receptor_type != 0 )
   {
@@ -419,8 +411,7 @@ gif_psc_exp_multisynapse::handles_test_event( CurrentEvent&,
 }
 
 inline port
-gif_psc_exp_multisynapse::handles_test_event( DataLoggingRequest& dlr,
-  rport receptor_type )
+gif_psc_exp_multisynapse::handles_test_event( DataLoggingRequest& dlr, rport receptor_type )
 {
   if ( receptor_type != 0 )
   {
@@ -441,10 +432,10 @@ gif_psc_exp_multisynapse::get_status( DictionaryDatum& d ) const
 inline void
 gif_psc_exp_multisynapse::set_status( const DictionaryDatum& d )
 {
-  Parameters_ ptmp = P_; // temporary copy in case of errors
-  ptmp.set( d );         // throws if BadProperty
-  State_ stmp = S_;      // temporary copy in case of errors
-  stmp.set( d, ptmp );   // throws if BadProperty
+  Parameters_ ptmp = P_;     // temporary copy in case of errors
+  ptmp.set( d, this );       // throws if BadProperty
+  State_ stmp = S_;          // temporary copy in case of errors
+  stmp.set( d, ptmp, this ); // throws if BadProperty
 
   // We now know that (ptmp, stmp) are consistent. We do not
   // write them back to (P_, S_) before we are also sure that

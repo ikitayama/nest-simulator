@@ -45,7 +45,7 @@ namespace nest
 
 /** @BeginDocumentation
 Name: iaf_psc_alpha_ps - Leaky integrate-and-fire neuron
-with alpha-shape postsynaptic currents and bisectioning method for
+with alpha-shape postsynaptic currents and regula falsi method for
 approximation of threshold crossing.
 
 .. versionadded:: 2.18
@@ -63,8 +63,8 @@ The precise implementation handles neuronal dynamics in a locally
 event-based manner with in coarse time grid defined by the minimum
 delay in the network, see [1]. Incoming spikes are applied at the
 precise moment of their arrival, while the precise time of outgoing
-spikes is determined by a bisectioning method to approximate the timing
-of a threshold crossing [1,3]. Return from refractoriness occurs precisly
+spikes is determined by a Regula Falsi method to approximate the timing
+of a threshold crossing [1,3]. Return from refractoriness occurs precisely
 at spike time plus refractory period.
 
 This implementation is more complex than the plain iaf_psc_alpha
@@ -125,7 +125,7 @@ Sends: SpikeEvent
 
 Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
 
-SeeAlso: iaf_psc_alpha, iaf_psc_alpha_presc, iaf_psc_exp_ps
+SeeAlso: iaf_psc_alpha, iaf_psc_exp_ps
 */
 class iaf_psc_alpha_ps : public Archiving_Node
 {
@@ -172,6 +172,17 @@ public:
   void get_status( DictionaryDatum& ) const;
   void set_status( const DictionaryDatum& );
 
+  /**
+   * Based on the current state, compute the value of the membrane potential
+   * after taking a timestep of length ``t_step``, and use it to compute the
+   * signed distance to spike threshold at that time. The internal state is not
+   * actually updated (method is defined const).
+   *
+   * @param   double time step
+   * @returns difference between updated membrane potential and threshold
+   */
+  double threshold_distance( double t_step ) const;
+
 private:
   /** @name Interface functions
    * @note These functions are private, so that they can be accessed
@@ -182,10 +193,7 @@ private:
   void init_buffers_();
   void calibrate();
 
-  bool get_next_event_( const long T,
-    double& ev_offset,
-    double& ev_weight,
-    bool& end_of_refract );
+  bool get_next_event_( const long T, double& ev_offset, double& ev_weight, bool& end_of_refract );
 
   /**
    * Time Evolution Operator.
@@ -216,7 +224,7 @@ private:
   void propagate_( const double dt );
 
   /**
-   * Trigger interpolation method to find the precise spike time
+   * Trigger regula falsi method to find the precise spike time
    * within the mini-timestep (t0,t0+dt] assuming that the membrane
    * potential was below threshold at t0 and above at t0+dt. Emit
    * the spike and reset the neuron.
@@ -226,10 +234,7 @@ private:
    * @param t0      Beginning of mini-timestep
    * @param dt      Duration of mini-timestep
    */
-  void emit_spike_( Time const& origin,
-    const long lag,
-    const double t0,
-    const double dt );
+  void emit_spike_( Time const& origin, const long lag, const double t0, const double dt );
 
   /**
    * Instantaneously emit a spike at the precise time defined by
@@ -239,36 +244,7 @@ private:
    * @param lag           Time step within slice
    * @param spike_offset  Time offset for spike
    */
-  void emit_instant_spike_( Time const& origin,
-    const long lag,
-    const double spike_offset );
-
-  /** @name Threshold-crossing interpolation
-   * These functions determine the time of threshold crossing using
-   * interpolation, one function per interpolation
-   * order. thresh_find() is the driver function and the only one to
-   * be called directly.
-   */
-  //@{
-
-  /** Interpolation orders. */
-  enum interpOrder
-  {
-    NO_INTERPOL,
-    LINEAR,
-    QUADRATIC,
-    CUBIC,
-    END_INTERP_ORDER
-  };
-
-  /**
-   * Localize threshold crossing by bisectioning.
-   * @param   double length of interval since previous event
-   * @returns time from previous event to threshold crossing
-   */
-  double bisectioning_( const double dt ) const;
-  //@}
-
+  void emit_instant_spike_( Time const& origin, const long lag, const double spike_offset );
 
   // The next two classes need to be friends to access the State_ class/member
   friend class RecordablesMap< iaf_psc_alpha_ps >;
@@ -382,26 +358,24 @@ private:
    */
   struct Variables_
   {
-    double h_ms_;             //!< time resolution in ms
-    double psc_norm_ex_;      //!< e / tau_syn_ex
-    double psc_norm_in_;      //!< e / tau_syn_in
-    long refractory_steps_;   //!< refractory time in steps
-    double gamma_ex_;         //!< 1/c_m * 1/(1/tau_syn_ex - 1/tau_m)
-    double gamma_sq_ex_;      //!< 1/c_m * 1/(1/tau_syn_ex - 1/tau_m)^2
-    double gamma_in_;         //!< 1/c_m * 1/(1/tau_syn_in - 1/tau_m)
-    double gamma_sq_in_;      //!< 1/c_m * 1/(1/tau_syn_in - 1/tau_m)^2
-    double expm1_tau_m_;      //!< exp(-h/tau_m) - 1
-    double expm1_tau_syn_ex_; //!< exp(-h/tau_syn_ex) - 1
-    double expm1_tau_syn_in_; //!< exp(-h/tau_syn_in) - 1
-    double P30_;              //!< progagator matrix elem, 3rd row
-    double P31_ex_;           //!< progagator matrix elem, 3rd row (ex)
-    double P32_ex_;           //!< progagator matrix elem, 3rd row (ex)
-    double P31_in_;           //!< progagator matrix elem, 3rd row (in)
-    double P32_in_;           //!< progagator matrix elem, 3rd row (in)
-    double y_input_before_;   //!< at beginning of mini-step, for interpolation
-    double I_ex_before_;      //!< at beginning of mini-step, for interpolation
-    double I_in_before_;      //!< at beginning of mini-step, for interpolation
-    double V_m_before_;       //!< at beginning of mini-step, for interpolation
+    double h_ms_;           //!< time resolution in ms
+    double psc_norm_ex_;    //!< e / tau_syn_ex
+    double psc_norm_in_;    //!< e / tau_syn_in
+    long refractory_steps_; //!< refractory time in steps
+    double expm1_tau_m_;    //!< exp(-h/tau_m) - 1
+    double exp_tau_syn_ex_; //!< exp(-h/tau_syn_ex)
+    double exp_tau_syn_in_; //!< exp(-h/tau_syn_in)
+    double P30_;            //!< progagator matrix elem, 3rd row
+    double P31_ex_;         //!< progagator matrix elem, 3rd row (ex)
+    double P32_ex_;         //!< progagator matrix elem, 3rd row (ex)
+    double P31_in_;         //!< progagator matrix elem, 3rd row (in)
+    double P32_in_;         //!< progagator matrix elem, 3rd row (in)
+    double y_input_before_; //!< at beginning of mini-step
+    double I_ex_before_;    //!< at beginning of mini-step
+    double I_in_before_;    //!< at beginning of mini-step
+    double dI_ex_before_;   //!< at beginning of mini-step
+    double dI_in_before_;   //!< at beginning of mini-step
+    double V_m_before_;     //!< at beginning of mini-step
   };
 
   // Access functions for UniversalDataLogger -------------------------------
@@ -461,10 +435,7 @@ private:
 };
 
 inline port
-nest::iaf_psc_alpha_ps::send_test_event( Node& target,
-  rport receptor_type,
-  synindex,
-  bool )
+nest::iaf_psc_alpha_ps::send_test_event( Node& target, rport receptor_type, synindex, bool )
 {
   SpikeEvent e;
   e.set_sender( *this );
@@ -492,8 +463,7 @@ iaf_psc_alpha_ps::handles_test_event( CurrentEvent&, rport receptor_type )
 }
 
 inline port
-iaf_psc_alpha_ps::handles_test_event( DataLoggingRequest& dlr,
-  rport receptor_type )
+iaf_psc_alpha_ps::handles_test_event( DataLoggingRequest& dlr, rport receptor_type )
 {
   if ( receptor_type != 0 )
   {

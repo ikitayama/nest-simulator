@@ -90,11 +90,18 @@ public:
   {
     return false;
   }
+
   bool
   is_off_grid() const
   {
     return false;
-  } // does not use off_grid events
+  }
+
+  Name
+  get_element_type() const
+  {
+    return names::stimulator;
+  }
 
   using Node::event_hook;
 
@@ -147,8 +154,8 @@ private:
 
     Parameters_(); //!< Sets default parameter values
 
-    void get( DictionaryDatum& ) const; //!< Store current values in dictionary
-    void set( const DictionaryDatum& ); //!< Set values from dicitonary
+    void get( DictionaryDatum& ) const;             //!< Store current values in dictionary
+    void set( const DictionaryDatum&, Node* node ); //!< Set values from dicitonary
   };
 
   // ------------------------------------------------------------
@@ -158,15 +165,13 @@ private:
 
     librandom::BinomialRandomDev bino_dev_;   //!< random deviate generator
     librandom::PoissonRandomDev poisson_dev_; //!< random deviate generator
-    std::vector< unsigned long >
-      occ_; //!< occupation numbers of internal states
+    std::vector< unsigned long > occ_;        //!< occupation numbers of internal states
 
   public:
     Internal_states_( size_t num_bins,
       unsigned long ini_occ_ref,
-      unsigned long ini_occ_act ); //!< initialize occupation numbers
-    unsigned long update( double transition_prob,
-      librandom::RngPtr rng ); //!< update age dist and generate spikes
+      unsigned long ini_occ_act );                                         //!< initialize occupation numbers
+    unsigned long update( double transition_prob, librandom::RngPtr rng ); //!< update age dist and generate spikes
   };
 
 
@@ -210,10 +215,7 @@ private:
 };
 
 inline port
-gamma_sup_generator::send_test_event( Node& target,
-  rport receptor_type,
-  synindex syn_id,
-  bool dummy_target )
+gamma_sup_generator::send_test_event( Node& target, rport receptor_type, synindex syn_id, bool dummy_target )
 {
   device_.enforce_single_syn_type( syn_id );
 
@@ -230,8 +232,9 @@ gamma_sup_generator::send_test_event( Node& target,
     const port p = target.handles_test_event( e, receptor_type );
     if ( p != invalid_port_ )
     {
+      // count number of targets
       ++P_.num_targets_;
-    } // count number of targets
+    }
     return p;
   }
 }
@@ -247,7 +250,7 @@ inline void
 gamma_sup_generator::set_status( const DictionaryDatum& d )
 {
   Parameters_ ptmp = P_; // temporary copy in case of errors
-  ptmp.set( d );         // throws if BadProperty
+  ptmp.set( d, this );   // throws if BadProperty
 
   // We now know that ptmp is consistent. We do not write it back
   // to P_ before we are also sure that the properties to be set

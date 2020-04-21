@@ -57,7 +57,7 @@ to reproduce the results of [1] and to use this model of synaptic plasticity
 in its original sense, the user therefore has to ensure the following
 conditions:
 
-1.) The postsynaptic neuron must be of type iaf_psc_exp or iaf_tum_2000,
+1.) The postsynaptic neuron must be of type iaf_psc_exp or iaf_psc_exp_htum,
 because these neuron models have a postsynaptic current which decays
 exponentially.
 
@@ -120,7 +120,7 @@ FirstVersion: March 2006
 Author: Susanne Kunkel, Moritz Helias
 
 SeeAlso: synapsedict, tsodyks_synapse, stdp_synapse_hom, static_synapse_hom_w,
-iaf_psc_exp, iaf_tum_2000
+iaf_psc_exp, iaf_psc_exp_htum
 */
 
 /**
@@ -219,10 +219,7 @@ public:
   };
 
   void
-  check_connection( Node& s,
-    Node& t,
-    rport receptor_type,
-    const CommonPropertiesType& )
+  check_connection( Node& s, Node& t, rport receptor_type, const CommonPropertiesType& )
   {
     ConnTestDummyNode dummy_target;
     ConnectionBase::check_connection_( dummy_target, s, t, receptor_type );
@@ -252,9 +249,7 @@ private:
  */
 template < typename targetidentifierT >
 inline void
-TsodyksConnectionHom< targetidentifierT >::send( Event& e,
-  thread t,
-  const TsodyksHomCommonProperties& cp )
+TsodyksConnectionHom< targetidentifierT >::send( Event& e, thread t, const TsodyksHomCommonProperties& cp )
 {
   const double t_spike = e.get_stamp().get_ms();
   const double h = t_spike - t_lastspike_;
@@ -269,8 +264,7 @@ TsodyksConnectionHom< targetidentifierT >::send( Event& e,
   double Pyy = std::exp( -h / cp.tau_psc_ );
   double Pzz = std::exp( -h / cp.tau_rec_ );
 
-  double Pxy = ( ( Pzz - 1.0 ) * cp.tau_rec_ - ( Pyy - 1.0 ) * cp.tau_psc_ )
-    / ( cp.tau_psc_ - cp.tau_rec_ );
+  double Pxy = ( ( Pzz - 1.0 ) * cp.tau_rec_ - ( Pyy - 1.0 ) * cp.tau_psc_ ) / ( cp.tau_psc_ - cp.tau_rec_ );
   double Pxz = 1.0 - Pzz;
 
   double z = 1.0 - x_ - y_;
@@ -313,8 +307,7 @@ TsodyksConnectionHom< targetidentifierT >::TsodyksConnectionHom()
 }
 
 template < typename targetidentifierT >
-TsodyksConnectionHom< targetidentifierT >::TsodyksConnectionHom(
-  const TsodyksConnectionHom& rhs )
+TsodyksConnectionHom< targetidentifierT >::TsodyksConnectionHom( const TsodyksConnectionHom& rhs )
   : ConnectionBase( rhs )
   , x_( rhs.x_ )
   , y_( rhs.y_ )
@@ -325,8 +318,7 @@ TsodyksConnectionHom< targetidentifierT >::TsodyksConnectionHom(
 
 template < typename targetidentifierT >
 void
-TsodyksConnectionHom< targetidentifierT >::get_status(
-  DictionaryDatum& d ) const
+TsodyksConnectionHom< targetidentifierT >::get_status( DictionaryDatum& d ) const
 {
   ConnectionBase::get_status( d );
 
@@ -337,8 +329,7 @@ TsodyksConnectionHom< targetidentifierT >::get_status(
 
 template < typename targetidentifierT >
 void
-TsodyksConnectionHom< targetidentifierT >::set_status( const DictionaryDatum& d,
-  ConnectorModel& cm )
+TsodyksConnectionHom< targetidentifierT >::set_status( const DictionaryDatum& d, ConnectorModel& cm )
 {
   // Handle parameters that may throw an exception first, so we can leave the
   // synapse untouched in case of invalid parameter values

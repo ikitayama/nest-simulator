@@ -19,22 +19,17 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Two neurons
-----------------
+"""Two neuron example
+----------------------------
 
-References
-~~~~~~~~~~~~
 
 See Also
 ~~~~~~~~~~
 
-:Authors:
+:doc:`one_neuron`
 
-KEYWORDS:
 """
 
-
-import pylab
 
 import nest
 import nest.voltage_trace
@@ -47,7 +42,7 @@ neuron1 = nest.Create("iaf_psc_alpha")
 neuron2 = nest.Create("iaf_psc_alpha")
 voltmeter = nest.Create("voltmeter")
 
-nest.SetStatus(neuron1, {"I_e": stim})
+neuron1.I_e = stim
 nest.Connect(neuron1, neuron2, syn_spec={'weight': weight, 'delay': delay})
 nest.Connect(voltmeter, neuron2)
 

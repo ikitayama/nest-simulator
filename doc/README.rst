@@ -6,6 +6,40 @@ on improving the documentation and making updates. However, if you notice
 something out of place, you can `submit an issue <https://nest.github.io/nest-simulator/development_workflow#reporting-bugs-and-issues>`_
 in our GitHub repository.
 
+Build the docs locally
+-----------------------
+
+You will need the NEST source code in your project::
+
+
+    cd nest-simulator/doc/
+
+Requirements for building the docs include::
+
+ python3
+ setuptools
+ pandoc
+ sphinx
+ recommonmark
+ sphinx-rtd-theme
+ nbsphinx
+ breathe
+ sphinx-gallery
+ ipython
+ mock
+
+
+You can now build the docs using this command (make sure you are in the doc folder)::
+
+    make html
+
+
+Once this complete, you can open `_build/html/index.html` to view the docs!
+
+::
+
+    xdg-open _build/html/index.html
+
 For **developer documentation**, we use `doxygen <http://doxygen.org/>`__
 comments extensively throughout NEST.
 After installing NEST, you can extract comments from the source code with
@@ -34,7 +68,7 @@ index via the command line
 Local install of user documentation
 --------------------------------------
 
-If you are using Linux and want to locally install the docs
+If you are using Linux or macOS and want to locally install the docs
 and generate the html files, follow the steps below.
 
 Requirements
@@ -48,7 +82,7 @@ Installation
 ~~~~~~~~~~~~
 
 With the following steps a full development environment is installed -
-even NEST 2.14.0.
+even the newest NEST release.
 
 Change to the doc/ folder in the source directory (if you’re not already there).
 
@@ -60,24 +94,19 @@ Create and activate the environment.
 
 ::
 
-   conda env create -f conda_environment.yml
+   conda env create -f nest_doc_conda_env.yml
    conda update -n base conda
-   source activate doc
+   conda activate nest_doc
 
-Now generate the html files. They are then located in ./docs/build/html.
+Now generate the html files. They are then located in ./docs/_build/html.
 
 ::
 
    make html
 
-.. note::
-
-   ``make pdf``, ``make latex`` and other options are possible, too.
-   For more information type ``make help``.
-
 If you want to deactivate and/or delete the build environment:
 
 ::
 
-   source deactivate
-   conda remove --name documentation --all
+   conda deactivate
+   conda remove --name nest_doc --all

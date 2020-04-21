@@ -46,6 +46,8 @@ Description:
 
 sigmoid_rate_gg_1998 is an implementation of a nonlinear rate model with
 input function \f$ input(h) = ( g * h )^4 / ( .1^4 + ( g * h )^4 ) \f$.
+It either models a rate neuron with input noise (see rate_neuron_ipn)
+or a rate transformer (see rate_transformer_node).
 Input transformation can either be applied to individual inputs
 or to the sum of all inputs.
 
@@ -53,9 +55,16 @@ The model supports connections to other rate models with either zero or
 non-zero delay, and uses the secondary_event concept introduced with
 the gap-junction framework.
 
+Nonlinear rate neurons can be created by typing
+nest.Create('sigmoid_rate_gg_1998_ipn'). Nonlinear rate transformers can be
+created by typing nest.Create('rate_transformer_sigmoid_rate_gg_1998').
+
+
 Parameters:
 
-The following parameters can be set in the status dictionary.
+The following parameters can be set in the status dictionary. Note
+that some of the parameters only apply to rate neurons and not to rate
+transformers.
 
 \verbatim embed:rst
 ==================  ======= ==============================================
@@ -115,8 +124,8 @@ public:
   {
   }
 
-  void get( DictionaryDatum& ) const; //!< Store current values in dictionary
-  void set( const DictionaryDatum& ); //!< Set values from dicitonary
+  void get( DictionaryDatum& ) const;             //!< Store current values in dictionary
+  void set( const DictionaryDatum&, Node* node ); //!< Set values from dicitonary
 
   double input( double h );               // non-linearity on input
   double mult_coupling_ex( double rate ); // factor of multiplicative coupling
@@ -141,10 +150,8 @@ nonlinearities_sigmoid_rate_gg_1998::mult_coupling_in( double rate )
   return 1.;
 }
 
-typedef rate_neuron_ipn< nest::nonlinearities_sigmoid_rate_gg_1998 >
-  sigmoid_rate_gg_1998_ipn;
-typedef rate_transformer_node< nest::nonlinearities_sigmoid_rate_gg_1998 >
-  rate_transformer_sigmoid_gg_1998;
+typedef rate_neuron_ipn< nest::nonlinearities_sigmoid_rate_gg_1998 > sigmoid_rate_gg_1998_ipn;
+typedef rate_transformer_node< nest::nonlinearities_sigmoid_rate_gg_1998 > rate_transformer_sigmoid_gg_1998;
 
 template <>
 void RecordablesMap< sigmoid_rate_gg_1998_ipn >::create();

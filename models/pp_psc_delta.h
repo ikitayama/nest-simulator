@@ -64,7 +64,8 @@ both by adjusting three parameters:
 
 where the effective potential \f$ V' = V_m - E_{sfa} \f$ and \f$ E_{sfa} \f$
 is called the adaptive threshold. Here Rect means rectifier:
-\f$ Rect(x) = {x \text{ if } x>=0, 0 \text{ else}} \f$ (this is necessary because
+\f$ Rect(x) = {x \text{ if } x>=0, 0 \text{ else}} \f$ (this is necessary
+because
 negative rates are not possible).
 
 By setting c_3 = 0, c_2 can be used as an offset spike rate for an otherwise
@@ -229,7 +230,6 @@ private:
    */
   struct Parameters_
   {
-
     /** Membrane time constant in ms. */
     double tau_m_;
 
@@ -275,8 +275,8 @@ private:
 
     Parameters_(); //!< Sets default parameter values
 
-    void get( DictionaryDatum& ) const; //!< Store current values in dictionary
-    void set( const DictionaryDatum& ); //!< Set values from dictionary
+    void get( DictionaryDatum& ) const;             //!< Store current values in dictionary
+    void set( const DictionaryDatum&, Node* node ); //!< Set values from dictionary
   };
 
   // ----------------------------------------------------------------
@@ -301,7 +301,7 @@ private:
     State_(); //!< Default initialization
 
     void get( DictionaryDatum&, const Parameters_& ) const;
-    void set( const DictionaryDatum&, const Parameters_& );
+    void set( const DictionaryDatum&, const Parameters_&, Node* );
   };
 
   // ----------------------------------------------------------------
@@ -338,7 +338,7 @@ private:
     double h_;       //!< simulation time step in ms
     double dt_rate_; //!< rate parameter of dead time distribution
 
-    librandom::RngPtr rng_; //!< random number generator of my own thread
+    librandom::RngPtr rng_;                   //!< random number generator of my own thread
     librandom::PoissonRandomDev poisson_dev_; //!< random deviate generator
     librandom::GammaRandomDev gamma_dev_;     //!< random deviate generator
 
@@ -381,10 +381,7 @@ private:
 };
 
 inline port
-pp_psc_delta::send_test_event( Node& target,
-  rport receptor_type,
-  synindex,
-  bool )
+pp_psc_delta::send_test_event( Node& target, rport receptor_type, synindex, bool )
 {
   SpikeEvent e;
   e.set_sender( *this );
@@ -435,10 +432,10 @@ pp_psc_delta::get_status( DictionaryDatum& d ) const
 inline void
 pp_psc_delta::set_status( const DictionaryDatum& d )
 {
-  Parameters_ ptmp = P_; // temporary copy in case of errors
-  ptmp.set( d );         // throws if BadProperty
-  State_ stmp = S_;      // temporary copy in case of errors
-  stmp.set( d, ptmp );   // throws if BadProperty
+  Parameters_ ptmp = P_;     // temporary copy in case of errors
+  ptmp.set( d, this );       // throws if BadProperty
+  State_ stmp = S_;          // temporary copy in case of errors
+  stmp.set( d, ptmp, this ); // throws if BadProperty
 
   // We now know that (ptmp, stmp) are consistent. We do not
   // write them back to (P_, S_) before we are also sure that

@@ -44,8 +44,7 @@
 namespace nest
 {
 
-extern "C" int
-gif_cond_exp_multisynapse_dynamics( double, const double*, double*, void* );
+extern "C" int gif_cond_exp_multisynapse_dynamics( double, const double*, double*, void* );
 
 /** @BeginDocumentation
 @ingroup Neurons
@@ -71,7 +70,8 @@ C*dV(t)/dt = -g_L*(V(t)-E_L) - \eta_1(t) - \eta_2(t) - \ldots - \eta_n(t)
  + I(t)
 @f]
 
-where each \f$ eta_i \f$ is a spike-triggered current (stc), and the neuron model can
+where each \f$ eta_i \f$ is a spike-triggered current (stc), and the neuron
+model can
 have arbitrary number of them.
 Dynamic of each \f$ eta_i \f$ is described by:
 @f[
@@ -260,8 +260,7 @@ private:
   void update( Time const&, const long, const long );
 
   // make dynamics function quasi-member
-  friend int
-  gif_cond_exp_multisynapse_dynamics( double, const double*, double*, void* );
+  friend int gif_cond_exp_multisynapse_dynamics( double, const double*, double*, void* );
 
   // The next two classes need to be friends to access the State_ class/member
   friend class RecordablesMap< gif_cond_exp_multisynapse >;
@@ -274,7 +273,6 @@ private:
    */
   struct Parameters_
   {
-
     double g_L_;
     double E_L_;
     double V_reset_;
@@ -318,8 +316,8 @@ private:
 
     Parameters_(); //!< Sets default parameter values
 
-    void get( DictionaryDatum& ) const; //!< Store current values in dictionary
-    void set( const DictionaryDatum& ); //!< Set values from dictionary
+    void get( DictionaryDatum& ) const;             //!< Store current values in dictionary
+    void set( const DictionaryDatum&, Node* node ); //!< Set values from dictionary
 
     //! Return the number of receptor ports
     inline size_t
@@ -336,7 +334,6 @@ private:
    */
   struct State_
   {
-
     //! Symbolic indices to the elements of the state vector y
     enum StateVecElems
     {
@@ -351,8 +348,8 @@ private:
     std::vector< double > y_; //!< neuron state
 
     double I_stim_; //!< This is piecewise constant external current
-    double sfa_; //!< This is the change of the 'threshold' due to adaptation.
-    double stc_; //!< Spike-triggered current.
+    double sfa_;    //!< This is the change of the 'threshold' due to adaptation.
+    double stc_;    //!< Spike-triggered current.
 
     std::vector< double > sfa_elems_; //!< Vector of adaptation parameters.
     std::vector< double > stc_elems_; //!< Vector of spike-triggered parameters.
@@ -365,7 +362,7 @@ private:
     State_& operator=( const State_& );
 
     void get( DictionaryDatum&, const Parameters_& ) const;
-    void set( const DictionaryDatum&, const Parameters_& );
+    void set( const DictionaryDatum&, const Parameters_&, Node* );
 
   }; // State_
 
@@ -392,10 +389,9 @@ private:
     gsl_odeiv_evolve* e_;  //!< evolution function
     gsl_odeiv_system sys_; //!< struct describing system
 
-    // IntergrationStep_ should be reset with the neuron on ResetNetwork,
-    // but remain unchanged during calibration. Since it is initialized with
-    // step_, and the resolution cannot change after nodes have been created,
-    // it is safe to place both here.
+    // Since IntergrationStep_ is initialized with step_, and the resolution
+    // cannot change after nodes have been created, it is safe to place both
+    // here.
     double step_;            //!< step size in ms
     double IntegrationStep_; //!< current integration time step, updated by GSL
   };
@@ -407,8 +403,7 @@ private:
    */
   struct Variables_
   {
-    std::vector< double >
-      P_sfa_; // decay terms of spike-triggered current elements
+    std::vector< double > P_sfa_; // decay terms of spike-triggered current elements
     std::vector< double > P_stc_; // decay terms of adaptive threshold elements
 
     librandom::RngPtr rng_; // random number generator of my own thread
@@ -459,10 +454,7 @@ private:
 };
 
 inline port
-gif_cond_exp_multisynapse::send_test_event( Node& target,
-  rport receptor_type,
-  synindex,
-  bool )
+gif_cond_exp_multisynapse::send_test_event( Node& target, rport receptor_type, synindex, bool )
 {
   SpikeEvent e;
   e.set_sender( *this );
@@ -471,11 +463,9 @@ gif_cond_exp_multisynapse::send_test_event( Node& target,
 }
 
 inline port
-gif_cond_exp_multisynapse::handles_test_event( SpikeEvent&,
-  rport receptor_type )
+gif_cond_exp_multisynapse::handles_test_event( SpikeEvent&, rport receptor_type )
 {
-  if ( receptor_type <= 0
-    || receptor_type > static_cast< port >( P_.n_receptors() ) )
+  if ( receptor_type <= 0 || receptor_type > static_cast< port >( P_.n_receptors() ) )
   {
     throw IncompatibleReceptorType( receptor_type, get_name(), "SpikeEvent" );
   }
@@ -485,8 +475,7 @@ gif_cond_exp_multisynapse::handles_test_event( SpikeEvent&,
 }
 
 inline port
-gif_cond_exp_multisynapse::handles_test_event( CurrentEvent&,
-  rport receptor_type )
+gif_cond_exp_multisynapse::handles_test_event( CurrentEvent&, rport receptor_type )
 {
   if ( receptor_type != 0 )
   {
@@ -496,8 +485,7 @@ gif_cond_exp_multisynapse::handles_test_event( CurrentEvent&,
 }
 
 inline port
-gif_cond_exp_multisynapse::handles_test_event( DataLoggingRequest& dlr,
-  rport receptor_type )
+gif_cond_exp_multisynapse::handles_test_event( DataLoggingRequest& dlr, rport receptor_type )
 {
   if ( receptor_type != 0 )
   {
@@ -518,10 +506,10 @@ gif_cond_exp_multisynapse::get_status( DictionaryDatum& d ) const
 inline void
 gif_cond_exp_multisynapse::set_status( const DictionaryDatum& d )
 {
-  Parameters_ ptmp = P_; // temporary copy in case of errors
-  ptmp.set( d );         // throws if BadProperty
-  State_ stmp = S_;      // temporary copy in case of errors
-  stmp.set( d, ptmp );   // throws if BadProperty
+  Parameters_ ptmp = P_;     // temporary copy in case of errors
+  ptmp.set( d, this );       // throws if BadProperty
+  State_ stmp = S_;          // temporary copy in case of errors
+  stmp.set( d, ptmp, this ); // throws if BadProperty
 
   // We now know that (ptmp, stmp) are consistent. We do not
   // write them back to (P_, S_) before we are also sure that
