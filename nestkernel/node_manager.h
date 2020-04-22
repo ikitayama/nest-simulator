@@ -184,8 +184,6 @@ public:
 
   Node* thread_lid_to_node( thread t, targetindex thread_local_id ) const;
 
-  const std::vector< Node* >& copy1( thread ) const;
-
   /**
    * Get list of nodes on given thread.
    */
