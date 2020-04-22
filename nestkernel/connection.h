@@ -287,7 +287,7 @@ public:
    *
    * @see disable
    */
-  inline bool
+  bool
   is_disabled() const
   {
     return syn_id_delay_.is_disabled();

@@ -50,22 +50,9 @@
 #include "arraydatum.h"
 #include "dictutils.h"
 
-//#include "connection.h"
-
-//#include "static_connection.h"
-//#include "target_identifier.h"
-// for OpenMP Offloading work
-//#include "target_identifier.h"
-//template<typename targetidentifierptrrpo>
-//class StaticConnection;
-
-//class TargetIdentifierPtrRport;
-
 namespace nest
 {
 
-//class TargetIdentifierPtrRport;
-//class StaticConnection;
 /**
  * Base class to allow storing Connectors for different synapse types
  * in vectors. We define the interface here to avoid casting.
@@ -78,6 +65,7 @@ public:
   // behavior, avoid possible memory leak and needs to be defined to
   // avoid linker error, see, e.g., Meyers, S. (2005) p40ff
   virtual ~ConnectorBase(){};
+
   /**
    * Return syn_id_ of the synapse type of this Connector (index in
    * list of synapse prototypes).
@@ -446,7 +434,7 @@ public:
     index lcid_offset = 0; 
     while ( true )
     { 
-      ConnectionT conn = C_1[ lcid + lcid_offset ]; 
+      ConnectionT& conn = C_1[ lcid + lcid_offset ]; 
       const bool is_disabled = conn.is_disabled();
       const bool source_has_more_targets = conn.source_has_more_targets();
 
@@ -464,7 +452,6 @@ public:
     }
 
     return 1 + lcid_offset; // event was delivered to at least one target 
-   
   }
   
   // Implemented in connector_base_impl.h
