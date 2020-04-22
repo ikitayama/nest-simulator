@@ -143,6 +143,7 @@ NodeCollection::create( const TokenArray& node_idsarray )
   return NodeCollection::create_( node_ids );
 }
 
+
 NodeCollectionPTR
 NodeCollection::create( const index node_id )
 {
@@ -154,7 +155,6 @@ NodeCollection::create_()
 {
   return NodeCollectionPTR( new NodeCollectionPrimitive( 0, 0, invalid_index ) );
 }
-
 
 NodeCollectionPTR
 NodeCollection::create_( const std::vector< index >& node_ids )
