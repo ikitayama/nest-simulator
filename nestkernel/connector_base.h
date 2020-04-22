@@ -220,7 +220,7 @@ class Connector : public ConnectorBase
 private:
   BlockVector< ConnectionT > C_;
   const synindex syn_id_;
-  ConnectionT *C_1 = new ConnectionT[81000000];
+  ConnectionT *C_1;// = new ConnectionT[81000000];
 
 public:
   virtual void map_in() {

@@ -379,7 +379,7 @@ EventDeliveryManager::gather_spike_data_( const thread tid,
     } // of omp single; implicit barrier
 
     // Deliver spikes from receive buffer to ring buffers.
-    const bool deliver_completed = true;//deliver_events_( tid, recv_buffer );
+    const bool deliver_completed = true; //deliver_events_( tid, recv_buffer );
     gather_completed_checker_[ tid ].logical_and( deliver_completed );
 
 // Exit gather loop if all local threads and remote processes are

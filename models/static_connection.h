@@ -152,9 +152,9 @@ public:
     //printf("weight_ %f get_delay_steps() %f get_rport() %ld\n", weight_, get_delay_steps(), get_rport()); 
     e.set_weight( weight_ ); 
     e.set_delay_steps( get_delay_steps() );
-    e.set_receiver( *get_target( tid ) );
+    //e.set_receiver( *get_target( tid ) );
     e.set_rport( get_rport() );
-    //e(); // WHY? 20191014
+    e(); // WHY? 20191014
   }
 
   void get_status( DictionaryDatum& d ) const;
