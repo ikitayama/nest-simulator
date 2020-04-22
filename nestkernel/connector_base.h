@@ -409,6 +409,31 @@ public:
   index
   send( const thread tid, const index lcid, const std::vector< ConnectorModel* >& cm, Event& e )
   {
+    typename ConnectionT::CommonPropertiesType const& cp =
+      static_cast< GenericConnectorModel< ConnectionT >* >( cm[ syn_id_ ] )->get_common_properties();
+
+    index lcid_offset = 0;
+
+    while ( true )
+    {
+      ConnectionT& conn = C_[ lcid + lcid_offset ];
+      const bool is_disabled = conn.is_disabled();
+      const bool source_has_more_targets = conn.source_has_more_targets();
+
+      e.set_port( lcid + lcid_offset );
+      if ( not is_disabled )
+      {
+        conn.send( e, tid, cp );
+        send_weight_event( tid, lcid + lcid_offset, e, cp );
+      }
+      if ( not source_has_more_targets )
+      {
+        break;
+      }
+      ++lcid_offset;
+    }
+
+    return 1 + lcid_offset; // event was delivered to at least one target
   }
  
   index f3() {} 
