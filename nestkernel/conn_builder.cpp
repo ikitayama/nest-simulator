@@ -326,7 +326,7 @@ nest::ConnBuilder::connect()
       "or as all-to-all connections with equal source and target "
       "populations and default or scalar parameters." );
   }
-
+std::cout << __func__ << std::endl;
   if ( make_symmetric_ and not supports_symmetric() )
   {
     throw NotImplemented( "This connection rule does not support symmetric connections." );

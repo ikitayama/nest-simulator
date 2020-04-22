@@ -358,7 +358,7 @@ nest::ConnectionManager::connect( NodeCollectionPTR sources,
 {
   conn_spec->clear_access_flags();
   syn_spec->clear_access_flags();
-
+ std::cout << "EEEEEEEEEEEEEEEEEEEEEE" << std::endl;
   if ( not conn_spec->known( names::rule ) )
   {
     throw BadProperty( "Connectivity spec must contain connectivity rule." );
