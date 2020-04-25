@@ -70,6 +70,7 @@ public:
     : ConnectionBase()
     , weight_( 1.0 )
   {
+//#pragma omp target enter data map(to: this[0:1])
   }
 
   /**
@@ -80,6 +81,7 @@ public:
     : ConnectionBase( rhs )
     , weight_( rhs.weight_ )
   {
+//#pragma omp target enter data map(to: this[0:1])
   }
 
   // Explicitly declare all methods inherited from the dependent base

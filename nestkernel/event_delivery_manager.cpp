@@ -633,8 +633,9 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
         //const index source_gid = 1;//thread_local_sources[syn_id][lcid];
         //printf("Target: syn_id %lu lcid %lu source_gid %lu\n", syn_id, lcid, source_gid);
 	//index *a = nullptr;
-        //se.set_sender_gid( source_gid );
+        se.set_sender_node_id( source_gid );
         //kernel().connection_manager.send( tid, syn_id, lcid, cm, se );
+        //p->send( tid, syn_id, lcid, cm, se );
         //typename StaticConnection<TargetIdentifierPtrRport>::CommonPropertiesType const &cp = static_cast<GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> >* >( cmarray[ 0 ])->GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> >::get_common_properties();
         //WeightRecorderEvent wr_e1;
         //static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(connections[0])->ff(tid, lcid, cp, se, a);
