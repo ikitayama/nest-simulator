@@ -559,8 +559,6 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
       a1[i] = thread_local_nodes[i];
 
   SpikeDataT spike_data;
-  index** thread_local_sources = new index*[100];
-  //kernel().connection_manager.copy_to(tid, thread_local_sources);
 
   ConnectorBase *connections[100];
 
@@ -581,8 +579,6 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
 	//#pragma omp target enter data map(to: cmarray[21][0:1])
 //
 //}
-//#pragma omp target enter data map(to: thread_local_sources[0:100])
-//#pragma omp target enter data map(to: thread_local_sources[0][0:81000000])
    
    for (int i=0;i<send_recv_count_spike_data_per_rank;i++) {
     	//std::cout << "Host: " << i << " lcid " << recv_buffer[i].get_lcid() << std::endl;
@@ -595,7 +591,6 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
   for ( thread rank = 0; rank < nranks;
         ++rank )
   { 
-    //printf("%lu dididididididididid\n", p->get_source_node_id_device(1, 0, 1));
     // check last entry for completed marker; needs to be done before
     // checking invalid marker to assure that this is always read
     if ( not recv_buffer_a[ ( rank + 1 ) * send_recv_count_spike_data_per_rank - 1 ].is_complete_marker() )
@@ -622,13 +617,12 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
       if ( spike_data.get_tid() == tid )
       {
         se.set_stamp( prepared_timestamps[ spike_data.get_lag() ] );
-        //se.set_offset( spike_data.get_offset() );
+        se.set_offset( spike_data.get_offset() );
 	//printf("get_lag %u get_offset %f\n", spike_data.get_lag(), spike_data.get_offset());
         const index syn_id = spike_data.get_syn_id();
         const index lcid = spike_data.get_lcid();
         //const index source_gid = kernel().connection_manager.get_source_node_id( tid, syn_id, lcid );
-        //const index source_gid = p->get_source_node_id_device( tid, syn_id, lcid);
-        const index source_gid =1;
+        const index source_gid = p->get_source_node_id_device( tid, syn_id, lcid);
         //index source_gid = 1;//KernelManager::get_kernel_manager().connection_manager.ttt1;
         //ConnectionManager *p = &KernelManager::get_kernel_manager().connection_manager;
 		//const index source_gid = kernel().connection_manager.tmp1[0];

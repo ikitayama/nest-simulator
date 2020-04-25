@@ -649,6 +649,7 @@ nest::SimulationManager::call_update_()
   simulating_ = true;
   simulated_ = true;
 
+
   update_();
 
   simulating_ = false;
@@ -728,6 +729,7 @@ nest::SimulationManager::update_()
   {
     const thread tid = kernel().vp_manager.get_thread_id();
 
+    kernel().connection_manager.copy_to(tid);
     do
     {
       if ( print_time_ )

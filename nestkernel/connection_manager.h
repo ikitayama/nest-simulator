@@ -86,7 +86,7 @@ public:
 
   void compute_target_data_buffer_size();
   void compute_compressed_secondary_recv_buffer_positions( const thread tid );
-  void copy_to(const thread, index **thead_local_sources);
+  void copy_to(const thread);
   std::vector< ConnectorBase* > &get_thread_local_connections(const thread tid ) {
 	return connections_[tid];
   };
@@ -535,6 +535,7 @@ private:
    * Internally arranged in a 3d structure: threads|synapses|node IDs
    */
   SourceTable source_table_;
+  Source ***source_array_;
   index tmp1[10];
   index xyz=1;
   /**
@@ -760,8 +761,7 @@ ConnectionManager::get_source_node_id( const thread tid, const synindex syn_inde
 inline index
 ConnectionManager::get_source_node_id_device( const thread tid, const synindex syn_index, const index lcid )
 {
-  //return source_table_.get_node_id( tid, syn_index, lcid );
-  return xyz;//source_table_.get_node_id( tid, syn_index, lcid );
+  return source_array_[tid][syn_index][lcid].get_node_id();
 }
 
 inline bool

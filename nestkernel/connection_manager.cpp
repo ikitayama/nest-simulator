@@ -1153,25 +1153,34 @@ nest::ConnectionManager::compute_target_data_buffer_size()
 }
 
 void
-nest::ConnectionManager::copy_to(const thread tid, index **thread_local_sources) {
+nest::ConnectionManager::copy_to(const thread tid) {
        std::vector< BlockVector< Source > > v = source_table_.get_thread_local_sources(tid);
-
-       int n_syn_types = v.size();
-       //std::cout << "Synapse types " << n_syn_types << std::endl;
-       for (int i=0;i<n_syn_types;i++) {
-	BlockVector< Source >::iterator iter = v[i].begin();
+	int n_threads = kernel().vp_manager.get_num_threads();
+       source_array_ = new Source**[n_threads];
+       for (int i=0;i< n_threads; i++) {
+	source_array_[i] = new Source*[v.size()];	
+	for (int j=0;j<v.size();j++) {
+	BlockVector< Source >::iterator iter = v[j].begin();
 	int k=0;
 	//std::cout << "i " << i << " total sources " << v[i].size() << std::endl; 
-	if (v[i].size() == 0) continue;
-	thread_local_sources[i] = new index[v[i].size()];
+	//if (v[i].size() == 0) continue;
+		source_array_[i][j] = new Source[v[j].size()];
 	//std::cout << "Synapsetype " << i << " elements " << v[i].size() << std::endl;
-	for (; iter != v[i].end();iter++) {
-		//thread_local_sources[i][k] = iter->get_gid();
+		for (; iter != v[j].end();iter++) {
+		source_array_[i][j][k] = *iter;
 		//std::cout << "i " << i << " gid " << v[i][k].get_gid() << std::endl;
 		k++;
+		}
 	}
        }
+#pragma omp target enter data map(to: source_array_[0:100])
 
+for (int i=0;i<n_threads;i++) {
+#pragma omp target enter data map(to: source_array_[i][0:v.size()])
+	for (int j=0;j<v.size();j++) {
+#pragma omp target enter data map(to: source_array_[i][j][0:v[j].size()])
+	}
+}
 }
 
 void
