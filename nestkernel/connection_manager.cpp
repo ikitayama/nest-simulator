@@ -118,6 +118,11 @@ nest::ConnectionManager::initialize()
   // The following line is executed by all processes, no need to communicate
   // this change in delays.
   min_delay_ = max_delay_ = 1;
+
+#pragma omp target enter data map(to: this[0:1])
+//#pragma omp target enter data map(to: this->source_table_)
+//#pragma omp target enter data map(to: this->tmp1[0:10])
+//#pragma omp target enter data map(to: this->ttt1)
 }
 
 void

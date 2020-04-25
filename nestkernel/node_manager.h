@@ -106,6 +106,8 @@ public:
    */
   void init_state( index );
 
+  const SparseNodeArray& size_itaru() const;
+
   /**
    * Return total number of network nodes.
    */
@@ -318,7 +320,16 @@ private:
 
   //! Store exceptions raised in thread-parallel sections for later handling
   std::vector< std::shared_ptr< WrappedThreadException > > exceptions_raised_;
+  SparseNodeArray t1_[10];
 };
+
+inline const SparseNodeArray&
+NodeManager::size_itaru() const
+{
+  //SparseNodeArray tmpXX[10];
+  return t1_[0];
+
+}
 
 inline index
 NodeManager::size() const

@@ -386,11 +386,13 @@ public:
   bool secondary_connections_exist() const;
 
   index get_source_node_id( const thread tid, const synindex syn_id, const index lcid );
+  
+  index get_source_node_id_device( const thread tid, const synindex syn_id, const index lcid );
 
   double get_stdp_eps() const;
 
   void set_stdp_eps( const double stdp_eps );
-
+unsigned long ttt1=123;
 private:
   size_t get_num_target_data( const thread tid ) const;
 
@@ -533,7 +535,8 @@ private:
    * Internally arranged in a 3d structure: threads|synapses|node IDs
    */
   SourceTable source_table_;
-
+  index tmp1[10];
+  index xyz=1;
   /**
    * Stores absolute position in receive buffer of secondary events.
    * structure: threads|synapses|position
@@ -752,6 +755,13 @@ inline index
 ConnectionManager::get_source_node_id( const thread tid, const synindex syn_index, const index lcid )
 {
   return source_table_.get_node_id( tid, syn_index, lcid );
+}
+
+inline index
+ConnectionManager::get_source_node_id_device( const thread tid, const synindex syn_index, const index lcid )
+{
+  //return source_table_.get_node_id( tid, syn_index, lcid );
+  return xyz;//source_table_.get_node_id( tid, syn_index, lcid );
 }
 
 inline bool

@@ -41,6 +41,9 @@ main( int argc, char* argv[] )
 
   neststartup( &argc, &argv, engine );
 
+#pragma omp target parallel for
+  for (int i=0;i<10;i++) {}
+
   // start the interpreter session
   int exitcode = engine.execute();
 

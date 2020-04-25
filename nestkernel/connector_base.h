@@ -220,7 +220,8 @@ class Connector : public ConnectorBase
 private:
   BlockVector< ConnectionT > C_;
   const synindex syn_id_;
-  ConnectionT *C_1;// = new ConnectionT[81000000];
+  //ConnectionT *C_1 = new ConnectionT[81000000];
+  ConnectionT *C_1 = new ConnectionT[8];
 
 public:
   virtual void map_in() {
@@ -235,14 +236,14 @@ public:
         }
         assert(i==veclen);
 
-	#pragma omp target enter data map(to: this[0:1])
-	#pragma omp target enter data map(to: this->C_1[0:81000000])
+	//#pragma omp target enter data map(to: this[0:1])
+	//#pragma omp target enter data map(to: this->C_1[0:81000000])
   }
 
   virtual void map_out() {
 	size_t array_size = C_.size();
-	#pragma omp target exit data map(from: this[0:1])
-	#pragma omp target exit data map(from: this->C_1[0:81000000])
+	//#pragma omp target exit data map(from: this[0:1])
+	//#pragma omp target exit data map(from: this->C_1[0:81000000])
   }
   Connector( const synindex syn_id )
     : syn_id_( syn_id )
