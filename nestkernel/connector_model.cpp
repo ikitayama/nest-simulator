@@ -39,6 +39,8 @@ ConnectorModel::ConnectorModel( const std::string name,
   , supports_wfr_( supports_wfr )
   , requires_clopath_archiving_( requires_clopath_archiving )
 {
+	std::cout << "dddddddd " << name << std::endl;
+//#pragma omp target enter data map(to: this[0:1])
 }
 
 ConnectorModel::ConnectorModel( const ConnectorModel& cm, const std::string name )

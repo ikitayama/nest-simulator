@@ -246,6 +246,9 @@ public:
   void
   send( const thread tid, const synindex syn_id, const index lcid, const std::vector< ConnectorModel* >& cm, Event& e );
 
+  void
+  send_device( const thread tid, const synindex syn_id, const index lcid, const std::vector< ConnectorModel* >& cm, Event& e );
+
   /**
    * Send event e to all device targets of source source_node_id
    */
@@ -527,6 +530,9 @@ private:
    * structure: threads|synapses|connections
    */
   std::vector< std::vector< ConnectorBase* > > connections_;
+  
+  //**
+  ConnectorBase* **connections_array_;
 
   /**
    * A structure to hold the node IDs of presynaptic neurons during
@@ -802,6 +808,16 @@ ConnectionManager::send( const thread tid,
   Event& e )
 {
   connections_[ tid ][ syn_id ]->send( tid, lcid, cm, e );
+}
+
+inline void
+ConnectionManager::send_device( const thread tid,
+  const synindex syn_id,
+  const index lcid,
+  const std::vector< ConnectorModel* >& cm,
+  Event& e )
+{
+  connections_array_[ tid ][ syn_id ]->send( tid, lcid, cm, e );
 }
 
 inline void

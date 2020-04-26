@@ -71,8 +71,8 @@ NodeManager::initialize()
   local_nodes_.resize( kernel().vp_manager.get_num_threads() );
   num_thread_local_devices_.resize( kernel().vp_manager.get_num_threads(), 0 );
   ensure_valid_thread_local_ids();
+
 #pragma omp target enter data map(to: this[0:1])
-//#pragma omp target enter data map(to: this->t1_[0:10])
 }
 
 void

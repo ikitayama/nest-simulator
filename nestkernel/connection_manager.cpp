@@ -105,6 +105,20 @@ nest::ConnectionManager::initialize()
     secondary_recv_buffer_pos_[ tid ] = std::vector< std::vector< size_t > >();
   } // of omp parallel
 
+  for (int i=0;i<num_threads;i++) {
+	connections_array_ = new ConnectorBase**[i];
+	for (int j=0;j<100;j++) {
+		connections_array_[i] = new ConnectorBase*[j];
+	}
+  }
+
+  for (int i=0;i<num_threads;i++) {
+	for (int j=0;j<100;j++) {
+		//connections_array_[i][j] = connections_[i][j];
+	}
+  }
+
+
   source_table_.initialize();
   target_table_.initialize();
   target_table_devices_.initialize();
@@ -120,9 +134,11 @@ nest::ConnectionManager::initialize()
   min_delay_ = max_delay_ = 1;
 
 #pragma omp target enter data map(to: this[0:1])
-//#pragma omp target enter data map(to: this->source_table_)
-//#pragma omp target enter data map(to: this->tmp1[0:10])
-//#pragma omp target enter data map(to: this->ttt1)
+
+//#pragma omp target enter data map(to: this->connections_array_[0:num_threads])
+for (int i=0;i<100;i++) {
+//#pragma omp target enter data map(to: this->connections_array_[i][0:1])
+}
 }
 
 void
