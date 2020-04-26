@@ -70,7 +70,6 @@ public:
     : ConnectionBase()
     , weight_( 1.0 )
   {
-//#pragma omp target enter data map(to: this[0:1])
   }
 
   /**
@@ -81,7 +80,6 @@ public:
     : ConnectionBase( rhs )
     , weight_( rhs.weight_ )
   {
-//#pragma omp target enter data map(to: this[0:1])
   }
 
   // Explicitly declare all methods inherited from the dependent base
@@ -150,13 +148,12 @@ public:
 
   void
   send( Event& e, const thread tid, const CommonSynapseProperties& )
-  { 
-    //printf("weight_ %f get_delay_steps() %f get_rport() %ld\n", weight_, get_delay_steps(), get_rport()); 
-    e.set_weight( weight_ ); 
+  {
+    e.set_weight( weight_ );
     e.set_delay_steps( get_delay_steps() );
     e.set_receiver( *get_target( tid ) );
     e.set_rport( get_rport() );
-    e(); // WHY? 20191014
+    e();
   }
 
   void get_status( DictionaryDatum& d ) const;
