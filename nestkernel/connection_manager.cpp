@@ -59,6 +59,7 @@
 #include "sliexceptions.h"
 #include "token.h"
 #include "tokenutils.h"
+#include "static_connection.h"
 
 nest::ConnectionManager::ConnectionManager()
   : connruledict_( new Dictionary() )
@@ -98,23 +99,24 @@ nest::ConnectionManager::initialize()
   check_primary_connections_.initialize( num_threads, false );
   check_secondary_connections_.initialize( num_threads, false );
 
+   int num_synapse_prototypes = kernel().model_manager.get_num_synapse_prototypes();
+
+   for (int i=0;i<num_threads;i++) connections_array_ = new ConnectorBase**[i];
 #pragma omp parallel
   {
     const thread tid = kernel().vp_manager.get_thread_id();
     connections_[ tid ] = std::vector< ConnectorBase* >( kernel().model_manager.get_num_synapse_prototypes() );
     secondary_recv_buffer_pos_[ tid ] = std::vector< std::vector< size_t > >();
+  
+    connections_array_[tid] = new ConnectorBase*[num_synapse_prototypes];
   } // of omp parallel
 
   for (int i=0;i<num_threads;i++) {
-	connections_array_ = new ConnectorBase**[i];
-	for (int j=0;j<100;j++) {
-		connections_array_[i] = new ConnectorBase*[j];
-	}
-  }
-
-  for (int i=0;i<num_threads;i++) {
-	for (int j=0;j<100;j++) {
-		//connections_array_[i][j] = connections_[i][j];
+	for (int j=0;j<num_synapse_prototypes;j++) {
+		connections_array_[i][j] = connections_[i][j];
+		//std::cout << "XX " << typeid(connections_array_[i][j]).name() << std::endl;
+		//std::cout << "XX " << typeid(connections_[i][j]).name() << std::endl;
+		//std::cout << "XX " << typeid(static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>>*>(connections_[i][j])->f4()).name() << std::endl;
 	}
   }
 
@@ -133,11 +135,25 @@ nest::ConnectionManager::initialize()
   // this change in delays.
   min_delay_ = max_delay_ = 1;
 
+  std::cout << __PRETTY_FUNCTION__ << "Map this ptr " << this << std::endl;
 #pragma omp target enter data map(to: this[0:1])
-
-//#pragma omp target enter data map(to: this->connections_array_[0:num_threads])
-for (int i=0;i<100;i++) {
-//#pragma omp target enter data map(to: this->connections_array_[i][0:1])
+  std::cout << __PRETTY_FUNCTION__ << "Map " << this->connections_array_ << std::endl;
+#pragma omp target enter data map(to: this->connections_array_[0:num_threads])
+for(int i=0;i<num_threads;i++) {
+  std::cout << __PRETTY_FUNCTION__ << "Map " << this->connections_array_[i] << std::endl;	
+#pragma omp target enter data map(to: this->connections_array_[i][0:num_synapse_prototypes])
+}
+for (int i=0;i<num_threads;i++) {
+	for (int j=0;j<num_synapse_prototypes;j++) {
+//if (!this->connections_array_[i][j]	) {
+	//std::cout << i << " " << j << std::endl;
+	//static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>>*>(this->connections_array_[i][j])->f4();
+	if (this->connections_array_[i][j]) {
+#pragma omp target enter data map(to: this->connections_array_[i][j][0:1])
+	}
+//}
+//#pragma omp target enter data map(to: this->connections_array_[0][0][0:1])
+	}
 }
 }
 
@@ -1189,12 +1205,12 @@ nest::ConnectionManager::copy_to(const thread tid) {
 		}
 	}
        }
-#pragma omp target enter data map(to: source_array_[0:100])
+#pragma omp target enter data map(to: this->source_array_[0:100])
 
 for (int i=0;i<n_threads;i++) {
-#pragma omp target enter data map(to: source_array_[i][0:v.size()])
+#pragma omp target enter data map(to: this->source_array_[i][0:v.size()])
 	for (int j=0;j<v.size();j++) {
-#pragma omp target enter data map(to: source_array_[i][j][0:v[j].size()])
+#pragma omp target enter data map(to: this->source_array_[i][j][0:v[j].size()])
 	}
 }
 }

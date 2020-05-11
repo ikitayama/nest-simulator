@@ -47,6 +47,8 @@
 #include "dict.h"
 #include "dictdatum.h"
 
+#include "target_identifier.h"
+//#include "static_connection.h"
 namespace nest
 {
 class GenericConnBuilderFactory;
@@ -57,6 +59,8 @@ class SecondaryEvent;
 class DelayChecker;
 class GrowthCurve;
 class SpikeData;
+class TargetIdentifierIndex;
+//class StaticConnection;
 
 class ConnectionManager : public ManagerInterface
 {
@@ -246,7 +250,7 @@ public:
   void
   send( const thread tid, const synindex syn_id, const index lcid, const std::vector< ConnectorModel* >& cm, Event& e );
 
-  void
+  ConnectorBase* 
   send_device( const thread tid, const synindex syn_id, const index lcid, const std::vector< ConnectorModel* >& cm, Event& e );
 
   /**
@@ -810,14 +814,18 @@ ConnectionManager::send( const thread tid,
   connections_[ tid ][ syn_id ]->send( tid, lcid, cm, e );
 }
 
-inline void
+inline ConnectorBase* 
 ConnectionManager::send_device( const thread tid,
   const synindex syn_id,
   const index lcid,
   const std::vector< ConnectorModel* >& cm,
   Event& e )
 {
-  connections_array_[ tid ][ syn_id ]->send( tid, lcid, cm, e );
+  if (syn_id ==0) {
+  //static_cast< Connector<StaticConnection<nest::TargetIdentifierPtrRport>> *>(connections_array_[ tid ][ syn_id ])->f3( tid, lcid, cm, e );
+  }
+  return connections_array_[ tid ][ syn_id ];//->f3( tid, lcid, cm, e );
+
 }
 
 inline void

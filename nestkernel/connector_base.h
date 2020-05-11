@@ -241,7 +241,7 @@ public:
   }
 
   virtual void map_out() {
-	size_t array_size = C_.size();
+	//size_t array_size = C_.size();
 	//#pragma omp target exit data map(from: this[0:1])
 	//#pragma omp target exit data map(from: this->C_1[0:81000000])
   }
@@ -410,6 +410,7 @@ public:
   index
   send( const thread tid, const index lcid, const std::vector< ConnectorModel* >& cm, Event& e )
   {
+	  std::cout << __func__ << std::endl;
     typename ConnectionT::CommonPropertiesType const& cp =
       static_cast< GenericConnectorModel< ConnectionT >* >( cm[ syn_id_ ] )->get_common_properties();
 
@@ -437,8 +438,16 @@ public:
     return 1 + lcid_offset; // event was delivered to at least one target
   }
  
-  index f3() {} 
+  index
+  f3( const thread tid, const index lcid, const std::vector< ConnectorModel* >& cm, Event& e ) 
+  {
 
+  } 
+  index
+  f4(void)
+  {
+  }
+  
   index
   ff( const thread tid,
     const index lcid,

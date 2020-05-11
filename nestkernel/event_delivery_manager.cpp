@@ -587,7 +587,7 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
    ConnectionManager *p = &kernel().connection_manager;
 
 //#pragma omp target teams distribute parallel for num_teams(512) map(tofrom: are_others_completed,recv_buffer_a[0:recv_buffer_size],se) map(to: send_recv_count_spike_data_per_rank,nranks,spike_data,prepared_timestamps) map(to: a1[0:nnodes]) map(to: wr_e)
-#pragma omp target teams distribute parallel for map(to: are_others_completed,recv_buffer_a[0:recv_buffer_size],se) map(to: send_recv_count_spike_data_per_rank,nranks,spike_data,prepared_timestamps) map(to: a1[0:nnodes]) map(to: wr_e) 
+#pragma omp target teams distribute parallel for map(to: are_others_completed,recv_buffer_a[0:recv_buffer_size],se) map(to: send_recv_count_spike_data_per_rank,nranks,spike_data,prepared_timestamps) map(to: wr_e) 
   for ( thread rank = 0; rank < nranks;
         ++rank )
   { 
@@ -609,7 +609,7 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
     }
 
     //printf("send_recv_count_spike_data_per_rank is %d\n", send_recv_count_spike_data_per_rank);
-    for ( unsigned int i = 0; i < send_recv_count_spike_data_per_rank; ++i )
+    for ( unsigned int i = 0; (i < send_recv_count_spike_data_per_rank) && (!spike_data.is_end_marker()); ++i )
     {
       spike_data =
         recv_buffer_a[ rank * send_recv_count_spike_data_per_rank + i ];
@@ -628,16 +628,17 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
 		//const index source_gid = kernel().connection_manager.tmp1[0];
 		//int dd = KernelManager::get_kernel_manager().connection_manager.tmp1[0];
         //const index source_gid = source.get_gid( tid, syn_id, lcid );
-        printf("------------ %d\n", source_gid);
+        //printf("------------ %d\n", source_gid);
         //if (lcid >= 81000000 or syn_id != 0) printf("lcid is %lu\n");
         //const index source_gid = 1;//thread_local_sources[syn_id][lcid];
         //printf("Target: syn_id %lu lcid %lu source_gid %lu\n", syn_id, lcid, source_gid);
 	//index *a = nullptr;
         se.set_sender_node_id( source_gid );
         //kernel().connection_manager.send( tid, syn_id, lcid, cm, se );
-        //p->send( tid, syn_id, lcid, cm, se );
+        //p->send_device( tid, syn_id, lcid, cm, se );
         //typename StaticConnection<TargetIdentifierPtrRport>::CommonPropertiesType const &cp = static_cast<GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> >* >( cmarray[ 0 ])->GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> >::get_common_properties();
         //WeightRecorderEvent wr_e1;
+        //static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(p->send_device(tid, syn_id, lcid,cm, se))->f3(tid, lcid, cm, se);
         //static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(connections[0])->ff(tid, lcid, cp, se, a);
 
       }
