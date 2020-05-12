@@ -407,6 +407,11 @@ public:
     }
   }
 
+  index f() 
+  {
+	  	printf("XXXXXX-", __func__);
+  }
+
   index
   send( const thread tid, const index lcid, const std::vector< ConnectorModel* >& cm, Event& e )
   {

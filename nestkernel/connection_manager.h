@@ -250,8 +250,8 @@ public:
   void
   send( const thread tid, const synindex syn_id, const index lcid, const std::vector< ConnectorModel* >& cm, Event& e );
 
-  ConnectorBase* 
-  send_device( const thread tid, const synindex syn_id, const index lcid, const std::vector< ConnectorModel* >& cm, Event& e );
+  ConnectorBase*
+  send_device( const thread tid, const synindex syn_id, const index lcid, ConnectorModel** cm, Event& e );
 
   /**
    * Send event e to all device targets of source source_node_id
@@ -537,7 +537,7 @@ private:
   
   //**
   ConnectorBase* **connections_array_;
-
+  void* p_;
   /**
    * A structure to hold the node IDs of presynaptic neurons during
    * postsynaptic connection creation, before the connection
@@ -814,17 +814,18 @@ ConnectionManager::send( const thread tid,
   connections_[ tid ][ syn_id ]->send( tid, lcid, cm, e );
 }
 
-inline ConnectorBase* 
+inline ConnectorBase*
 ConnectionManager::send_device( const thread tid,
   const synindex syn_id,
   const index lcid,
-  const std::vector< ConnectorModel* >& cm,
+  ConnectorModel** cm,
   Event& e )
 {
   if (syn_id ==0) {
-  //static_cast< Connector<StaticConnection<nest::TargetIdentifierPtrRport>> *>(connections_array_[ tid ][ syn_id ])->f3( tid, lcid, cm, e );
+  //.static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(connections_array_[ tid ][ syn_id ])->f();
   }
   return connections_array_[ tid ][ syn_id ];//->f3( tid, lcid, cm, e );
+  //return p_[ syn_id ]->f();
 
 }
 

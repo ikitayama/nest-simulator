@@ -145,7 +145,10 @@ public:
     ConnTestDummyNode dummy_target;
     ConnectionBase::check_connection_( dummy_target, s, t, receptor_type );
   }
-
+  void f()
+  {
+	  	printf("XXXXX-----", __func__);
+  }
   void
   send( Event& e, const thread tid, const CommonSynapseProperties& )
   {

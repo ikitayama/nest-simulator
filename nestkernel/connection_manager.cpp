@@ -135,12 +135,12 @@ nest::ConnectionManager::initialize()
   // this change in delays.
   min_delay_ = max_delay_ = 1;
 
-  std::cout << __PRETTY_FUNCTION__ << "Map this ptr " << this << std::endl;
+  std::cout << __PRETTY_FUNCTION__ << " Map this ptr " << this << std::endl;
 #pragma omp target enter data map(to: this[0:1])
-  std::cout << __PRETTY_FUNCTION__ << "Map " << this->connections_array_ << std::endl;
+  std::cout << __PRETTY_FUNCTION__ << " Map " << this->connections_array_ << std::endl;
 #pragma omp target enter data map(to: this->connections_array_[0:num_threads])
 for(int i=0;i<num_threads;i++) {
-  std::cout << __PRETTY_FUNCTION__ << "Map " << this->connections_array_[i] << std::endl;	
+  std::cout << __PRETTY_FUNCTION__ << " Map " << this->connections_array_[i] << std::endl;	
 #pragma omp target enter data map(to: this->connections_array_[i][0:num_synapse_prototypes])
 }
 for (int i=0;i<num_threads;i++) {
@@ -148,8 +148,11 @@ for (int i=0;i<num_threads;i++) {
 //if (!this->connections_array_[i][j]	) {
 	//std::cout << i << " " << j << std::endl;
 	//static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>>*>(this->connections_array_[i][j])->f4();
+	// Can only map non-null objects to the device
 	if (this->connections_array_[i][j]) {
-#pragma omp target enter data map(to: this->connections_array_[i][j][0:1])
+		auto p_ = static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>>*>(connections_array_[i][j]);
+		//std::cout << __PRETTY_FUNCTION__ << " Map " << p << " size of " << sizeof(*p) << std::endl; 
+#pragma omp target enter data map(to: p_[0:1])
 	}
 //}
 //#pragma omp target enter data map(to: this->connections_array_[0][0][0:1])

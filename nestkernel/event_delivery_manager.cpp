@@ -585,6 +585,7 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
    }
    WeightRecorderEvent wr_e;
    ConnectionManager *p = &kernel().connection_manager;
+   //std::cout << "XXXXXX " <<     > *>(p->send_device(tid, syn_id, lcid, cmarray, se))->send_f();
 
 //#pragma omp target teams distribute parallel for num_teams(512) map(tofrom: are_others_completed,recv_buffer_a[0:recv_buffer_size],se) map(to: send_recv_count_spike_data_per_rank,nranks,spike_data,prepared_timestamps) map(to: a1[0:nnodes]) map(to: wr_e)
 #pragma omp target teams distribute parallel for map(to: are_others_completed,recv_buffer_a[0:recv_buffer_size],se) map(to: send_recv_count_spike_data_per_rank,nranks,spike_data,prepared_timestamps) map(to: wr_e) 
@@ -638,7 +639,11 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
         //p->send_device( tid, syn_id, lcid, cm, se );
         //typename StaticConnection<TargetIdentifierPtrRport>::CommonPropertiesType const &cp = static_cast<GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> >* >( cmarray[ 0 ])->GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> >::get_common_properties();
         //WeightRecorderEvent wr_e1;
-        //static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(p->send_device(tid, syn_id, lcid,cm, se))->f3(tid, lcid, cm, se);
+       auto v = static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(p->send_device(tid, syn_id, lcid,cmarray, se));
+       v->f();
+       //static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>>*>(p->send_device(tid, syn_id, lcid, cmarray, se).f();
+       //p->send_device(tid, syn_id, lcid, cmarray, se);
+       //p->p_->f();
         //static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(connections[0])->ff(tid, lcid, cp, se, a);
 
       }
