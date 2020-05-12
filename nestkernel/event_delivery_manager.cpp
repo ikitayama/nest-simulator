@@ -567,25 +567,13 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
   for (int i=0;i<100;i++) {
 	if (i==0) connections[i] = thread_local_v[i];
   }
-  //static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(connections[0])->map_in();
-
-//#pragma omp target enter data map(to: cmarray[0:100])
-//for (int i=1;i == 0 or i == 20 or i == 21;i++) {
-	//#pragma omp target enter data map(to: connections[0][0:1])
-	//#pragma omp target enter data map(to: connections[20][0:1])
-	//#pragma omp target enter data map(to: connections[21][0:1])
-	//#pragma omp target enter data map(to: cmarray[0][0:1])
-	//#pragma omp target enter data map(to: cmarray[20][0:1])
-	//#pragma omp target enter data map(to: cmarray[21][0:1])
-//
-//}
    
-   for (int i=0;i<send_recv_count_spike_data_per_rank;i++) {
+  for (int i=0;i<send_recv_count_spike_data_per_rank;i++) {
     	//std::cout << "Host: " << i << " lcid " << recv_buffer[i].get_lcid() << std::endl;
-   }
-   WeightRecorderEvent wr_e;
-   ConnectionManager *p = &kernel().connection_manager;
-   //std::cout << "XXXXXX " <<     > *>(p->send_device(tid, syn_id, lcid, cmarray, se))->send_f();
+  }
+  WeightRecorderEvent wr_e;
+  ConnectionManager *p = &kernel().connection_manager;
+  //std::cout << "XXXXXX " <<     > *>(p->send_device(tid, syn_id, lcid, cmarray, se))->send_f();
 
 //#pragma omp target teams distribute parallel for num_teams(512) map(tofrom: are_others_completed,recv_buffer_a[0:recv_buffer_size],se) map(to: send_recv_count_spike_data_per_rank,nranks,spike_data,prepared_timestamps) map(to: a1[0:nnodes]) map(to: wr_e)
 #pragma omp target teams distribute parallel for map(to: are_others_completed,recv_buffer_a[0:recv_buffer_size],se) map(to: send_recv_count_spike_data_per_rank,nranks,spike_data,prepared_timestamps) map(to: wr_e) 
@@ -614,7 +602,7 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
     {
       spike_data =
         recv_buffer_a[ rank * send_recv_count_spike_data_per_rank + i ];
-	//continue;
+
       if ( spike_data.get_tid() == tid )
       {
         se.set_stamp( prepared_timestamps[ spike_data.get_lag() ] );
@@ -639,39 +627,21 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
         //p->send_device( tid, syn_id, lcid, cm, se );
         //typename StaticConnection<TargetIdentifierPtrRport>::CommonPropertiesType const &cp = static_cast<GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> >* >( cmarray[ 0 ])->GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> >::get_common_properties();
         //WeightRecorderEvent wr_e1;
-       auto v = static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(p->send_device(tid, syn_id, lcid,cmarray, se));
-       v->f();
-       //static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>>*>(p->send_device(tid, syn_id, lcid, cmarray, se).f();
-       //p->send_device(tid, syn_id, lcid, cmarray, se);
-       //p->p_->f();
+        auto v = static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(p->send_device(tid, syn_id, lcid,cmarray, se));
+        v->f();
+        //static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>>*>(p->send_device(tid, syn_id, lcid, cmarray, se).f();
+        //p->send_device(tid, syn_id, lcid, cmarray, se);
         //static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(connections[0])->ff(tid, lcid, cp, se, a);
-
       }
       // break if this was the last valid entry from this rank
       if ( spike_data.is_end_marker() )
       {
         //break;
+        // As break statement can not be used in the target region,
+        // equivalent is in the for statement conditions.
       }
     }
   }
-
-//#pragma omp target exit data map(from: connections[0][0:1])
-  //static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(connections[0])->map_out();
-//#pragma omp target exit data map(from: connections[20][0:1])
-//#pragma omp target exit data map(from: connections[21][0:1])
-//#pragma omp target exit data map(from: connections[0:100])
-//#pragma omp target exit data map(from: cmarray[0][0:1])
-//#pragma omp target exit data map(from: cmarray[20][0:1])
-//#pragma omp target exit data map(from: cmarray[21][0:1])
-//#pragma omp target exit data map(from: cmarray[0:100])
-
-//#pragma omp target exit data map(from: thread_local_sources[0][0:81000000])
-//#pragma omp target exit data map(from: thread_local_sources[0:100])
-  //std::cout << "get_delay_steps " << se.get_delay_steps() << std::endl;
-  for (int i=0;i<100;i++) {
-	//if (i==0) delete[] thread_local_sources[i];
-  }
-  //delete[] thread_local_sources;
 
   return are_others_completed;
 
