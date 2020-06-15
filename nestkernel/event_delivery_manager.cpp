@@ -379,7 +379,7 @@ EventDeliveryManager::gather_spike_data_( const thread tid,
     } // of omp single; implicit barrier
 
     // Deliver spikes from receive buffer to ring buffers.
-    const bool deliver_completed = deliver_events_( tid, recv_buffer );
+    const bool deliver_completed = true;//deliver_events_( tid, recv_buffer );
     gather_completed_checker_[ tid ].logical_and( deliver_completed );
 
 // Exit gather loop if all local threads and remote processes are
@@ -576,7 +576,7 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
   //std::cout << "XXXXXX " <<     > *>(p->send_device(tid, syn_id, lcid, cmarray, se))->send_f();
 
 //#pragma omp target teams distribute parallel for num_teams(512) map(tofrom: are_others_completed,recv_buffer_a[0:recv_buffer_size],se) map(to: send_recv_count_spike_data_per_rank,nranks,spike_data,prepared_timestamps) map(to: a1[0:nnodes]) map(to: wr_e)
-#pragma omp target teams distribute parallel for map(to: are_others_completed,recv_buffer_a[0:recv_buffer_size],se) map(to: send_recv_count_spike_data_per_rank,nranks,spike_data,prepared_timestamps) map(to: wr_e) 
+//#pragma omp target teams distribute parallel for map(to: are_others_completed,recv_buffer_a[0:recv_buffer_size],se) map(to: send_recv_count_spike_data_per_rank,nranks,spike_data,prepared_timestamps) map(to: wr_e) 
   for ( thread rank = 0; rank < nranks;
         ++rank )
   { 
