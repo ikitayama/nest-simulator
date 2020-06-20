@@ -236,8 +236,8 @@ public:
         }
         assert(i==veclen);
 
-	//#pragma omp target enter data map(to: this[0:1])
-	//#pragma omp target enter data map(to: this->C_1[0:81000000])
+	#pragma omp target enter data map(to: this[0:1])
+	#pragma omp target enter data map(to: this->C_1[0:81000000])
   }
 
   virtual void map_out() {
@@ -407,9 +407,30 @@ public:
     }
   }
 
-  index f() 
+  index f(const thread tid, const index lcid, ConnectorModel **cm, Event& e) 
   {
-	  	printf("XXXXXX-", __func__);
+//typename ConnectionT::CommonPropertiesType const& cp = 
+  //    static_cast< GenericConnectorModel< ConnectionT >* >( cm[syn_id_] )->get_common_properties();
+  	  //printf("XXXXXX-", __func__);
+		index lcid_offset =0;
+	while ( true )
+    {
+      //ConnectionT& conn = C_[ lcid + lcid_offset ];
+      const bool is_disabled = true;//conn.is_disabled();
+      const bool source_has_more_targets = false;//conn.source_has_more_targets();
+
+      e.set_port( lcid + lcid_offset );
+      if ( not is_disabled )
+      {
+        //conn.send( e, tid, cp );
+        //send_weight_event( tid, lcid + lcid_offset, e, cp );
+      }
+      if ( not source_has_more_targets )
+      {
+        break;
+      }
+      ++lcid_offset;
+    }
   }
 
   index
