@@ -221,12 +221,13 @@ private:
   BlockVector< ConnectionT > C_;
   const synindex syn_id_;
   //ConnectionT *C_1 = new ConnectionT[81000000];
-  ConnectionT *C_1 = new ConnectionT[8];
+  ConnectionT *C_1;// = new ConnectionT[8];
 
 public:
   virtual void map_in() {
 	size_t array_size = C_.size();
-
+        if (syn_id_!=0) return; 
+	C_1 = new ConnectionT[array_size];
     	int i=0;
     	size_t veclen = array_size;
         for (typename BlockVector< ConnectionT >::const_iterator iter = C_.begin();
@@ -411,13 +412,13 @@ public:
   {
 //typename ConnectionT::CommonPropertiesType const& cp = 
   //    static_cast< GenericConnectorModel< ConnectionT >* >( cm[syn_id_] )->get_common_properties();
-  	  //printf("XXXXXX-", __func__);
+  	  printf("XXXXXX-", __func__);
 		index lcid_offset =0;
 	while ( true )
     {
-      //ConnectionT& conn = C_[ lcid + lcid_offset ];
-      const bool is_disabled = true;//conn.is_disabled();
-      const bool source_has_more_targets = false;//conn.source_has_more_targets();
+      ConnectionT& conn = C_1[ lcid + lcid_offset ];
+      const bool is_disabled = conn.is_disabled();
+      const bool source_has_more_targets = conn.source_has_more_targets();
 
       e.set_port( lcid + lcid_offset );
       if ( not is_disabled )

@@ -113,7 +113,7 @@ nest::ConnectionManager::initialize()
 
   for (int i=0;i<num_threads;i++) {
 	for (int j=0;j<num_synapse_prototypes;j++) {
-		connections_array_[i][j] = connections_[i][j];
+		//connections_array_[i][j] = connections_[i][j];
 		//std::cout << "XX " << typeid(connections_array_[i][j]).name() << std::endl;
 		//std::cout << "XX " << typeid(connections_[i][j]).name() << std::endl;
 		//std::cout << "XX " << typeid(static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>>*>(connections_[i][j])->f4()).name() << std::endl;
@@ -140,7 +140,7 @@ nest::ConnectionManager::initialize()
   std::cout << __PRETTY_FUNCTION__ << " Map " << this->connections_array_ << std::endl;
 #pragma omp target enter data map(to: this->connections_array_[0:num_threads])
 for(int i=0;i<num_threads;i++) {
-  std::cout << __PRETTY_FUNCTION__ << " Map " << this->connections_array_[i] << std::endl;	
+  //std::cout << __PRETTY_FUNCTION__ << " Map " << this->connections_array_[i] << std::endl;	
 #pragma omp target enter data map(to: this->connections_array_[i][0:num_synapse_prototypes])
 }
 for (int i=0;i<num_threads;i++) {
@@ -150,14 +150,31 @@ for (int i=0;i<num_threads;i++) {
 	//static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>>*>(this->connections_array_[i][j])->f4();
 	// Can only map non-null objects to the device
 	if (this->connections_array_[i][j]) {
-		auto p_ = static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>>*>(connections_array_[i][j]);
+		//auto p_ = static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>>*>(connections_array_[i][j]);
 		//std::cout << __PRETTY_FUNCTION__ << " Map " << p << " size of " << sizeof(*p) << std::endl; 
-#pragma omp target enter data map(to: p_[0:1])
+//#pragma omp target enter data map(to: p_[0:1])
 	}
 //}
 //#pragma omp target enter data map(to: this->connections_array_[0][0][0:1])
 	}
 }
+}
+void
+nest::ConnectionManager::test() {
+	const thread num_threads = kernel().vp_manager.get_num_threads();
+	std::cout << "Total number of threads " << num_threads << std::endl;
+	for (int i=0;i<num_threads;i++) {
+		for (int j=0;j<kernel().model_manager.get_num_synapse_prototypes();j++) {
+			//size_t l = connections_[i][j]->size();
+			//connections_array_[i][j]= new ConnectorBase*[l];
+			//for (int k=0;k<l;k++) {
+			assert(connections_[i][j]);
+			connections_array_[i][j]=connections_[i][j];
+			assert(connections_array_[i][j]);
+			if (j==0) connections_array_[i][j]->map_in();
+			//}
+		}
+	}
 }
 
 void

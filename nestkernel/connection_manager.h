@@ -251,7 +251,7 @@ public:
   send( const thread tid, const synindex syn_id, const index lcid, const std::vector< ConnectorModel* >& cm, Event& e );
 
   ConnectorBase*
-  send_device( const thread tid, const synindex syn_id, const index lcid, ConnectorModel** cm, Event& e );
+  get_ptrConnectorBase( const thread tid, const synindex syn_id, const index lcid, ConnectorModel** cm, Event& e );
 
   /**
    * Send event e to all device targets of source source_node_id
@@ -436,7 +436,7 @@ private:
    * of all local connections
    */
   const Time get_max_delay_time_() const;
-
+  void test();
   /**
    * Deletes all connections.
    */
@@ -815,7 +815,7 @@ ConnectionManager::send( const thread tid,
 }
 
 inline ConnectorBase*
-ConnectionManager::send_device( const thread tid,
+ConnectionManager::get_ptrConnectorBase( const thread tid,
   const synindex syn_id,
   const index lcid,
   ConnectorModel** cm,

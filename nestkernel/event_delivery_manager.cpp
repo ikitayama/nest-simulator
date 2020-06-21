@@ -628,7 +628,7 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
         //p->send_device( tid, syn_id, lcid, cm, se );
         //typename StaticConnection<TargetIdentifierPtrRport>::CommonPropertiesType const &cp = static_cast<GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> >* >( cmarray[ 0 ])->GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> >::get_common_properties();
         //WeightRecorderEvent wr_e1;
-        auto v = static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(p->send_device(tid, syn_id, lcid,cmarray, se));
+        auto v = static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(p->get_ptrConnectorBase(tid, syn_id, lcid,cmarray, se));
         v->f(tid, lcid, cmarray, se);
         //static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>>*>(p->send_device(tid, syn_id, lcid, cmarray, se).f();
         //p->send_device(tid, syn_id, lcid, cmarray, se);
