@@ -408,23 +408,26 @@ public:
     }
   }
 
-  index f(const thread tid, const index lcid, ConnectorModel **cm, Event& e) 
+  index f(const thread tid, const index lcid, ConnectorModel **cm, Event& e, typename ConnectionT::CommonPropertiesType const& cp, int *wr_e)//WeightRecorderEvent* wr_e) 
   {
 //typename ConnectionT::CommonPropertiesType const& cp = 
+     
   //    static_cast< GenericConnectorModel< ConnectionT >* >( cm[syn_id_] )->get_common_properties();
   	  printf("XXXXXX-", __func__);
 		index lcid_offset =0;
 	while ( true )
     {
-      ConnectionT& conn = C_1[ lcid + lcid_offset ];
-      const bool is_disabled = conn.is_disabled();
-      const bool source_has_more_targets = conn.source_has_more_targets();
+      //ConnectionT& conn = C_1[ lcid + lcid_offset ];
+      const bool is_disabled = false;//conn.is_disabled();
+      const bool source_has_more_targets = false;//conn.source_has_more_targets();
 
       e.set_port( lcid + lcid_offset );
       if ( not is_disabled )
       {
         //conn.send( e, tid, cp );
-        //send_weight_event( tid, lcid + lcid_offset, e, cp );
+	unsigned long* p;
+	//WeightRecorderEvent wr_e;
+        send_weight_event_non_virtual( tid, lcid + lcid_offset, e, cp, p, wr_e );
       }
       if ( not source_has_more_targets )
       {
@@ -481,7 +484,7 @@ public:
     //ConnectorModel* cmarray[100],
     typename ConnectionT::CommonPropertiesType const &cp,
     //StaticConnection<TargetIdentifierPtrRport>::CommonPropertiesType const &cp,
-    Event& e , index* a)
+    Event& e , index* a, WeightRecorderEvent& wr_e)
     //Event& e , index* a, WeightRecorderEvent& wr_e)
   {/*
     //typename ConnectionT::CommonPropertiesType const &cp =
@@ -497,14 +500,15 @@ public:
     while ( true )
     { 
       ConnectionT& conn = C_1[ lcid + lcid_offset ]; 
-      const bool is_disabled = conn.is_disabled();
-      const bool source_has_more_targets = conn.source_has_more_targets();
+      const bool is_disabled = false;//conn.is_disabled();
+      const bool source_has_more_targets = false;//conn.source_has_more_targets();
 
       e.set_port( lcid + lcid_offset );
       if ( not is_disabled )
       {
-        conn.send( e, tid, cp );
-        //send_weight_event1( tid, lcid + lcid_offset, e, cp, thread_local_thread, wr_e );
+        //conn.send( e, tid, cp );
+	unsigned long* p;
+        send_weight_event_non_virtual( tid, lcid + lcid_offset, e, cp, p, wr_e);
       }
       if ( not source_has_more_targets )
       {
@@ -519,11 +523,11 @@ public:
   // Implemented in connector_base_impl.h
   void send_weight_event( const thread tid, const unsigned int lcid, Event& e, const CommonSynapseProperties& cp );
 
-  void send_weight_event1( const thread tid,
+  void send_weight_event_non_virtual( const thread tid,
     const unsigned int lcid,
     Event& e,
     const CommonSynapseProperties& cp,
-    index *, WeightRecorderEvent& wr_e);
+    index *, int*);//WeightRecorderEvent* wr_e);
 
   void
   trigger_update_weight( const long vt_node_id,

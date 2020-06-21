@@ -162,16 +162,18 @@ for (int i=0;i<num_threads;i++) {
 void
 nest::ConnectionManager::test() {
 	const thread num_threads = kernel().vp_manager.get_num_threads();
-	std::cout << "Total number of threads " << num_threads << std::endl;
+	//std::cout << "Total number of threads " << num_threads << std::endl;
+	//const int num_synapse_prototypes 
 	for (int i=0;i<num_threads;i++) {
 		for (int j=0;j<kernel().model_manager.get_num_synapse_prototypes();j++) {
 			//size_t l = connections_[i][j]->size();
 			//connections_array_[i][j]= new ConnectorBase*[l];
 			//for (int k=0;k<l;k++) {
-			assert(connections_[i][j]);
+			if (j!=0) return;
+			//assert(connections_[i][j]);
 			connections_array_[i][j]=connections_[i][j];
-			assert(connections_array_[i][j]);
-			if (j==0) connections_array_[i][j]->map_in();
+			//assert(connections_array_[i][j]);
+			//connections_array_[i][j]->map_in();
 			//}
 		}
 	}

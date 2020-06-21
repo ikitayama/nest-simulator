@@ -63,10 +63,10 @@ Connector< ConnectionT >::send_weight_event( const thread tid,
 
 template < typename ConnectionT >
 void
-Connector< ConnectionT >::send_weight_event1( const thread tid,
+Connector< ConnectionT >::send_weight_event_non_virtual( const thread tid,
   const unsigned int lcid,
   Event& e,
-  const CommonSynapseProperties& cp, index* source_id, WeightRecorderEvent& wr_e )
+  const CommonSynapseProperties& cp, index* source_id, int* wr_e)//WeightRecorderEvent* wr_e )
 {
   // Comment:
   // cp.get_weight_recorder() always returns false
@@ -76,10 +76,10 @@ Connector< ConnectionT >::send_weight_event1( const thread tid,
   {
     index wr_node_id = cp.get_wr_node_id();
     Node* wr_node = kernel().node_manager.get_node_or_proxy( wr_node_id, tid );
-    wr_e.set_receiver( *wr_node );
+    //wr_e->set_receiver( *wr_node );
     // Put the node_id of the postsynaptic node as receiver node ID
-    wr_e.set_receiver_node_id( e.get_receiver_node_id() );
-    wr_e();
+    //wr_e->set_receiver_node_id( e.get_receiver_node_id() );
+    //wr_e();
   }
 }
 
