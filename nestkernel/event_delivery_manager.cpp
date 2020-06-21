@@ -567,7 +567,8 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
   for (int i=0;i<100;i++) {
 	if (i==0) connections[i] = thread_local_v[i];
   }
-   
+  if (!connections[0]) std::cout << "Non zero" << std::endl;
+  connections[0]->map_in();
   for (int i=0;i<send_recv_count_spike_data_per_rank;i++) {
     	//std::cout << "Host: " << i << " lcid " << recv_buffer[i].get_lcid() << std::endl;
   }
@@ -575,6 +576,7 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
   ConnectionManager *p = &kernel().connection_manager;
   StaticConnection<TargetIdentifierPtrRport>::CommonPropertiesType const
 	  &cp = static_cast< GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> >* >( cmarray[0] )->get_common_properties();
+  std::cout << cp.get_vt_node_id() << std::endl;
   //auto v1 = static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(p->get_thread_local_connections(tid));
   //assert(0);
   //ConnectorBase* m = p->get_thread_local_connections(tid)[0];//

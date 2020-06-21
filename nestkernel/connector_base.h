@@ -157,8 +157,8 @@ public:
    */
   virtual index send( const thread tid, const index lcid, const std::vector< ConnectorModel* >& cm, Event& e ) = 0;
 
-  virtual void
-  send_weight_event( const thread tid, const unsigned int lcid, Event& e, const CommonSynapseProperties& cp ) = 0;
+  //virtual void
+  //send_weight_event( const thread tid, const unsigned int lcid, Event& e, const CommonSynapseProperties& cp ) = 0;
 
   /**
    * Update weights of dopamine modulated STDP connections.
@@ -425,9 +425,10 @@ public:
       if ( not is_disabled )
       {
         //conn.send( e, tid, cp );
+        //conn.send_non_virtual( e, tid ); // CommonProperties is not used in this function
 	unsigned long* p;
 	//WeightRecorderEvent wr_e;
-        send_weight_event_non_virtual( tid, lcid + lcid_offset, e, cp, p, wr_e );
+        //send_weight_event_non_virtual( tid, lcid + lcid_offset, e, cp, p, wr_e );
       }
       if ( not source_has_more_targets )
       {
@@ -456,7 +457,7 @@ public:
       if ( not is_disabled )
       {
         conn.send( e, tid, cp );
-        send_weight_event( tid, lcid + lcid_offset, e, cp );
+        //send_weight_event( tid, lcid + lcid_offset, e, cp );
       }
       if ( not source_has_more_targets )
       {
@@ -466,16 +467,6 @@ public:
     }
 
     return 1 + lcid_offset; // event was delivered to at least one target
-  }
- 
-  index
-  f3( const thread tid, const index lcid, const std::vector< ConnectorModel* >& cm, Event& e ) 
-  {
-
-  } 
-  index
-  f4(void)
-  {
   }
   
   index
@@ -521,14 +512,17 @@ public:
   }
   
   // Implemented in connector_base_impl.h
-  void send_weight_event( const thread tid, const unsigned int lcid, Event& e, const CommonSynapseProperties& cp );
+  //void send_weight_event( const thread tid, const unsigned int lcid, Event& e, const CommonSynapseProperties& cp );
 
+#pragma omp declare target
   void send_weight_event_non_virtual( const thread tid,
     const unsigned int lcid,
     Event& e,
     const CommonSynapseProperties& cp,
     index *, int*);//WeightRecorderEvent* wr_e);
-
+#pragma omp end declare target
+  void test(WeightRecorderEvent* wr_e) {
+  }
   void
   trigger_update_weight( const long vt_node_id,
     const thread tid,
