@@ -291,7 +291,7 @@ brunel_params dup using
 
   % Create custom synapse types with appropriate values for
   % our excitatory and inhibitory connections
-  /static_synapse_hpc << /delay delay >> SetDefaults
+  /static_synapse << /delay delay >> SetDefaults
   /static_synapse /syn_std  CopyModel
   /static_synapse /syn_ex << /weight JE_pA >> CopyModel
   /static_synapse /syn_in << /weight JE_pA g mul >> CopyModel

@@ -99,9 +99,9 @@ nest::ConnectionManager::initialize()
   check_primary_connections_.initialize( num_threads, false );
   check_secondary_connections_.initialize( num_threads, false );
 
-   int num_synapse_prototypes = kernel().model_manager.get_num_synapse_prototypes();
+  int num_synapse_prototypes = kernel().model_manager.get_num_synapse_prototypes();
 
-   for (int i=0;i<num_threads;i++) connections_array_ = new ConnectorBase**[i];
+  for (int i=0;i<num_threads;i++) connections_array_ = new ConnectorBase**[i];
 #pragma omp parallel
   {
     const thread tid = kernel().vp_manager.get_thread_id();
@@ -113,7 +113,7 @@ nest::ConnectionManager::initialize()
 
   for (int i=0;i<num_threads;i++) {
 	for (int j=0;j<num_synapse_prototypes;j++) {
-		//connections_array_[i][j] = connections_[i][j];
+		connections_array_[i][j] = connections_[i][j];
 		//std::cout << "XX " << typeid(connections_array_[i][j]).name() << std::endl;
 		//std::cout << "XX " << typeid(connections_[i][j]).name() << std::endl;
 		//std::cout << "XX " << typeid(static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>>*>(connections_[i][j])->f4()).name() << std::endl;
@@ -169,11 +169,15 @@ nest::ConnectionManager::test() {
 			//size_t l = connections_[i][j]->size();
 			//connections_array_[i][j]= new ConnectorBase*[l];
 			//for (int k=0;k<l;k++) {
-			if (j!=0) return;
+			//if (j!=0) return;
 			//assert(connections_[i][j]);
 			connections_array_[i][j]=connections_[i][j];
 			//assert(connections_array_[i][j]);
-			//connections_array_[i][j]->map_in();
+			if (j==42 or j==72) {
+				std::cout << __PRETTY_FUNCTION__ << connections_[i][j] << std::endl;
+				std::cout << __PRETTY_FUNCTION__ << connections_array_[i][j] << std::endl;
+				connections_[i][j]->map_in();
+			}
 			//}
 		}
 	}

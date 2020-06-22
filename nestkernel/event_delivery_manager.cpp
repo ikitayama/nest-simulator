@@ -565,17 +565,21 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
   std::vector<ConnectorBase*> thread_local_v = kernel().connection_manager.get_thread_local_connections(tid);
 
   for (int i=0;i<100;i++) {
-	if (i==0) connections[i] = thread_local_v[i];
+	connections[i] = thread_local_v[i];
+	if (connections[i]) {
+		//std::cout << "synapse " << i << " non zero" << std::endl;
+		//connections[i]->map_in();
+	}
   }
-  if (!connections[0]) std::cout << "Non zero" << std::endl;
-  connections[0]->map_in();
+  //if (!connections[0]) std::cout << "Non zero" << std::endl;
+  //connections[0]->map_in();
   for (int i=0;i<send_recv_count_spike_data_per_rank;i++) {
     	//std::cout << "Host: " << i << " lcid " << recv_buffer[i].get_lcid() << std::endl;
   }
   WeightRecorderEvent *wr_e= new WeightRecorderEvent(); 
   ConnectionManager *p = &kernel().connection_manager;
   StaticConnection<TargetIdentifierPtrRport>::CommonPropertiesType const
-	  &cp = static_cast< GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> >* >( cmarray[0] )->get_common_properties();
+	  &cp = static_cast< GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> >* >( cmarray[42] )->get_common_properties();
   std::cout << cp.get_vt_node_id() << std::endl;
   //auto v1 = static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(p->get_thread_local_connections(tid));
   //assert(0);
@@ -598,6 +602,7 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
     }
     
     //printf("%p\n", kernel().node_manager.size_itaru());
+    printf("%lu node\n", cp.get_wr_node_id());
     //SparseNodeArray x = kernel().node_manager.size_itaru();
 	//SparseNodeArray y;
 	//WeightRecorderEvent wr_e1;
@@ -630,7 +635,7 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
         //printf("------------ %d\n", source_gid);
         //if (lcid >= 81000000 or syn_id != 0) printf("lcid is %lu\n");
         //const index source_gid = 1;//thread_local_sources[syn_id][lcid];
-        //printf("Target: syn_id %lu lcid %lu source_gid %lu\n", syn_id, lcid, source_gid);
+        printf("Target: syn_id %lu lcid %lu source_gid %lu\n", syn_id, lcid, source_gid);
 	//index *a = nullptr;
         se.set_sender_node_id( source_gid );
         //kernel().connection_manager.send( tid, syn_id, lcid, cm, se );

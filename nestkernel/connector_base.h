@@ -226,19 +226,19 @@ private:
 public:
   virtual void map_in() {
 	size_t array_size = C_.size();
-        if (syn_id_!=0) return; 
+	std::cout << "array_size " << array_size << std::endl;
 	C_1 = new ConnectionT[array_size];
-    	int i=0;
-    	size_t veclen = array_size;
+	int i=0;
+	size_t veclen = array_size;
         for (typename BlockVector< ConnectionT >::const_iterator iter = C_.begin();
                 iter != C_.end();iter++) {
                         C_1[i] = *iter;
                                 i++;
         }
         assert(i==veclen);
-
+	std::cout << __PRETTY_FUNCTION__ << " Mapping this pointer " << this << std::endl; 
 	#pragma omp target enter data map(to: this[0:1])
-	#pragma omp target enter data map(to: this->C_1[0:81000000])
+	#pragma omp target enter data map(to: this->C_1[0:array_size])
   }
 
   virtual void map_out() {
@@ -246,7 +246,7 @@ public:
 	//#pragma omp target exit data map(from: this[0:1])
 	//#pragma omp target exit data map(from: this->C_1[0:81000000])
   }
-  Connector( const synindex syn_id )
+  explicit Connector( const synindex syn_id )
     : syn_id_( syn_id )
   {
   }
@@ -413,13 +413,13 @@ public:
 //typename ConnectionT::CommonPropertiesType const& cp = 
      
   //    static_cast< GenericConnectorModel< ConnectionT >* >( cm[syn_id_] )->get_common_properties();
-  	  printf("XXXXXX-", __func__);
+  	  printf("XXXXXX- %s\n", __func__);
 		index lcid_offset =0;
 	while ( true )
     {
-      //ConnectionT& conn = C_1[ lcid + lcid_offset ];
-      const bool is_disabled = false;//conn.is_disabled();
-      const bool source_has_more_targets = false;//conn.source_has_more_targets();
+      ConnectionT& conn = C_1[ lcid + lcid_offset ];
+      const bool is_disabled = conn.is_disabled();
+      const bool source_has_more_targets = conn.source_has_more_targets();
 
       e.set_port( lcid + lcid_offset );
       if ( not is_disabled )
