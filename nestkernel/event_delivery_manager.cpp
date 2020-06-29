@@ -588,9 +588,10 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
   //p->get_thread_local_connections(tid)[0]->map_in();
   //std::cout << "XXXXXX" << std::endl;
   //std::cout << "XXXXXX " <<     > *>(p->send_device(tid, syn_id, lcid, cmarray, se))->send_f();
-
+  std::cout << "recv_buffer_a ptr " << recv_buffer_a << std::endl;
+  std::cout << "The size " << sizeof(recv_buffer_a)/sizeof(recv_buffer_a[0]) << std::endl;
 //#pragma omp target teams distribute parallel for num_teams(512) map(tofrom: are_others_completed,recv_buffer_a[0:recv_buffer_size],se) map(to: send_recv_count_spike_data_per_rank,nranks,spike_data,prepared_timestamps) map(to: a1[0:nnodes]) map(to: wr_e)
-#pragma omp target teams distribute parallel for map(to: are_others_completed,recv_buffer_a[0:recv_buffer_size],se) map(to: send_recv_count_spike_data_per_rank,nranks,spike_data,prepared_timestamps) map(to: wr_e[0:1]) map(to: cp) device_ptr(wr_e)
+#pragma omp target parallel for map(to: recv_buffer_a[0:recv_buffer_size],se) map(to: wr_e[0:1])
   for ( thread rank = 0; rank < nranks;
         ++rank )
   { 
@@ -602,7 +603,7 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
     }
     
     //printf("%p\n", kernel().node_manager.size_itaru());
-    printf("%lu node\n", cp.get_wr_node_id());
+    printf("Node ID %lu\n", cp.get_wr_node_id());
     //SparseNodeArray x = kernel().node_manager.size_itaru();
 	//SparseNodeArray y;
 	//WeightRecorderEvent wr_e1;
@@ -620,6 +621,7 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
 
       if ( spike_data.get_tid() == tid )
       {
+	printf("prepared_timestamps %p\n", prepared_timestamps);      
         se.set_stamp( prepared_timestamps[ spike_data.get_lag() ] );
         se.set_offset( spike_data.get_offset() );
 	//printf("get_lag %u get_offset %f\n", spike_data.get_lag(), spike_data.get_offset());

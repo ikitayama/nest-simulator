@@ -174,9 +174,9 @@ nest::ConnectionManager::test() {
 			connections_array_[i][j]=connections_[i][j];
 			//assert(connections_array_[i][j]);
 			if (j==42 or j==72) {
-				std::cout << __PRETTY_FUNCTION__ << connections_[i][j] << std::endl;
-				std::cout << __PRETTY_FUNCTION__ << connections_array_[i][j] << std::endl;
-				connections_[i][j]->map_in();
+				std::cout << __PRETTY_FUNCTION__ << " connections_ " << connections_[i][j] << std::endl;
+				std::cout << __PRETTY_FUNCTION__ << " connections_array_ " << connections_array_[i][j] << std::endl;
+				connections_array_[i][j]->map_in();
 			}
 			//}
 		}
