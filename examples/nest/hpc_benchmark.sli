@@ -346,7 +346,7 @@ brunel_params dup using
     M_INFO (BuildNetwork)
     (Connecting spike detectors.) message
 
-    E_neurons Nrec Take E_detector << /rule (all_to_all) >> << /synapse_model /syn_std >> Connect
+    %E_neurons Nrec Take E_detector << /rule (all_to_all) >> << /synapse_model /syn_std >> Connect
   } if  
 
   % read out time used for building

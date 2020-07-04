@@ -46,6 +46,7 @@
 
 #include "target_identifier.h"
 #include "static_connection.h"
+#include "stdp_pl_connection_hom.h"
 //#include "connector_base.h"
 //#include "libnestutil/block_vector.h"
 #include "event.h"
@@ -578,6 +579,7 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
   }
   WeightRecorderEvent *wr_e= new WeightRecorderEvent(); 
   ConnectionManager *p = &kernel().connection_manager;
+  p->ptr
   StaticConnection<TargetIdentifierPtrRport>::CommonPropertiesType const
 	  &cp = static_cast< GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> >* >( cmarray[42] )->get_common_properties();
   std::cout << cp.get_vt_node_id() << std::endl;
@@ -588,10 +590,10 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
   //p->get_thread_local_connections(tid)[0]->map_in();
   //std::cout << "XXXXXX" << std::endl;
   //std::cout << "XXXXXX " <<     > *>(p->send_device(tid, syn_id, lcid, cmarray, se))->send_f();
-  std::cout << "recv_buffer_a ptr " << recv_buffer_a << std::endl;
-  std::cout << "The size " << sizeof(recv_buffer_a)/sizeof(recv_buffer_a[0]) << std::endl;
+  //std::cout << "recv_buffer_a ptr " << recv_buffer_a << std::endl;
+  //std::cout << "The size " << sizeof(recv_buffer_a)/sizeof(recv_buffer_a[0]) << std::endl;
 //#pragma omp target teams distribute parallel for num_teams(512) map(tofrom: are_others_completed,recv_buffer_a[0:recv_buffer_size],se) map(to: send_recv_count_spike_data_per_rank,nranks,spike_data,prepared_timestamps) map(to: a1[0:nnodes]) map(to: wr_e)
-#pragma omp target parallel for map(to: recv_buffer_a[0:recv_buffer_size],se) map(to: wr_e[0:1])
+#pragma omp target parallel for map(to: recv_buffer_a[0:recv_buffer_size], se) map(to: wr_e[0:1])
   for ( thread rank = 0; rank < nranks;
         ++rank )
   { 
@@ -644,9 +646,18 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
         //p->send_device( tid, syn_id, lcid, cm, se );
         //typename StaticConnection<TargetIdentifierPtrRport>::CommonPropertiesType const &cp = static_cast<GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> >* >( cmarray[ 0 ])->GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> >::get_common_properties();
         //WeightRecorderEvent wr_e1;
-        auto v = static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(p->get_ptrConnectorBase(tid, syn_id, lcid,cmarray, se));
+        //auto v;
 	int *wr_e;
-        v->f(tid, lcid, cmarray, se, cp, wr_e);
+        if (syn_id == 72 or syn_id == 73) {
+	auto	v = static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(p->get_ptrConnectorBase(tid, syn_id, lcid, cmarray, se));
+		//v->f(tid, lcid, cmarray, se, cp, wr_e);
+		//printf("ddddd %u\n", v->my());
+	} else {
+	auto	v = static_cast<Connector<nest::STDPPLConnectionHom<nest::TargetIdentifierPtrRport>> *>(p->get_ptrConnectorBase(tid, syn_id, lcid, cmarray, se));
+		//v->f(tid, lcid, cmarray, se, cp, wr_e);
+	}
+	//printf("xxxxxx %d\n", v->my());
+        //v->f(tid, lcid, cmarray, se, cp, wr_e);
 	//WeightRecorderEvent wr_e;
         //static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>>*>(p->send_device(tid, syn_id, lcid, cmarray, se).f();
         //p->send_device(tid, syn_id, lcid, cmarray, se);

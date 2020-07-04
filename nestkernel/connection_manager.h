@@ -821,12 +821,7 @@ ConnectionManager::get_ptrConnectorBase( const thread tid,
   ConnectorModel** cm,
   Event& e )
 {
-  if (syn_id ==0) {
-  //.static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(connections_array_[ tid ][ syn_id ])->f();
-  }
-  return connections_array_[ tid ][ syn_id ];//->f3( tid, lcid, cm, e );
-  //return p_[ syn_id ]->f();
-
+  return connections_array_[ tid ][ syn_id ];
 }
 
 inline void

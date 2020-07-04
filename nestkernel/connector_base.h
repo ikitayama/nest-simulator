@@ -220,14 +220,14 @@ class Connector : public ConnectorBase
 private:
   BlockVector< ConnectionT > C_;
   const synindex syn_id_;
-  ConnectionT *C_1 = (syn_id_ == 42 or syn_id_ == 72) ? new ConnectionT[81000000] : NULL;
-  //ConnectionT *C_1;// = new ConnectionT[8];
+  ConnectionT *C_1;
 
 
 public:
   virtual void map_in() {
 	size_t array_size = C_.size();
-	std::cout << "array_size " << array_size << std::endl;
+	std::cout << __PRETTY_FUNCTION__ << " array_size is " << array_size << std::endl;
+	C_1 = new ConnectionT[array_size];
 	int i=0;
 	size_t veclen = array_size;
         for (typename BlockVector< ConnectionT >::const_iterator iter = C_.begin();
@@ -236,10 +236,10 @@ public:
                                 i++;
         }
         assert(i==veclen);
-	std::cout << __PRETTY_FUNCTION__ << " Mapping this pointer " << this << std::endl; 
+	std::cout << __PRETTY_FUNCTION__ << " syn_id_ " << syn_id_ << " Mapping this pointer " << this << std::endl; 
 	#pragma omp target enter data map(to: this[0:1])
-	std::cout << __PRETTY_FUNCTION__ << "Mapping C_1 pointer " << C_1 << std::endl; 
-	std::cout << __PRETTY_FUNCTION__ << "sizeof(C_1[0]) * array_size " << sizeof(C_1[0]) * array_size << std::endl; 
+	std::cout << __PRETTY_FUNCTION__ << " Mapping C_1 pointer " << C_1 << std::endl; 
+	//std::cout << __PRETTY_FUNCTION__ << " sizeof(C_1[0]) * array_size " << sizeof(C_1[0]) * array_size << std::endl; 
 	#pragma omp target enter data map(to: C_1[0:array_size])
   }
 
@@ -251,8 +251,7 @@ public:
   explicit Connector( const synindex syn_id )
     : syn_id_( syn_id )
   {
-	  //if (syn_id_ ==42 or syn_id_ == 72) C_1 = new ConnectionT[81000000];
-	  std::cout << __PRETTY_FUNCTION__ << " this ptr " << this << std::endl;
+	  std::cout << __PRETTY_FUNCTION__ << " syn_id_ " << syn_id_ << " this ptr " << this << std::endl;
   }
 
   ~Connector()
@@ -412,16 +411,15 @@ public:
     }
   }
 
+  synindex my() { return syn_id_; }
   index f(const thread tid, const index lcid, ConnectorModel **cm, Event& e, typename ConnectionT::CommonPropertiesType const& cp, int *wr_e)//WeightRecorderEvent* wr_e) 
   {
 //typename ConnectionT::CommonPropertiesType const& cp = 
      
   //    static_cast< GenericConnectorModel< ConnectionT >* >( cm[syn_id_] )->get_common_properties();
   	  printf("%s\n", __PRETTY_FUNCTION__);
-	  printf("Show target address of C_1: %p\n", C_1);
-
-	  //printf("synid is %d\n", syn_id_);
-	  //printf("device ptr of C_1 %d\n", *C_1);
+	  printf("this pointer address in target %p\n", this);
+	  //printf("syn_id_ is %d\n", this->get_syn_id());
 		index lcid_offset =0;
 	while ( true )
     {
