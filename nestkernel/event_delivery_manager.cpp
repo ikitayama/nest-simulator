@@ -589,7 +589,7 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
   std::cout << "recv_buffer_a ptr " << recv_buffer_a << std::endl;
   std::cout << "The size " << sizeof(recv_buffer_a[0]) * recv_buffer_size << std::endl;
 //#pragma omp target teams distribute parallel for num_teams(512) map(tofrom: are_others_completed,recv_buffer_a[0:recv_buffer_size],se) map(to: send_recv_count_spike_data_per_rank,nranks,spike_data,prepared_timestamps) map(to: a1[0:nnodes]) map(to: wr_e)
-//#pragma omp target parallel for map(to: recv_buffer_a[0:recv_buffer_size], se) map(to: wr_e[0:1])
+#pragma omp target parallel for map(to: recv_buffer_a[0:recv_buffer_size], se) map(to: wr_e[0:1], spike_data)
   for ( thread rank = 0; rank < nranks;
         ++rank )
   { 
@@ -612,7 +612,7 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
     }
 
     //printf("send_recv_count_spike_data_per_rank is %d\n", send_recv_count_spike_data_per_rank);
-    for ( unsigned int i = 0; (i < send_recv_count_spike_data_per_rank) && (!spike_data.is_end_marker()); ++i )
+    for ( unsigned int i = 0; i < send_recv_count_spike_data_per_rank; ++i )
     {
       spike_data =
         recv_buffer_a[ rank * send_recv_count_spike_data_per_rank + i ];
