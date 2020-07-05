@@ -236,9 +236,10 @@ public:
                                 i++;
         }
         assert(i==veclen);
-	std::cout << __PRETTY_FUNCTION__ << " syn_id_ " << syn_id_ << " Mapping this pointer " << this << std::endl; 
+	std::cout << __PRETTY_FUNCTION__ << " syn_id_ " << syn_id_ << " Mapping this pointer " << this << " size is " << sizeof(*this) << std::endl; 
 	#pragma omp target enter data map(to: this[0:1])
 	std::cout << __PRETTY_FUNCTION__ << " Mapping C_1 pointer " << C_1 << std::endl; 
+	std::cout << __PRETTY_FUNCTION__ << " typeid() " << typeid(C_1[0]).name() << std::endl; 
 	//std::cout << __PRETTY_FUNCTION__ << " sizeof(C_1[0]) * array_size " << sizeof(C_1[0]) * array_size << std::endl; 
 	#pragma omp target enter data map(to: C_1[0:array_size])
   }
@@ -411,14 +412,14 @@ public:
     }
   }
 
-  synindex my() { return syn_id_; }
   index f(const thread tid, const index lcid, ConnectorModel **cm, Event& e, typename ConnectionT::CommonPropertiesType const& cp, int *wr_e)//WeightRecorderEvent* wr_e) 
   {
 //typename ConnectionT::CommonPropertiesType const& cp = 
      
   //    static_cast< GenericConnectorModel< ConnectionT >* >( cm[syn_id_] )->get_common_properties();
-  	  printf("%s\n", __PRETTY_FUNCTION__);
-	  printf("this pointer address in target %p\n", this);
+  	  //printf("%s\n", __PRETTY_FUNCTION__);
+	  //printf("this pointer address in target %p\n", this);
+	  //printf("syn_id_ is %d\n", tmp);
 	  //printf("syn_id_ is %d\n", this->get_syn_id());
 		index lcid_offset =0;
 	while ( true )
@@ -442,6 +443,9 @@ public:
       }
       ++lcid_offset;
     }
+  
+    return 1 + lcid_offset;
+  
   }
 
   index

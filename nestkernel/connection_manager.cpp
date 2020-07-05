@@ -138,10 +138,10 @@ nest::ConnectionManager::initialize()
   std::cout << __PRETTY_FUNCTION__ << " Map this ptr " << this << std::endl;
 #pragma omp target enter data map(to: this[0:1])
   std::cout << __PRETTY_FUNCTION__ << " Map " << this->connections_array_ << std::endl;
-#pragma omp target enter data map(to: this->connections_array_[0:num_threads])
+//#pragma omp target enter data map(to: this->connections_array_[0:num_threads])
 for(int i=0;i<num_threads;i++) {
   //std::cout << __PRETTY_FUNCTION__ << " Map " << this->connections_array_[i] << std::endl;	
-#pragma omp target enter data map(to: this->connections_array_[i][0:num_synapse_prototypes])
+//#pragma omp target enter data map(to: this->connections_array_[i][0:num_synapse_prototypes])
 }
 for (int i=0;i<num_threads;i++) {
 	for (int j=0;j<num_synapse_prototypes;j++) {

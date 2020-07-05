@@ -539,7 +539,7 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
   assert( kernel().simulation_manager.get_to_step() == kernel().connection_manager.get_min_delay() );
 
   SpikeEvent se;
-
+  std::cout << "se pointer " << &se << std::endl;
   // prepare Time objects for every possible time stamp within min_delay_
   Time prepared_timestamps[kernel().connection_manager.get_min_delay()];
   for ( size_t lag = 0; lag < ( size_t ) kernel().connection_manager.get_min_delay(); ++lag )
@@ -572,14 +572,10 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
 		//connections[i]->map_in();
 	}
   }
-  //if (!connections[0]) std::cout << "Non zero" << std::endl;
-  //connections[0]->map_in();
-  for (int i=0;i<send_recv_count_spike_data_per_rank;i++) {
-    	//std::cout << "Host: " << i << " lcid " << recv_buffer[i].get_lcid() << std::endl;
-  }
+
   WeightRecorderEvent *wr_e= new WeightRecorderEvent(); 
+  std::cout << "wr_e pointer " << wr_e << std::endl; 
   ConnectionManager *p = &kernel().connection_manager;
-  p->ptr
   StaticConnection<TargetIdentifierPtrRport>::CommonPropertiesType const
 	  &cp = static_cast< GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> >* >( cmarray[42] )->get_common_properties();
   std::cout << cp.get_vt_node_id() << std::endl;
@@ -590,10 +586,10 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
   //p->get_thread_local_connections(tid)[0]->map_in();
   //std::cout << "XXXXXX" << std::endl;
   //std::cout << "XXXXXX " <<     > *>(p->send_device(tid, syn_id, lcid, cmarray, se))->send_f();
-  //std::cout << "recv_buffer_a ptr " << recv_buffer_a << std::endl;
-  //std::cout << "The size " << sizeof(recv_buffer_a)/sizeof(recv_buffer_a[0]) << std::endl;
+  std::cout << "recv_buffer_a ptr " << recv_buffer_a << std::endl;
+  std::cout << "The size " << sizeof(recv_buffer_a[0]) * recv_buffer_size << std::endl;
 //#pragma omp target teams distribute parallel for num_teams(512) map(tofrom: are_others_completed,recv_buffer_a[0:recv_buffer_size],se) map(to: send_recv_count_spike_data_per_rank,nranks,spike_data,prepared_timestamps) map(to: a1[0:nnodes]) map(to: wr_e)
-#pragma omp target parallel for map(to: recv_buffer_a[0:recv_buffer_size], se) map(to: wr_e[0:1])
+//#pragma omp target parallel for map(to: recv_buffer_a[0:recv_buffer_size], se) map(to: wr_e[0:1])
   for ( thread rank = 0; rank < nranks;
         ++rank )
   { 
@@ -605,7 +601,7 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
     }
     
     //printf("%p\n", kernel().node_manager.size_itaru());
-    printf("Node ID %lu\n", cp.get_wr_node_id());
+    //printf("Node ID %lu\n", cp.get_wr_node_id());
     //SparseNodeArray x = kernel().node_manager.size_itaru();
 	//SparseNodeArray y;
 	//WeightRecorderEvent wr_e1;
@@ -650,8 +646,9 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
 	int *wr_e;
         if (syn_id == 72 or syn_id == 73) {
 	auto	v = static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(p->get_ptrConnectorBase(tid, syn_id, lcid, cmarray, se));
-		//v->f(tid, lcid, cmarray, se, cp, wr_e);
+		v->f(tid, lcid, cmarray, se, cp, wr_e);
 		//printf("ddddd %u\n", v->my());
+		//v->my();
 	} else {
 	auto	v = static_cast<Connector<nest::STDPPLConnectionHom<nest::TargetIdentifierPtrRport>> *>(p->get_ptrConnectorBase(tid, syn_id, lcid, cmarray, se));
 		//v->f(tid, lcid, cmarray, se, cp, wr_e);
