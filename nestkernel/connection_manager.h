@@ -253,6 +253,9 @@ public:
   ConnectorBase*
   get_ptrConnectorBase( const thread tid, const synindex syn_id, const index lcid, ConnectorModel** cm, Event& e );
 
+  ConnectorBase*
+  get_ptrConnectorBase( const thread tid, const synindex syn_id );
+
   /**
    * Send event e to all device targets of source source_node_id
    */
@@ -399,7 +402,8 @@ public:
   double get_stdp_eps() const;
 
   void set_stdp_eps( const double stdp_eps );
-unsigned long ttt1=123;
+  //ConnectorBase* **connections_array_;
+
 private:
   size_t get_num_target_data( const thread tid ) const;
 
@@ -820,6 +824,13 @@ ConnectionManager::get_ptrConnectorBase( const thread tid,
   const index lcid,
   ConnectorModel** cm,
   Event& e )
+{
+  return connections_array_[ tid ][ syn_id ];
+}
+
+inline ConnectorBase*
+ConnectionManager::get_ptrConnectorBase( const thread tid,
+  const synindex syn_id )
 {
   return connections_array_[ tid ][ syn_id ];
 }

@@ -101,7 +101,7 @@ nest::ConnectionManager::initialize()
 
   int num_synapse_prototypes = kernel().model_manager.get_num_synapse_prototypes();
 
-  for (int i=0;i<num_threads;i++) connections_array_ = new ConnectorBase**[i];
+  connections_array_ = new ConnectorBase**[num_threads];
 #pragma omp parallel
   {
     const thread tid = kernel().vp_manager.get_thread_id();
@@ -137,11 +137,11 @@ nest::ConnectionManager::initialize()
 
   std::cout << __PRETTY_FUNCTION__ << " Map this ptr " << this << std::endl;
 #pragma omp target enter data map(to: this[0:1])
-  std::cout << __PRETTY_FUNCTION__ << " Map " << this->connections_array_ << std::endl;
-//#pragma omp target enter data map(to: this->connections_array_[0:num_threads])
+  std::cout << __PRETTY_FUNCTION__ << " Map " << "connections_array_ " << this->connections_array_ << std::endl;
+#pragma omp target enter data map(to: connections_array_[0:num_threads])
 for(int i=0;i<num_threads;i++) {
-  //std::cout << __PRETTY_FUNCTION__ << " Map " << this->connections_array_[i] << std::endl;	
-//#pragma omp target enter data map(to: this->connections_array_[i][0:num_synapse_prototypes])
+  std::cout << __PRETTY_FUNCTION__ << " Map connections_array_[i] " << this->connections_array_[i] << std::endl;	
+#pragma omp target enter data map(to: connections_array_[i][0:num_synapse_prototypes])
 }
 for (int i=0;i<num_threads;i++) {
 	for (int j=0;j<num_synapse_prototypes;j++) {

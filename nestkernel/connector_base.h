@@ -411,15 +411,15 @@ public:
         e, tid, static_cast< GenericConnectorModel< ConnectionT >* >( cm[ syn_id_ ] )->get_common_properties() );
     }
   }
-
+  
   index f(const thread tid, const index lcid, ConnectorModel **cm, Event& e, typename ConnectionT::CommonPropertiesType const& cp, int *wr_e)//WeightRecorderEvent* wr_e) 
   {
 //typename ConnectionT::CommonPropertiesType const& cp = 
      
   //    static_cast< GenericConnectorModel< ConnectionT >* >( cm[syn_id_] )->get_common_properties();
   	  //printf("%s\n", __PRETTY_FUNCTION__);
-	  //printf("this pointer address in target %p\n", this);
-	  //printf("syn_id_ is %d\n", tmp);
+	  printf("this pointer address in target %p\n", this);
+	  //printf("syn_id_ is %d\n", this->syn_id_);
 	  //printf("syn_id_ is %d\n", this->get_syn_id());
 		index lcid_offset =0;
 	while ( true )

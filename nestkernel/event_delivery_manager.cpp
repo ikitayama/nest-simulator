@@ -546,7 +546,10 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
   {
     prepared_timestamps[ lag ] = kernel().simulation_manager.get_clock() + Time::step( lag + 1 );
   }
-
+  int min_delay = kernel().connection_manager.get_min_delay();
+  std::cout << "::value_type " << sizeof(typename std::vector<SpikeDataT>::value_type) << std::endl;
+  std::cout << "SpikeData ::value_type " << sizeof(std::vector<SpikeData>::value_type) << std::endl;
+  std::cout << "sizeof(SpikeData) " << sizeof(SpikeData) << std::endl;
   int recv_buffer_size = recv_buffer.size();
   SpikeDataT recv_buffer_a[recv_buffer_size];
   for (int i=0;i<recv_buffer_size;i++)
@@ -576,20 +579,17 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
   WeightRecorderEvent *wr_e= new WeightRecorderEvent(); 
   std::cout << "wr_e pointer " << wr_e << std::endl; 
   ConnectionManager *p = &kernel().connection_manager;
+  auto *myp = static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(p->get_ptrConnectorBase(tid, 72));
+  std::cout << "pointer " << p->get_ptrConnectorBase(tid, 72) << std::endl;
   StaticConnection<TargetIdentifierPtrRport>::CommonPropertiesType const
-	  &cp = static_cast< GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> >* >( cmarray[42] )->get_common_properties();
+	  &cp = static_cast< GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> >* >( cmarray[72] )->get_common_properties();
   std::cout << cp.get_vt_node_id() << std::endl;
-  //auto v1 = static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(p->get_thread_local_connections(tid));
-  //assert(0);
-  //ConnectorBase* m = p->get_thread_local_connections(tid)[0];//
-  //assert(0);
-  //p->get_thread_local_connections(tid)[0]->map_in();
-  //std::cout << "XXXXXX" << std::endl;
-  //std::cout << "XXXXXX " <<     > *>(p->send_device(tid, syn_id, lcid, cmarray, se))->send_f();
   std::cout << "recv_buffer_a ptr " << recv_buffer_a << std::endl;
+  std::cout << "SpikeDataT size " << sizeof(SpikeDataT) << std::endl;
   std::cout << "The size " << sizeof(recv_buffer_a[0]) * recv_buffer_size << std::endl;
-//#pragma omp target teams distribute parallel for num_teams(512) map(tofrom: are_others_completed,recv_buffer_a[0:recv_buffer_size],se) map(to: send_recv_count_spike_data_per_rank,nranks,spike_data,prepared_timestamps) map(to: a1[0:nnodes]) map(to: wr_e)
-#pragma omp target parallel for map(to: recv_buffer_a[0:recv_buffer_size], se) map(to: wr_e[0:1], spike_data)
+  std::cout << "recv_buffer size " << recv_buffer_size << std::endl;
+
+#pragma omp target parallel for map(to: recv_buffer_a[0:recv_buffer_size], se, spike_data, prepared_timestamps[0:min_delay], myp[0:1])
   for ( thread rank = 0; rank < nranks;
         ++rank )
   { 
@@ -600,11 +600,6 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
       are_others_completed = false;
     }
     
-    //printf("%p\n", kernel().node_manager.size_itaru());
-    //printf("Node ID %lu\n", cp.get_wr_node_id());
-    //SparseNodeArray x = kernel().node_manager.size_itaru();
-	//SparseNodeArray y;
-	//WeightRecorderEvent wr_e1;
     // continue with next rank if no spikes were sent by this rank
     if ( recv_buffer_a[ rank * send_recv_count_spike_data_per_rank ].is_invalid_marker() )
     {
@@ -627,39 +622,22 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
         const index lcid = spike_data.get_lcid();
         //const index source_gid = kernel().connection_manager.get_source_node_id( tid, syn_id, lcid );
         const index source_gid = p->get_source_node_id_device( tid, syn_id, lcid);
-        //index source_gid = 1;//KernelManager::get_kernel_manager().connection_manager.ttt1;
-        //ConnectionManager *p = &KernelManager::get_kernel_manager().connection_manager;
-		//const index source_gid = kernel().connection_manager.tmp1[0];
-		//int dd = KernelManager::get_kernel_manager().connection_manager.tmp1[0];
-        //const index source_gid = source.get_gid( tid, syn_id, lcid );
-        //printf("------------ %d\n", source_gid);
-        //if (lcid >= 81000000 or syn_id != 0) printf("lcid is %lu\n");
-        //const index source_gid = 1;//thread_local_sources[syn_id][lcid];
         printf("Target: syn_id %lu lcid %lu source_gid %lu\n", syn_id, lcid, source_gid);
-	//index *a = nullptr;
         se.set_sender_node_id( source_gid );
         //kernel().connection_manager.send( tid, syn_id, lcid, cm, se );
-        //p->send_device( tid, syn_id, lcid, cm, se );
-        //typename StaticConnection<TargetIdentifierPtrRport>::CommonPropertiesType const &cp = static_cast<GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> >* >( cmarray[ 0 ])->GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> >::get_common_properties();
-        //WeightRecorderEvent wr_e1;
-        //auto v;
 	int *wr_e;
         if (syn_id == 72 or syn_id == 73) {
-	auto	v = static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(p->get_ptrConnectorBase(tid, syn_id, lcid, cmarray, se));
-		v->f(tid, lcid, cmarray, se, cp, wr_e);
+	//auto	v = static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(p->get_ptrConnectorBase(tid, syn_id, lcid, cmarray, se));
+	//Connector<StaticConnection<TargetIdentifierPtrRport>> *v = static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(p->get_ptrConnectorBase(tid, syn_id, lcid, cmarray, se));
+		myp->f(tid, lcid, cmarray, se, cp, wr_e);
 		//printf("ddddd %u\n", v->my());
 		//v->my();
 	} else {
-	auto	v = static_cast<Connector<nest::STDPPLConnectionHom<nest::TargetIdentifierPtrRport>> *>(p->get_ptrConnectorBase(tid, syn_id, lcid, cmarray, se));
+	//auto	v = static_cast<Connector<nest::STDPPLConnectionHom<nest::TargetIdentifierPtrRport>> *>(p->get_ptrConnectorBase(tid, syn_id, lcid, cmarray, se));
 		//v->f(tid, lcid, cmarray, se, cp, wr_e);
 	}
-	//printf("xxxxxx %d\n", v->my());
-        //v->f(tid, lcid, cmarray, se, cp, wr_e);
-	//WeightRecorderEvent wr_e;
-        //static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>>*>(p->send_device(tid, syn_id, lcid, cmarray, se).f();
-        //p->send_device(tid, syn_id, lcid, cmarray, se);
-        //static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(connections[0])->ff(tid, lcid, cp, se, a);
       }
+      
       // break if this was the last valid entry from this rank
       if ( spike_data.is_end_marker() )
       {
