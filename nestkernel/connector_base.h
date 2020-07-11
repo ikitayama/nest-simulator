@@ -411,7 +411,8 @@ public:
         e, tid, static_cast< GenericConnectorModel< ConnectionT >* >( cm[ syn_id_ ] )->get_common_properties() );
     }
   }
-  
+  synindex my() { return syn_id_; }
+
   index f(const thread tid, const index lcid, ConnectorModel **cm, Event& e, typename ConnectionT::CommonPropertiesType const& cp, int *wr_e)//WeightRecorderEvent* wr_e) 
   {
 //typename ConnectionT::CommonPropertiesType const& cp = 
@@ -422,24 +423,26 @@ public:
 	  //printf("syn_id_ is %d\n", this->syn_id_);
 	  //printf("syn_id_ is %d\n", this->get_syn_id());
 		index lcid_offset =0;
-	while ( true )
+		bool source_has_more_targets = true;
+//	while ( !source_has_more_targets )
+    for (int i=0;source_has_more_targets;)
     {
       ConnectionT& conn = C_1[ lcid + lcid_offset ];
       const bool is_disabled = conn.is_disabled();
-      const bool source_has_more_targets = conn.source_has_more_targets();
+      //const bool source_has_more_targets = conn.source_has_more_targets();
+      source_has_more_targets = conn.source_has_more_targets();
 
       e.set_port( lcid + lcid_offset );
       if ( not is_disabled )
       {
         //conn.send( e, tid, cp );
         //conn.send_non_virtual( e, tid ); // CommonProperties is not used in this function
-	unsigned long* p;
 	//WeightRecorderEvent wr_e;
         //send_weight_event_non_virtual( tid, lcid + lcid_offset, e, cp, p, wr_e );
       }
       if ( not source_has_more_targets )
       {
-        break;
+        //break;
       }
       ++lcid_offset;
     }

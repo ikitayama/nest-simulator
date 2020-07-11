@@ -562,7 +562,7 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
   for (int i=0;i<nnodes;i++)
       a1[i] = thread_local_nodes[i];
 
-  SpikeDataT spike_data;
+  //SpikeDataT spike_data;
 
   ConnectorBase *connections[100];
 
@@ -583,13 +583,16 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
   std::cout << "pointer " << p->get_ptrConnectorBase(tid, 72) << std::endl;
   StaticConnection<TargetIdentifierPtrRport>::CommonPropertiesType const
 	  &cp = static_cast< GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> >* >( cmarray[72] )->get_common_properties();
+  std::cout << "address of cp " << &cp << std::endl;
   std::cout << cp.get_vt_node_id() << std::endl;
+
   std::cout << "recv_buffer_a ptr " << recv_buffer_a << std::endl;
   std::cout << "SpikeDataT size " << sizeof(SpikeDataT) << std::endl;
   std::cout << "The size " << sizeof(recv_buffer_a[0]) * recv_buffer_size << std::endl;
   std::cout << "recv_buffer size " << recv_buffer_size << std::endl;
+  std::cout << "cmarray address " << cmarray << std::endl;
 
-#pragma omp target parallel for map(to: recv_buffer_a[0:recv_buffer_size], se, spike_data, prepared_timestamps[0:min_delay], myp[0:1])
+#pragma omp target parallel for map(to: recv_buffer_a[0:recv_buffer_size], se, prepared_timestamps[0:min_delay], myp[0:1], cmarray[0:cm.size()], cp)
   for ( thread rank = 0; rank < nranks;
         ++rank )
   { 
@@ -609,17 +612,17 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
     //printf("send_recv_count_spike_data_per_rank is %d\n", send_recv_count_spike_data_per_rank);
     for ( unsigned int i = 0; i < send_recv_count_spike_data_per_rank; ++i )
     {
-      spike_data =
-        recv_buffer_a[ rank * send_recv_count_spike_data_per_rank + i ];
+      SpikeDataT *spike_data;
+        *spike_data = recv_buffer_a[ rank * send_recv_count_spike_data_per_rank + i ];
 
-      if ( spike_data.get_tid() == tid )
+      if ( spike_data->get_tid() == tid )
       {
 	printf("prepared_timestamps %p\n", prepared_timestamps);      
-        se.set_stamp( prepared_timestamps[ spike_data.get_lag() ] );
-        se.set_offset( spike_data.get_offset() );
+        se.set_stamp( prepared_timestamps[ spike_data->get_lag() ] );
+        se.set_offset( spike_data->get_offset() );
 	//printf("get_lag %u get_offset %f\n", spike_data.get_lag(), spike_data.get_offset());
-        const index syn_id = spike_data.get_syn_id();
-        const index lcid = spike_data.get_lcid();
+        const index syn_id = spike_data->get_syn_id();
+        const index lcid = spike_data->get_lcid();
         //const index source_gid = kernel().connection_manager.get_source_node_id( tid, syn_id, lcid );
         const index source_gid = p->get_source_node_id_device( tid, syn_id, lcid);
         printf("Target: syn_id %lu lcid %lu source_gid %lu\n", syn_id, lcid, source_gid);
@@ -629,9 +632,9 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
         if (syn_id == 72 or syn_id == 73) {
 	//auto	v = static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(p->get_ptrConnectorBase(tid, syn_id, lcid, cmarray, se));
 	//Connector<StaticConnection<TargetIdentifierPtrRport>> *v = static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(p->get_ptrConnectorBase(tid, syn_id, lcid, cmarray, se));
-		myp->f(tid, lcid, cmarray, se, cp, wr_e);
+		//myp->f(tid, lcid, cmarray, se, cp, wr_e);
 		//printf("ddddd %u\n", v->my());
-		//v->my();
+		//printf("ddddd %u\n", myp->my());
 	} else {
 	//auto	v = static_cast<Connector<nest::STDPPLConnectionHom<nest::TargetIdentifierPtrRport>> *>(p->get_ptrConnectorBase(tid, syn_id, lcid, cmarray, se));
 		//v->f(tid, lcid, cmarray, se, cp, wr_e);
@@ -639,7 +642,7 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
       }
       
       // break if this was the last valid entry from this rank
-      if ( spike_data.is_end_marker() )
+      if ( spike_data->is_end_marker() )
       {
         //break;
         // As break statement can not be used in the target region,

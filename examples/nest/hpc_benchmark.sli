@@ -127,11 +127,11 @@ def
 
 /brunel_params
 <<
-  /NE 9000 scale mul round cvi   % number of excitatory neurons
-  /NI 2250 scale mul round cvi   % number of inhibitory neurons
+  /NE 900 scale mul round cvi   % number of excitatory neurons
+  /NI 225 scale mul round cvi   % number of inhibitory neurons
 
   % number of neurons to record spikes from
-  /Nrec 1000
+  /Nrec 100
 
   /model_params
   <<
