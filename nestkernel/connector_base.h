@@ -237,11 +237,11 @@ public:
         }
         assert(i==veclen);
 	std::cout << __PRETTY_FUNCTION__ << " syn_id_ " << syn_id_ << " Mapping this pointer " << this << " size is " << sizeof(*this) << std::endl; 
-	#pragma omp target enter data map(to: this[0:1])
+#pragma omp target enter data map(to: this[0:1])
 	std::cout << __PRETTY_FUNCTION__ << " Mapping C_1 pointer " << C_1 << std::endl; 
 	std::cout << __PRETTY_FUNCTION__ << " typeid() " << typeid(C_1[0]).name() << std::endl; 
 	//std::cout << __PRETTY_FUNCTION__ << " sizeof(C_1[0]) * array_size " << sizeof(C_1[0]) * array_size << std::endl; 
-	#pragma omp target enter data map(to: C_1[0:array_size])
+#pragma omp target enter data map(to: C_1[0:array_size])
   }
 
   virtual void map_out() {
@@ -413,7 +413,7 @@ public:
   }
   synindex my() { return syn_id_; }
 
-  index f(const thread tid, const index lcid, ConnectorModel **cm, Event& e, typename ConnectionT::CommonPropertiesType const& cp, int *wr_e)//WeightRecorderEvent* wr_e) 
+  inline index f(const thread tid, const index lcid, ConnectorModel **cm, Event& e, typename ConnectionT::CommonPropertiesType const& cp, int *wr_e)//WeightRecorderEvent* wr_e) 
   {
 //typename ConnectionT::CommonPropertiesType const& cp = 
      

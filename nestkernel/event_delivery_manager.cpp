@@ -592,7 +592,7 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
   std::cout << "recv_buffer size " << recv_buffer_size << std::endl;
   std::cout << "cmarray address " << cmarray << std::endl;
 
-#pragma omp target parallel for map(to: recv_buffer_a[0:recv_buffer_size], se, prepared_timestamps[0:min_delay], myp[0:1], cmarray[0:cm.size()], cp, spike_data)
+//#pragma omp target parallel for map(to: recv_buffer_a[0:recv_buffer_size], se, prepared_timestamps[0:min_delay], myp[0:1], cmarray[0:cm.size()], cp, spike_data)
   for ( thread rank = 0; rank < nranks;
         ++rank )
   {  
@@ -631,7 +631,7 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
         if (syn_id == 72 or syn_id == 73) {
 	//auto	v = static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(p->get_ptrConnectorBase(tid, syn_id, lcid, cmarray, se));
 	//Connector<StaticConnection<TargetIdentifierPtrRport>> *v = static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(p->get_ptrConnectorBase(tid, syn_id, lcid, cmarray, se));
-		//myp->f(tid, lcid, cmarray, se, cp, wr_e);
+		myp->f(tid, lcid, cmarray, se, cp, wr_e);
 		//printf("ddddd %u\n", v->my());
 		//printf("ddddd %u\n", myp->my());
 	} else {
