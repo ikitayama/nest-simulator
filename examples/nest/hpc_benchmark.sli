@@ -86,7 +86,7 @@
 /simtime 250. def       % total simulation time in ms
 /presimtime 50. ms def  % simulation time until reaching equilibrium
 /dt 0.1 ms def          % simulation step
-/record_spikes true def % switch to record spikes of excitatory neurons to file
+/record_spikes false def % switch to record spikes of excitatory neurons to file
 /path_name (.) def      % path where all files will have to be written
 /log_file (log) def     % naming scheme for the log files
 

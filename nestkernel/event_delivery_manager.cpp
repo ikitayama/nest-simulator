@@ -562,7 +562,7 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
   for (int i=0;i<nnodes;i++)
       a1[i] = thread_local_nodes[i];
 
-  //SpikeDataT spike_data;
+  SpikeDataT spike_data;
 
   ConnectorBase *connections[100];
 
@@ -592,10 +592,10 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
   std::cout << "recv_buffer size " << recv_buffer_size << std::endl;
   std::cout << "cmarray address " << cmarray << std::endl;
 
-#pragma omp target parallel for map(to: recv_buffer_a[0:recv_buffer_size], se, prepared_timestamps[0:min_delay], myp[0:1], cmarray[0:cm.size()], cp)
+#pragma omp target parallel for map(to: recv_buffer_a[0:recv_buffer_size], se, prepared_timestamps[0:min_delay], myp[0:1], cmarray[0:cm.size()], cp, spike_data)
   for ( thread rank = 0; rank < nranks;
         ++rank )
-  { 
+  {  
     // check last entry for completed marker; needs to be done before
     // checking invalid marker to assure that this is always read
     if ( not recv_buffer_a[ ( rank + 1 ) * send_recv_count_spike_data_per_rank - 1 ].is_complete_marker() )
@@ -612,17 +612,16 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
     //printf("send_recv_count_spike_data_per_rank is %d\n", send_recv_count_spike_data_per_rank);
     for ( unsigned int i = 0; i < send_recv_count_spike_data_per_rank; ++i )
     {
-      SpikeDataT *spike_data;
-        *spike_data = recv_buffer_a[ rank * send_recv_count_spike_data_per_rank + i ];
+      spike_data = recv_buffer_a[ rank * send_recv_count_spike_data_per_rank + i ];
 
-      if ( spike_data->get_tid() == tid )
+      if ( spike_data.get_tid() == tid )
       {
 	printf("prepared_timestamps %p\n", prepared_timestamps);      
-        se.set_stamp( prepared_timestamps[ spike_data->get_lag() ] );
-        se.set_offset( spike_data->get_offset() );
+        se.set_stamp( prepared_timestamps[ spike_data.get_lag() ] );
+        se.set_offset( spike_data.get_offset() );
 	//printf("get_lag %u get_offset %f\n", spike_data.get_lag(), spike_data.get_offset());
-        const index syn_id = spike_data->get_syn_id();
-        const index lcid = spike_data->get_lcid();
+        const index syn_id = spike_data.get_syn_id();
+        const index lcid = spike_data.get_lcid();
         //const index source_gid = kernel().connection_manager.get_source_node_id( tid, syn_id, lcid );
         const index source_gid = p->get_source_node_id_device( tid, syn_id, lcid);
         printf("Target: syn_id %lu lcid %lu source_gid %lu\n", syn_id, lcid, source_gid);
@@ -642,7 +641,7 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
       }
       
       // break if this was the last valid entry from this rank
-      if ( spike_data->is_end_marker() )
+      if ( spike_data.is_end_marker() )
       {
         //break;
         // As break statement can not be used in the target region,
