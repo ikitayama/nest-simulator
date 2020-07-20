@@ -580,6 +580,7 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
   std::cout << "wr_e pointer " << wr_e << std::endl; 
   ConnectionManager *p = &kernel().connection_manager;
   auto *myp = static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(p->get_ptrConnectorBase(tid, 72));
+  auto *myp2 = static_cast<Connector<STDPPLConnectionHom<TargetIdentifierPtrRport>> *>(p->get_ptrConnectorBase(tid, 42));
   std::cout << "pointer " << p->get_ptrConnectorBase(tid, 72) << std::endl;
   StaticConnection<TargetIdentifierPtrRport>::CommonPropertiesType *tmp1[100];
 	  //*tmp1[72] = static_cast< GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> >* >( cmarray[72] )->get_common_properties();
@@ -594,7 +595,7 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
   std::cout << "cmarray address " << cmarray << std::endl;
   std::cout << "my thread id " << tid << std::endl;
 
-#pragma omp target parallel for map(to: recv_buffer_a[0:recv_buffer_size], se, prepared_timestamps[0:min_delay], myp[0:1], cmarray[0:cm.size()], spike_data)
+#pragma omp target parallel for map(to: recv_buffer_a[0:recv_buffer_size], se, prepared_timestamps[0:min_delay], myp[0:1], myp2[0:1], cmarray[0:cm.size()], spike_data)
   for ( thread rank = 0; rank < nranks;
         ++rank )
   {  
@@ -633,19 +634,17 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
         if (syn_id == 72 or syn_id == 73) {
 	//auto	v = static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(p->get_ptrConnectorBase(tid, syn_id, lcid, cmarray, se));
 	//Connector<StaticConnection<TargetIdentifierPtrRport>> *v = static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(p->get_ptrConnectorBase(tid, syn_id, lcid, cmarray, se));
-		//myp->f(tid, lcid, cmarray, se, wr_e);
-		//printf("ddddd %u\n", v->my());
-		//printf("ddddd %u\n", myp->my());
+		myp->f(tid, lcid, cmarray, se, wr_e);
 	} else {
 	//auto	v = static_cast<Connector<nest::STDPPLConnectionHom<nest::TargetIdentifierPtrRport>> *>(p->get_ptrConnectorBase(tid, syn_id, lcid, cmarray, se));
 		//v->f(tid, lcid, cmarray, se, cp, wr_e);
+		myp2->f(tid, lcid, cmarray, se, wr_e);
 	}
       }
       
       // break if this was the last valid entry from this rank
       if ( spike_data.is_end_marker() )
       {
-	      printf("is_end_marker() returns true\n");
         break;
         // As break statement can not be used in the target region,
         // equivalent is in the for statement conditions.

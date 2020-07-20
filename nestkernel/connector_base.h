@@ -418,32 +418,33 @@ public:
   {
 //typename ConnectionT::CommonPropertiesType const& cp = 
      
-  //    static_cast< GenericConnectorModel< ConnectionT >* >( cm[syn_id_] )->get_common_properties();
+      //static_cast< GenericConnectorModel< ConnectionT >* >( cm[syn_id_] )->get_common_properties();
   	  //printf("%s\n", __PRETTY_FUNCTION__);
-	  printf("this pointer address in target %p\n", this);
+	  //printf("this pointer address in target %p\n", this);
 	  //printf("syn_id_ is %d\n", this->syn_id_);
 	  //printf("syn_id_ is %d\n", this->get_syn_id());
 		index lcid_offset =0;
-		bool source_has_more_targets = true;
-//	while ( !source_has_more_targets )
-    for (int i=0;source_has_more_targets;)
+
+    while ( true )
     {
       ConnectionT& conn = C_1[ lcid + lcid_offset ];
       const bool is_disabled = conn.is_disabled();
       //const bool source_has_more_targets = conn.source_has_more_targets();
-      source_has_more_targets = conn.source_has_more_targets();
+      const bool source_has_more_targets = conn.source_has_more_targets();
 
       e.set_port( lcid + lcid_offset );
       if ( not is_disabled )
       {
         //conn.send( e, tid, cp );
-        //conn.send_non_virtual( e, tid ); // CommonProperties is not used in this function
+        conn.send_non_virtual( e, tid ); // CommonProperties is not used in this function
 	//WeightRecorderEvent wr_e;
+	index *p;
+	int *wr_e;
         //send_weight_event_non_virtual( tid, lcid + lcid_offset, e, cp, p, wr_e );
       }
       if ( not source_has_more_targets )
       {
-        //break;
+        break;
       }
       ++lcid_offset;
     }
@@ -512,7 +513,9 @@ public:
       if ( not is_disabled )
       {
         //conn.send( e, tid, cp );
+	conn.send_non_virtual( e, tid);
 	unsigned long* p;
+	int *wr_e;
         send_weight_event_non_virtual( tid, lcid + lcid_offset, e, cp, p, wr_e);
       }
       if ( not source_has_more_targets )
@@ -528,13 +531,12 @@ public:
   // Implemented in connector_base_impl.h
   //void send_weight_event( const thread tid, const unsigned int lcid, Event& e, const CommonSynapseProperties& cp );
 
-#pragma omp declare target
   void send_weight_event_non_virtual( const thread tid,
     const unsigned int lcid,
     Event& e,
     const CommonSynapseProperties& cp,
-    index *, int*);//WeightRecorderEvent* wr_e);
-#pragma omp end declare target
+    index *, int*); //WeightRecorderEvent* wr_e);
+
   void test(WeightRecorderEvent* wr_e) {
   }
   void

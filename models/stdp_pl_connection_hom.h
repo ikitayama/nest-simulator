@@ -163,6 +163,7 @@ public:
    * \param e The event to send
    */
   void send( Event& e, thread t, const STDPPLHomCommonProperties& );
+  void send_non_virtual( Event& e, thread t) { printf("hi\n"); }
 
   class ConnTestDummyNode : public ConnTestDummyNodeBase
   {

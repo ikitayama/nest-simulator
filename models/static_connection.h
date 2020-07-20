@@ -149,11 +149,16 @@ public:
     ConnTestDummyNode dummy_target;
     ConnectionBase::check_connection_( dummy_target, s, t, receptor_type );
   }
+
   void send_non_virtual( Event& e, const thread tid)
   {
-	  	printf("XXXXX-----", __func__);
 		e.set_weight( weight_ );
+		e.set_delay_steps( get_delay_steps() );
+    e.set_receiver( *get_target( tid ) );
+    e.set_rport( get_rport() );
+    //e();
   }
+
   void
   send( Event& e, const thread tid, const CommonSynapseProperties& )
   {
