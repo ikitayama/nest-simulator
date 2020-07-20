@@ -413,7 +413,8 @@ public:
   }
   synindex my() { return syn_id_; }
 
-  inline index f(const thread tid, const index lcid, ConnectorModel **cm, Event& e, typename ConnectionT::CommonPropertiesType const& cp, int *wr_e)//WeightRecorderEvent* wr_e) 
+  //inline index f(const thread tid, const index lcid, ConnectorModel **cm, Event& e, typename ConnectionT::CommonPropertiesType const& cp, int *wr_e)//WeightRecorderEvent* wr_e) 
+  inline index f(const thread tid, const index lcid, ConnectorModel **cm, Event& e, int *wr_e)//WeightRecorderEvent* wr_e) 
   {
 //typename ConnectionT::CommonPropertiesType const& cp = 
      

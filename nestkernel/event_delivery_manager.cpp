@@ -581,18 +581,20 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
   ConnectionManager *p = &kernel().connection_manager;
   auto *myp = static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(p->get_ptrConnectorBase(tid, 72));
   std::cout << "pointer " << p->get_ptrConnectorBase(tid, 72) << std::endl;
-  StaticConnection<TargetIdentifierPtrRport>::CommonPropertiesType const
-	  &cp = static_cast< GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> >* >( cmarray[72] )->get_common_properties();
-  std::cout << "address of cp " << &cp << std::endl;
-  std::cout << cp.get_vt_node_id() << std::endl;
+  StaticConnection<TargetIdentifierPtrRport>::CommonPropertiesType *tmp1[100];
+	  //*tmp1[72] = static_cast< GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> >* >( cmarray[72] )->get_common_properties();
+	  //*tmp1[73] = static_cast< GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> >* >( cmarray[73] )->get_common_properties();
+  //std::cout << "address of cp " << &cp << std::endl;
+  //std::cout << cp.get_vt_node_id() << std::endl;
 
   std::cout << "recv_buffer_a ptr " << recv_buffer_a << std::endl;
   std::cout << "SpikeDataT size " << sizeof(SpikeDataT) << std::endl;
   std::cout << "The size " << sizeof(recv_buffer_a[0]) * recv_buffer_size << std::endl;
   std::cout << "recv_buffer size " << recv_buffer_size << std::endl;
   std::cout << "cmarray address " << cmarray << std::endl;
+  std::cout << "my thread id " << tid << std::endl;
 
-//#pragma omp target parallel for map(to: recv_buffer_a[0:recv_buffer_size], se, prepared_timestamps[0:min_delay], myp[0:1], cmarray[0:cm.size()], cp, spike_data)
+#pragma omp target parallel for map(to: recv_buffer_a[0:recv_buffer_size], se, prepared_timestamps[0:min_delay], myp[0:1], cmarray[0:cm.size()], spike_data)
   for ( thread rank = 0; rank < nranks;
         ++rank )
   {  
@@ -613,10 +615,10 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
     for ( unsigned int i = 0; i < send_recv_count_spike_data_per_rank; ++i )
     {
       spike_data = recv_buffer_a[ rank * send_recv_count_spike_data_per_rank + i ];
-
+	
       if ( spike_data.get_tid() == tid )
       {
-	printf("prepared_timestamps %p\n", prepared_timestamps);      
+	//printf("prepared_timestamps %p\n", prepared_timestamps);      
         se.set_stamp( prepared_timestamps[ spike_data.get_lag() ] );
         se.set_offset( spike_data.get_offset() );
 	//printf("get_lag %u get_offset %f\n", spike_data.get_lag(), spike_data.get_offset());
@@ -631,7 +633,7 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
         if (syn_id == 72 or syn_id == 73) {
 	//auto	v = static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(p->get_ptrConnectorBase(tid, syn_id, lcid, cmarray, se));
 	//Connector<StaticConnection<TargetIdentifierPtrRport>> *v = static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(p->get_ptrConnectorBase(tid, syn_id, lcid, cmarray, se));
-		myp->f(tid, lcid, cmarray, se, cp, wr_e);
+		//myp->f(tid, lcid, cmarray, se, wr_e);
 		//printf("ddddd %u\n", v->my());
 		//printf("ddddd %u\n", myp->my());
 	} else {
@@ -643,7 +645,8 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
       // break if this was the last valid entry from this rank
       if ( spike_data.is_end_marker() )
       {
-        //break;
+	      printf("is_end_marker() returns true\n");
+        break;
         // As break statement can not be used in the target region,
         // equivalent is in the for statement conditions.
       }
