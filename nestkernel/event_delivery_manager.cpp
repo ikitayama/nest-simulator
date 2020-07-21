@@ -583,10 +583,6 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
   auto *myp2 = static_cast<Connector<STDPPLConnectionHom<TargetIdentifierPtrRport>> *>(p->get_ptrConnectorBase(tid, 42));
   std::cout << "pointer " << p->get_ptrConnectorBase(tid, 72) << std::endl;
   StaticConnection<TargetIdentifierPtrRport>::CommonPropertiesType *tmp1[100];
-	  //*tmp1[72] = static_cast< GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> >* >( cmarray[72] )->get_common_properties();
-	  //*tmp1[73] = static_cast< GenericConnectorModel< StaticConnection<TargetIdentifierPtrRport> >* >( cmarray[73] )->get_common_properties();
-  //std::cout << "address of cp " << &cp << std::endl;
-  //std::cout << cp.get_vt_node_id() << std::endl;
 
   std::cout << "recv_buffer_a ptr " << recv_buffer_a << std::endl;
   std::cout << "SpikeDataT size " << sizeof(SpikeDataT) << std::endl;
@@ -612,7 +608,6 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
       continue;
     }
 
-    //printf("send_recv_count_spike_data_per_rank is %d\n", send_recv_count_spike_data_per_rank);
     for ( unsigned int i = 0; i < send_recv_count_spike_data_per_rank; ++i )
     {
       spike_data = recv_buffer_a[ rank * send_recv_count_spike_data_per_rank + i ];
@@ -632,12 +627,8 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
         //kernel().connection_manager.send( tid, syn_id, lcid, cm, se );
 	int *wr_e;
         if (syn_id == 72 or syn_id == 73) {
-	//auto	v = static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(p->get_ptrConnectorBase(tid, syn_id, lcid, cmarray, se));
-	//Connector<StaticConnection<TargetIdentifierPtrRport>> *v = static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(p->get_ptrConnectorBase(tid, syn_id, lcid, cmarray, se));
 		myp->f(tid, lcid, cmarray, se, wr_e);
 	} else {
-	//auto	v = static_cast<Connector<nest::STDPPLConnectionHom<nest::TargetIdentifierPtrRport>> *>(p->get_ptrConnectorBase(tid, syn_id, lcid, cmarray, se));
-		//v->f(tid, lcid, cmarray, se, cp, wr_e);
 		myp2->f(tid, lcid, cmarray, se, wr_e);
 	}
       }
