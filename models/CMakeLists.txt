@@ -56,7 +56,6 @@ set( models_sources
     hh_psc_alpha_gap.h hh_psc_alpha_gap.cpp
     ht_connection.h
     ht_neuron.h ht_neuron.cpp
-    iaf_chxk_2008.cpp iaf_chxk_2008.h
     iaf_chs_2007.cpp iaf_chs_2007.h
     iaf_cond_alpha.h iaf_cond_alpha.cpp
     iaf_cond_alpha_mc.h iaf_cond_alpha_mc.cpp
@@ -89,6 +88,7 @@ set( models_sources
     poisson_generator.h poisson_generator.cpp
     pp_psc_delta.h pp_psc_delta.cpp
     pp_pop_psc_delta.h pp_pop_psc_delta.cpp
+    pp_cond_exp_mc_urbanczik.h pp_cond_exp_mc_urbanczik.cpp
     ppd_sup_generator.h ppd_sup_generator.cpp
     pulsepacket_generator.h pulsepacket_generator.cpp
     quantal_stp_connection.h quantal_stp_connection_impl.h
@@ -124,7 +124,7 @@ set( models_sources
     tsodyks2_connection.h
     tsodyks_connection.h
     tsodyks_connection_hom.h tsodyks_connection_hom.cpp
-    voltmeter.h voltmeter.cpp
+    urbanczik_connection.h
     volume_transmitter.h volume_transmitter.cpp
     vogels_sprekeler_connection.h
     weight_recorder.h weight_recorder.cpp
@@ -143,8 +143,8 @@ target_include_directories( models PRIVATE
     )
 
 install( TARGETS models
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/nest
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}/nest
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     )
 

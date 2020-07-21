@@ -32,11 +32,6 @@
 # Exit shell if any subcommand or pipline returns a non-zero status.
 set -e
 
-mkdir -p $HOME/.matplotlib
-cat > $HOME/.matplotlib/matplotlibrc <<EOF
-    backend : svg
-EOF
-
 # Set the NEST CMake-build configuration according to the build matrix in '.travis.yml'.
 if [ "$xTHREADING" = "1" ] ; then
     CONFIGURE_THREADING="-Dwith-openmp=ON"
@@ -51,12 +46,21 @@ else
 fi
 
 if [ "$xPYTHON" = "1" ] ; then
-   if [ "$TRAVIS_PYTHON_VERSION" = "3.6.7" ]; then
-      CONFIGURE_PYTHON="-DPYTHON_LIBRARY=/opt/python/3.6.7/lib/libpython3.6m.so -DPYTHON_INCLUDE_DIR=/opt/python/3.6.7/include/python3.6m/"
-   fi
-   if [[ $OSTYPE = darwin* ]]; then
-      CONFIGURE_PYTHON="-DPYTHON_LIBRARY=/usr/local/Cellar/python/3.7.5/Frameworks/Python.framework/Versions/3.7/lib/libpython3.7.dylib -DPYTHON_INCLUDE_DIR=/usr/local/Cellar/python/3.7.5/Frameworks/Python.framework/Versions/3.7/include//python3.7m/"
-   fi
+    if [ "$TRAVIS_PYTHON_VERSION" = "3.6.10" ]; then
+	PYPREFIX="/opt/python/3.6.10"
+	CONFIGURE_PYTHON="\
+            -DPYTHON_LIBRARY=$PYPREFIX/lib/libpython3.6m.so
+            -DPYTHON_INCLUDE_DIR=$PYPREFIX/include/python3.6m/"
+    fi
+    if [[ $OSTYPE = darwin* ]]; then
+	PYPREFIX="/usr/local/Cellar/python@3.8/3.8.3_2/Frameworks/Python.framework/Versions/3.8"
+	CONFIGURE_PYTHON="\
+            -DPYTHON_LIBRARY=$PYPREFIX/lib/libpython3.8.dylib
+            -DPYTHON_INCLUDE_DIR=$PYPREFIX/include/python3.8"
+    fi
+
+    mkdir -p $HOME/.matplotlib
+    echo "backend : svg" > $HOME/.matplotlib/matplotlibrc
 else
     CONFIGURE_PYTHON="-Dwith-python=OFF"
 fi
@@ -87,6 +91,14 @@ else
     CONFIGURE_READLINE="-Dwith-readline=OFF"
 fi
 
+if [ "$xLIBBOOST" = "1" ] ; then
+    CONFIGURE_BOOST="-Dwith-boost=$HOME/.cache/boost_1_72_0.install"
+    chmod +x extras/install_libboost.sh
+    ./extras/install_libboost.sh
+else
+    CONFIGURE_BOOST="-Dwith-boost=OFF"
+fi
+
 if [ "$xSIONLIB" = "1" ] ; then
     CONFIGURE_SIONLIB="-Dwith-sionlib=$HOME/.cache/sionlib.install"
     chmod +x extras/install_sionlib.sh
@@ -99,6 +111,11 @@ if [ "$xLIBNEUROSIM" = "1" ] ; then
     CONFIGURE_LIBNEUROSIM="-Dwith-libneurosim=$HOME/.cache/libneurosim.install"
     chmod +x extras/install_csa-libneurosim.sh
     ./extras/install_csa-libneurosim.sh
+    if [[ $OSTYPE == darwin* ]]; then
+        export DYLD_LIBRARY_PATH=$HOME/.cache/csa.install/lib${DYLD_LIBRARY_PATH:+:$DYLD_LIBRARY_PATH}
+    else
+        export LD_LIBRARY_PATH=$HOME/.cache/csa.install/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
+    fi
 else
     CONFIGURE_LIBNEUROSIM="-Dwith-libneurosim=OFF"
 fi
@@ -106,11 +123,8 @@ fi
 if [[ $OSTYPE = darwin* ]]; then
     export CC=$(ls /usr/local/bin/gcc-* | grep '^/usr/local/bin/gcc-\d$')
     export CXX=$(ls /usr/local/bin/g++-* | grep '^/usr/local/bin/g++-\d$')
-    CONFIGURE_BOOST="-Dwith-boost=OFF"
-else
-    CONFIGURE_BOOST="-Dwith-boost=ON"
 fi
- 
+
 NEST_VPATH=build
 NEST_RESULT=result
 if [ "$(uname -s)" = 'Linux' ]; then
@@ -171,11 +185,11 @@ if [ "$xSTATIC_ANALYSIS" = "1" ]; then
       #            The commit range might not properly reflect the history.
       #            see https://github.com/travis-ci/travis-ci/issues/2668
     if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then
-       echo "MSGBLD0080: PULL REQUEST: Retrieving changed files using GitHub API."
-       file_names=`curl --retry 5 "https://api.github.com/repos/$TRAVIS_REPO_SLUG/pulls/$TRAVIS_PULL_REQUEST/files" | jq '.[] | .filename' | tr '\n' ' ' | tr '"' ' '`
+       echo "MSGBLD0080: PULL REQUEST: Retrieving changed files using git diff against $TRAVIS_BRANCH."
+       file_names=`git diff --name-only --diff-filter=AM $TRAVIS_BRANCH...HEAD`
     else
-       echo "MSGBLD0090: Retrieving changed files using git diff."    
-       file_names=`(git diff --name-only $TRAVIS_COMMIT_RANGE || echo "") | tr '\n' ' '`
+       echo "MSGBLD0090: Retrieving changed files using git diff in range $TRAVIS_COMMIT_RANGE."
+       file_names=`git diff --name-only $TRAVIS_COMMIT_RANGE`
     fi
 
     # Note: uncomment the following line to static check *all* files, not just those that have changed.
@@ -183,20 +197,17 @@ if [ "$xSTATIC_ANALYSIS" = "1" ]; then
 
     # file_names=`find . -name "*.h" -o -name "*.c" -o -name "*.cc" -o -name "*.hpp" -o -name "*.cpp" -o -name "*.py"`
 
-    printf '%s\n' "$file_names" | while IFS= read -r line
-     do
-       for single_file_name in $file_names
-       do
-         echo "MSGBLD0095: File changed: $single_file_name"
-       done
-     done
+    for single_file_name in $file_names
+    do
+        echo "MSGBLD0095: File changed: $single_file_name"
+    done
     echo "MSGBLD0100: Retrieving changed files completed."
     echo
 
     # Set the command line arguments for the static code analysis script and execute it.
 
     # The names of the static code analysis tools executables.
-    VERA=vera++                   
+    VERA=vera++
     CPPCHECK=cppcheck
     CLANG_FORMAT=clang-format
     PEP8=pep8
@@ -278,20 +289,13 @@ echo "MSGBLD0270: Running make install."
 make install
 echo "MSGBLD0280: Make install completed."
 
-    echo
-    echo "+ + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +"
-    echo "+               R U N   N E S T   T E S T S U I T E                           +"
-    echo "+ + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +"
-    echo "MSGBLD0290: Running make installcheck."
-    if [ "$TRAVIS_PYTHON_VERSION" = "2.7.13" ]; then
-        export PYTHONPATH=$HOME/.cache/csa.install/lib/python2.7/site-packages:$PYTHONPATH
-        export LD_LIBRARY_PATH=$HOME/.cache/csa.install/lib:$LD_LIBRARY_PATH
-    elif [ "$TRAVIS_PYTHON_VERSION" = "3.6.7" ]; then
-        export PYTHONPATH=/usr/lib/x86_64-linux-gnu/:$PYTHONPATH
-        export LD_LIBRARY_PATH=$HOME/.cache/csa.install/lib:$LD_LIBRARY_PATH
-    fi
-    make installcheck
-    echo "MSGBLD0300: Make installcheck completed."
+echo
+echo "+ + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +"
+echo "+               R U N   N E S T   T E S T S U I T E                           +"
+echo "+ + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +"
+echo "MSGBLD0290: Running make installcheck."
+make installcheck
+echo "MSGBLD0300: Make installcheck completed."
 
 if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then
   echo "MSGBLD0310: This build was triggered by a pull request."

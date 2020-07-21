@@ -101,9 +101,9 @@ nest::ConnectionManager::initialize()
   secondary_recv_buffer_pos_.resize( num_threads );
   sort_connections_by_source_ = true;
 
-  have_connections_changed_.resize( num_threads, true );
-  check_primary_connections_.resize( num_threads, false );
-  check_secondary_connections_.resize( num_threads, false );
+  have_connections_changed_.initialize( num_threads, false );
+  check_primary_connections_.initialize( num_threads, false );
+  check_secondary_connections_.initialize( num_threads, false );
 
 #pragma omp parallel
   {
@@ -553,6 +553,14 @@ nest::ConnectionManager::connect_( Node& s,
       "connection." );
   }
 
+  if ( kernel().model_manager.connector_requires_urbanczik_archiving( syn_id )
+    and not r.supports_urbanczik_archiving() )
+  {
+    throw NotImplemented(
+      "This synapse model is not supported by the neuron model of at least one "
+      "connection." );
+  }
+
   kernel()
     .model_manager.get_synapse_prototype( syn_id, tid )
     .add_connection( s, r, connections_[ tid ], syn_id, params, delay, weight );
@@ -562,17 +570,17 @@ nest::ConnectionManager::connect_( Node& s,
 
   // We do not check has_primary_connections_ and secondary_connections_exist_
   // directly as this led to worse performance on the supercomputer Piz Daint.
-  if ( not check_primary_connections_[ tid ] and is_primary )
+  if ( check_primary_connections_[ tid ].is_false() and is_primary )
   {
 #pragma omp atomic write
     has_primary_connections_ = true;
-    check_primary_connections_.set( tid, true );
+    check_primary_connections_[ tid ].set_true();
   }
-  else if ( not check_secondary_connections_[ tid ] and not is_primary )
+  else if ( check_secondary_connections_[ tid ].is_false() and not is_primary )
   {
 #pragma omp atomic write
     secondary_connections_exist_ = true;
-    check_secondary_connections_.set( tid, true );
+    check_secondary_connections_[ tid ].set_true();
   }
 }
 
@@ -923,8 +931,9 @@ nest::ConnectionManager::get_connections( std::deque< ConnectionID >& connectome
       std::vector< index > target_device_node_ids;
       split_to_neuron_device_vectors_( tid, target, target_neuron_node_ids, target_device_node_ids );
 
+      // Getting regular connections, if they exist.
       ConnectorBase* connections = connections_[ tid ][ syn_id ];
-      if ( connections != NULL )
+      if ( connections != nullptr )
       {
         const size_t num_connections_in_thread = connections->size();
         for ( index lcid = 0; lcid < num_connections_in_thread; ++lcid )
@@ -933,24 +942,20 @@ nest::ConnectionManager::get_connections( std::deque< ConnectionID >& connectome
           connections->get_connection_with_specified_targets(
             source_node_id, target_neuron_node_ids, tid, lcid, synapse_label, conns_in_thread );
         }
-
-        for ( std::vector< index >::const_iterator t_node_id = target_neuron_node_ids.begin();
-              t_node_id != target_neuron_node_ids.end();
-              ++t_node_id )
-        {
-          // target_table_devices_ contains connections both to and from
-          // devices. First we get connections from devices.
-          target_table_devices_.get_connections_from_devices_(
-            0, *t_node_id, tid, syn_id, synapse_label, conns_in_thread );
-        }
       }
 
-      for ( std::vector< index >::const_iterator t_node_id = target_device_node_ids.begin();
-            t_node_id != target_device_node_ids.end();
-            ++t_node_id )
+      // Getting connections from devices.
+      for ( auto t_node_id : target_neuron_node_ids )
       {
-        // Then, we get connections to devices.
-        target_table_devices_.get_connections_to_devices_( 0, *t_node_id, tid, syn_id, synapse_label, conns_in_thread );
+        target_table_devices_.get_connections_from_devices_(
+          0, t_node_id, tid, syn_id, synapse_label, conns_in_thread );
+      }
+
+      // Getting connections to devices.
+      for ( auto t_device_id : target_device_node_ids )
+      {
+        target_table_devices_.get_connections_to_devices_(
+          0, t_device_id, tid, syn_id, synapse_label, conns_in_thread );
       }
 
       if ( conns_in_thread.size() > 0 )
@@ -1275,7 +1280,7 @@ nest::ConnectionManager::connection_required( Node*& source, Node*& target, thre
       return CONNECT;
     }
 
-    throw IllegalConnection( "We do not allow connection of a device to a global receiver at the moment" );
+    throw IllegalConnection( "We do not allow connection of a device to a global receiver at the moment." );
   }
 
   return NO_CONNECTION;
@@ -1416,12 +1421,12 @@ nest::ConnectionManager::set_have_connections_changed( const thread tid )
   // Need to check if have_connections_changed_ has already been set, because if
   // we have a lot of threads and they all try to set the variable at once we get
   // performance issues on supercomputers.
-  if ( not have_connections_changed_[ tid ] )
+  if ( have_connections_changed_[ tid ].is_false() )
   {
     std::string msg =
       "New connections created, connection descriptors previously obtained using 'GetConnections' are now invalid.";
     LOG( M_WARNING, "ConnectionManager", msg );
-    have_connections_changed_.set( tid, true );
+    have_connections_changed_[ tid ].set_true();
   }
 }
 
@@ -1431,8 +1436,8 @@ nest::ConnectionManager::unset_have_connections_changed( const thread tid )
   // Need to check if have_connections_changed_ has already been set, because if
   // we have a lot of threads and they all try to set the variable at once we get
   // performance issues on supercomputers.
-  if ( have_connections_changed_[ tid ] )
+  if ( have_connections_changed_[ tid ].is_true() )
   {
-    have_connections_changed_.set( tid, false );
+    have_connections_changed_[ tid ].set_false();
   }
 }

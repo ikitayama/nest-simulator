@@ -55,7 +55,6 @@
 #include "hh_psc_alpha_gap.h"
 #include "ht_neuron.h"
 #include "iaf_chs_2007.h"
-#include "iaf_chxk_2008.h"
 #include "iaf_cond_alpha.h"
 #include "iaf_cond_alpha_mc.h"
 #include "iaf_cond_beta.h"
@@ -72,6 +71,7 @@
 #include "mat2_psc_exp.h"
 #include "mcculloch_pitts_neuron.h"
 #include "parrot_neuron.h"
+#include "pp_cond_exp_mc_urbanczik.h"
 #include "pp_pop_psc_delta.h"
 #include "pp_psc_delta.h"
 #include "siegert_neuron.h"
@@ -103,7 +103,6 @@
 #include "multimeter.h"
 #include "spike_detector.h"
 #include "spin_detector.h"
-#include "voltmeter.h"
 #include "volume_transmitter.h"
 #include "weight_recorder.h"
 
@@ -136,6 +135,7 @@
 #include "tsodyks2_connection.h"
 #include "tsodyks_connection.h"
 #include "tsodyks_connection_hom.h"
+#include "urbanczik_connection.h"
 #include "vogels_sprekeler_connection.h"
 
 // Includes from nestkernel:
@@ -255,7 +255,6 @@ ModelsModule::init( SLIInterpreter* )
   kernel().model_manager.register_node_model< volume_transmitter >( "volume_transmitter" );
 
 #ifdef HAVE_GSL
-  kernel().model_manager.register_node_model< iaf_chxk_2008 >( "iaf_chxk_2008" );
   kernel().model_manager.register_node_model< iaf_cond_alpha >( "iaf_cond_alpha" );
   kernel().model_manager.register_node_model< iaf_cond_beta >( "iaf_cond_beta" );
   kernel().model_manager.register_node_model< iaf_cond_exp >( "iaf_cond_exp" );
@@ -282,6 +281,7 @@ ModelsModule::init( SLIInterpreter* )
   kernel().model_manager.register_node_model< aeif_cond_beta_multisynapse >( "aeif_cond_beta_multisynapse" );
   kernel().model_manager.register_node_model< aeif_cond_alpha_multisynapse >( "aeif_cond_alpha_multisynapse" );
   kernel().model_manager.register_node_model< siegert_neuron >( "siegert_neuron" );
+  kernel().model_manager.register_node_model< pp_cond_exp_mc_urbanczik >( "pp_cond_exp_mc_urbanczik" );
 #endif
 
 #ifdef HAVE_MUSIC
@@ -316,6 +316,8 @@ ModelsModule::init( SLIInterpreter* )
   register_connection_model< TsodyksConnection >( "tsodyks_synapse" );
   register_connection_model< TsodyksConnectionHom >( "tsodyks_synapse_hom" );
   register_connection_model< Tsodyks2Connection >( "tsodyks2_synapse" );
+  register_connection_model< UrbanczikConnection >(
+    "urbanczik_synapse", default_connection_model_flags | RegisterConnectionModelFlags::REQUIRES_URBANCZIK_ARCHIVING );
   register_connection_model< VogelsSprekelerConnection >( "vogels_sprekeler_synapse" );
 
   // register secondary connection models
