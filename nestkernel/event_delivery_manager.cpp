@@ -608,9 +608,11 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
       continue;
     }
 
+#pragma omp parallel for
     for ( unsigned int i = 0; i < send_recv_count_spike_data_per_rank ; ++i )
     {
       spike_data = recv_buffer_a[ rank * send_recv_count_spike_data_per_rank + i ];
+      if (spike_data.is_end_marker()) continue;
       if ( spike_data.get_tid() == tid )
       {
 	//printf("prepared_timestamps %p\n", prepared_timestamps);      
@@ -635,7 +637,7 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
       // break if this was the last valid entry from this rank
       if ( spike_data.is_end_marker() )
       {
-        break;
+        //break;
         // As break statement can not be used in the target region,
         // equivalent is in the for statement conditions.
       }
