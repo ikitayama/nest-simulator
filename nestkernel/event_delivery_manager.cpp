@@ -591,7 +591,7 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
   std::cout << "cmarray address " << cmarray << std::endl;
   std::cout << "my thread id " << tid << std::endl;
 
-#pragma omp target parallel for map(to: recv_buffer_a[0:recv_buffer_size], se, prepared_timestamps[0:min_delay], myp[0:1], myp2[0:1], cmarray[0:cm.size()], spike_data)
+#pragma omp target teams distribute parallel for map(to: recv_buffer_a[0:recv_buffer_size], se, prepared_timestamps[0:min_delay], myp[0:1], myp2[0:1], cmarray[0:cm.size()], spike_data) thread_limit(1024)
   for ( thread rank = 0; rank < nranks;
         ++rank )
   {  
@@ -608,10 +608,9 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
       continue;
     }
 
-    for ( unsigned int i = 0; i < send_recv_count_spike_data_per_rank; ++i )
+    for ( unsigned int i = 0; i < send_recv_count_spike_data_per_rank ; ++i )
     {
       spike_data = recv_buffer_a[ rank * send_recv_count_spike_data_per_rank + i ];
-	
       if ( spike_data.get_tid() == tid )
       {
 	//printf("prepared_timestamps %p\n", prepared_timestamps);      
@@ -622,14 +621,14 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
         const index lcid = spike_data.get_lcid();
         //const index source_gid = kernel().connection_manager.get_source_node_id( tid, syn_id, lcid );
         const index source_gid = p->get_source_node_id_device( tid, syn_id, lcid);
-        printf("Target: syn_id %lu lcid %lu source_gid %lu\n", syn_id, lcid, source_gid);
+        //printf("Target: syn_id %lu lcid %lu source_gid %lu\n", syn_id, lcid, source_gid);
         se.set_sender_node_id( source_gid );
         //kernel().connection_manager.send( tid, syn_id, lcid, cm, se );
 	int *wr_e;
         if (syn_id == 72 or syn_id == 73) {
-		myp->f(tid, lcid, cmarray, se, wr_e);
+		//myp->f(tid, lcid, cmarray, se, wr_e);
 	} else {
-		myp2->f(tid, lcid, cmarray, se, wr_e);
+		//myp2->f(tid, lcid, cmarray, se, wr_e);
 	}
       }
       
