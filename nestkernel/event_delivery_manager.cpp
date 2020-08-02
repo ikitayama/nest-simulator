@@ -606,18 +606,19 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
     {
       continue;
     }
-
+    unsigned int valid_ents = 0;
     for (int i=0;i<send_recv_count_spike_data_per_rank;i++) {
-	    if (recv_buffer_a[ rank * send_recv_count_spike_data_per_rank + i ] .is_end_marker()) printf("the i %d\n", i);
+	    if (recv_buffer_a[ rank * send_recv_count_spike_data_per_rank + i ] .is_end_marker()) {
+		    printf("the i %d\n", i);
+		    valid_ents =i;
+	    }
     }
-//#pragma omp parallel for
-    for ( unsigned int i = 0; i < send_recv_count_spike_data_per_rank ; ++i )
+
+#pragma omp parallel for
+    //for ( unsigned int i = 0; i < send_recv_count_spike_data_per_rank ; ++i )
+    for ( unsigned int i = 0; i < valid_ents ; ++i )
     {
       spike_data = recv_buffer_a[ rank * send_recv_count_spike_data_per_rank + i ];
-      if (spike_data.is_end_marker()) {
-	      printf("I IS %d\n", i);
-	      continue;
-      }
       if ( spike_data.get_tid() == tid )
       {
 	//printf("prepared_timestamps %p\n", prepared_timestamps);      
@@ -628,7 +629,7 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
         const index lcid = spike_data.get_lcid();
         //const index source_gid = kernel().connection_manager.get_source_node_id( tid, syn_id, lcid );
         const index source_gid = p->get_source_node_id_device( tid, syn_id, lcid);
-        printf("Target: syn_id %lu lcid %lu source_gid %lu\n", syn_id, lcid, source_gid);
+        //printf("Target: syn_id %lu lcid %lu source_gid %lu\n", syn_id, lcid, source_gid);
         se.set_sender_node_id( source_gid );
         //kernel().connection_manager.send( tid, syn_id, lcid, cm, se );
 	int *wr_e;
@@ -637,14 +638,6 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
 	} else {
 		//myp2->f(tid, lcid, cmarray, se, wr_e);
 	}
-      }
-      
-      // break if this was the last valid entry from this rank
-      if ( spike_data.is_end_marker() )
-      {
-        //break;
-        // As break statement can not be used in the target region,
-        // equivalent is in the for statement conditions.
       }
     }
   }
