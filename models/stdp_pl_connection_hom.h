@@ -163,7 +163,7 @@ public:
    * \param e The event to send
    */
   void send( Event& e, thread t, const STDPPLHomCommonProperties& );
-  void send_non_virtual( Event& e, thread t) { printf("hi\n"); }
+  void send_non_virtual( Event& e, thread t );
 
   class ConnTestDummyNode : public ConnTestDummyNodeBase
   {
@@ -240,6 +240,12 @@ template < typename targetidentifierT >
 inline void
 STDPPLConnectionHom< targetidentifierT >::send( Event& e, thread t, const STDPPLHomCommonProperties& cp )
 {
+}
+
+template < typename targetidentifierT >
+inline void
+STDPPLConnectionHom< targetidentifierT >::send_non_virtual( Event& e, thread t )
+{
   // synapse STDP depressing/facilitation dynamics
 
   const double t_spike = e.get_stamp().get_ms();
@@ -251,34 +257,34 @@ STDPPLConnectionHom< targetidentifierT >::send( Event& e, thread t, const STDPPL
   double dendritic_delay = get_delay();
 
   // get spike history in relevant range (t1, t2] from post-synaptic neuron
-  std::deque< histentry >::iterator start;
-  std::deque< histentry >::iterator finish;
-  target->get_history( t_lastspike_ - dendritic_delay, t_spike - dendritic_delay, &start, &finish );
+  //std::deque< histentry >::iterator start;
+  //std::deque< histentry >::iterator finish;
+  //target->get_history( t_lastspike_ - dendritic_delay, t_spike - dendritic_delay, &start, &finish );
 
   // facilitation due to post-synaptic spikes since last pre-synaptic spike
   double minus_dt;
-  while ( start != finish )
-  {
-    minus_dt = t_lastspike_ - ( start->t_ + dendritic_delay );
-    start++;
+  //while ( start != finish )
+  //{
+    //minus_dt = t_lastspike_ - ( start->t_ + dendritic_delay );
+    //start++;
     // get_history() should make sure that
     // start->t_ > t_lastspike - dendritic_delay, i.e. minus_dt < 0
-    assert( minus_dt < -1.0 * kernel().connection_manager.get_stdp_eps() );
-    weight_ = facilitate_( weight_, Kplus_ * std::exp( minus_dt * cp.tau_plus_inv_ ), cp );
-  }
+    //assert( minus_dt < -1.0 * kernel().connection_manager.get_stdp_eps() );
+    //weight_ = 1;//facilitate_( weight_, Kplus_ * std::exp( minus_dt * cp.tau_plus_inv_ ), cp );
+  //}
 
   // depression due to new pre-synaptic spike
-  weight_ = depress_( weight_, target->get_K_value( t_spike - dendritic_delay ), cp );
+  weight_ = 1;//depress_( weight_, target->get_K_value( t_spike - dendritic_delay ), cp );
 
   e.set_receiver( *target );
   e.set_weight( weight_ );
   e.set_delay_steps( get_delay_steps() );
   e.set_rport( get_rport() );
-  e();
+  //e();
 
-  Kplus_ = Kplus_ * std::exp( ( t_lastspike_ - t_spike ) * cp.tau_plus_inv_ ) + 1.0;
+  Kplus_ = 1;//Kplus_ * std::exp( ( t_lastspike_ - t_spike ) * cp.tau_plus_inv_ ) + 1.0;
 
-  t_lastspike_ = t_spike;
+  //t_lastspike_ = t_spike;
 }
 
 template < typename targetidentifierT >
