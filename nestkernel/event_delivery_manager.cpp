@@ -580,6 +580,7 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
   std::cout << "wr_e pointer " << wr_e << std::endl; 
   ConnectionManager *p = &kernel().connection_manager;
   auto *myp = static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(p->get_ptrConnectorBase(tid, 72));
+  auto *myp73 = static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(p->get_ptrConnectorBase(tid, 73));
   auto *myp2 = static_cast<Connector<STDPPLConnectionHom<TargetIdentifierPtrRport>> *>(p->get_ptrConnectorBase(tid, 42));
   std::cout << "pointer " << p->get_ptrConnectorBase(tid, 72) << std::endl;
   StaticConnection<TargetIdentifierPtrRport>::CommonPropertiesType *tmp1[100];
@@ -591,7 +592,7 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
   std::cout << "cmarray address " << cmarray << std::endl;
   std::cout << "my thread id " << tid << std::endl;
 
-#pragma omp target teams distribute parallel for map(to: recv_buffer_a[0:recv_buffer_size], se, prepared_timestamps[0:min_delay], myp[0:1], myp2[0:1], cmarray[0:cm.size()], spike_data) thread_limit(1024)
+//#pragma omp target teams distribute parallel for map(to: recv_buffer_a[0:recv_buffer_size], se, prepared_timestamps[0:min_delay], myp[0:1], myp2[0:1], cmarray[0:cm.size()], spike_data) thread_limit(1024)
   for ( thread rank = 0; rank < nranks;++rank )
   {  
     // check last entry for completed marker; needs to be done before
@@ -606,6 +607,8 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
     {
       continue;
     }
+
+    // determine the loop count until end marker
     unsigned int valid_ents = 0;
     for (int i=0;i<send_recv_count_spike_data_per_rank;i++) {
 	    if (recv_buffer_a[ rank * send_recv_count_spike_data_per_rank + i ] .is_end_marker()) {
@@ -614,8 +617,7 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
 	    }
     }
 
-#pragma omp parallel for
-    //for ( unsigned int i = 0; i < send_recv_count_spike_data_per_rank ; ++i )
+#pragma omp target teams distribute parallel for map(to: recv_buffer_a[0:recv_buffer_size], se, prepared_timestamps[0:min_delay], myp[0:1], myp73[0:1], myp2[0:1], cmarray[0:cm.size()], spike_data, valid_ents, rank, send_recv_count_spike_data_per_rank) thread_limit(1024)
     for ( unsigned int i = 0; i < valid_ents ; ++i )
     {
       spike_data = recv_buffer_a[ rank * send_recv_count_spike_data_per_rank + i ];
@@ -633,10 +635,12 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
         se.set_sender_node_id( source_gid );
         //kernel().connection_manager.send( tid, syn_id, lcid, cm, se );
 	int *wr_e;
-        if (syn_id == 72 or syn_id == 73) {
-		//myp->f(tid, lcid, cmarray, se, wr_e);
-	} else {
-		//myp2->f(tid, lcid, cmarray, se, wr_e);
+        if (syn_id == 72) {
+		myp->f(tid, lcid, cmarray, se, wr_e);
+	} else if (syn_id == 73) {
+		myp73->f(tid, lcid, cmarray, se, wr_e);	
+	} else if (syn_id == 42) {
+		myp2->f(tid, lcid, cmarray, se, wr_e);
 	}
       }
     }

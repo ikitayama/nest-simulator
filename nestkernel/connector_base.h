@@ -429,7 +429,6 @@ public:
     {
       ConnectionT& conn = C_1[ lcid + lcid_offset ];
       const bool is_disabled = conn.is_disabled();
-      //const bool source_has_more_targets = conn.source_has_more_targets();
       const bool source_has_more_targets = conn.source_has_more_targets();
 
       e.set_port( lcid + lcid_offset );
