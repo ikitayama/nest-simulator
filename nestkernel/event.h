@@ -706,7 +706,6 @@ public:
 
   //! Construct with reference to data and time stamps to transmit
   DataLoggingReply( const Container& );
-  virtual void map_in() {}
   void operator()();
 
   //! Access referenced data
@@ -748,7 +747,6 @@ class ConductanceEvent : public Event
   double g_;
 
 public:
-  virtual void map_in() {}
   void operator()();
   ConductanceEvent* clone() const;
 
@@ -817,7 +815,6 @@ DataEvent< D >::get_pointer() const
 class DoubleDataEvent : public DataEvent< double >
 {
 public:
-  virtual void map_in() {}
   void operator()();
   DoubleDataEvent* clone() const;
 };
@@ -1133,7 +1130,6 @@ public:
   {
   }
 
-  virtual void map_in() {}
   void operator()();
   GapJunctionEvent* clone() const;
 };
@@ -1149,7 +1145,6 @@ public:
   InstantaneousRateConnectionEvent()
   {
   }
-  virtual void map_in() {}
   void operator()();
   InstantaneousRateConnectionEvent* clone() const;
 };
@@ -1165,7 +1160,6 @@ public:
   DelayedRateConnectionEvent()
   {
   }
-virtual void map_in() {}
   void operator()();
   DelayedRateConnectionEvent* clone() const;
 };
@@ -1186,7 +1180,6 @@ public:
   DiffusionConnectionEvent()
   {
   }
-  virtual void map_in() {}
   void operator()();
   DiffusionConnectionEvent* clone() const;
 
