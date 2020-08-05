@@ -564,18 +564,6 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
 
   SpikeDataT spike_data;
 
-  ConnectorBase *connections[100];
-
-  std::vector<ConnectorBase*> thread_local_v = kernel().connection_manager.get_thread_local_connections(tid);
-
-  for (int i=0;i<100;i++) {
-	connections[i] = thread_local_v[i];
-	if (connections[i]) {
-		//std::cout << "synapse " << i << " non zero" << std::endl;
-		//connections[i]->map_in();
-	}
-  }
-
   WeightRecorderEvent *wr_e= new WeightRecorderEvent(); 
   std::cout << "wr_e pointer " << wr_e << std::endl; 
   ConnectionManager *p = &kernel().connection_manager;
