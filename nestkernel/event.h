@@ -360,9 +360,6 @@ protected:
 class SpikeEvent : public Event
 {
 public:
-  void map_in() {
-	//#pragma omp target enter data map(to: receiver_[0:1])
-  }
   SpikeEvent();
   void operator()();
   SpikeEvent* clone() const;
@@ -406,7 +403,6 @@ class WeightRecorderEvent : public Event
 public:
   WeightRecorderEvent();
   WeightRecorderEvent* clone() const;
-  void map_in() {}
   void operator()();
 
   /**
@@ -482,7 +478,6 @@ class RateEvent : public Event
   double r_;
 
 public:
-  virtual void map_in() {}
   void operator()();
   RateEvent* clone() const;
 
@@ -517,7 +512,6 @@ class CurrentEvent : public Event
   double c_;
 
 public:
-  virtual void map_in() {}
   void operator()();
   CurrentEvent* clone() const;
 
@@ -594,7 +588,6 @@ public:
 
   DataLoggingRequest* clone() const;
 
-  virtual void map_in() {}
   void operator()();
 
   /** Access to stored time interval.*/

@@ -623,7 +623,7 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
         //kernel().connection_manager.send( tid, syn_id, lcid, cm, se );
 	int *wr_e;
         if (syn_id == 72) {
-		//myp->f(tid, lcid, cmarray, se, wr_e);
+		myp->f(tid, lcid, cmarray, se, wr_e);
 	} else if (syn_id == 73) {
 		//myp73->f(tid, lcid, cmarray, se, wr_e);	
 	} else if (syn_id == 42) {
