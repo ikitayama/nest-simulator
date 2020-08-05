@@ -53,12 +53,12 @@ Event::Event()
 
 void SpikeEvent::operator()()
 {
-  //receiver_->handle( *this );
+  receiver_->handle( *this );
 }
 
 void WeightRecorderEvent::operator()()
 {
-  //receiver_->handle( *this );
+  receiver_->handle( *this );
 }
 
 void DSSpikeEvent::operator()()
