@@ -159,27 +159,23 @@ for (int i=0;i<num_threads;i++) {
 	}
 }
 }
+
 void
-nest::ConnectionManager::test() {
-	const thread num_threads = kernel().vp_manager.get_num_threads();
-	//std::cout << "Total number of threads " << num_threads << std::endl;
-	//const int num_synapse_prototypes 
-	for (int i=0;i<num_threads;i++) {
-		for (int j=0;j<kernel().model_manager.get_num_synapse_prototypes();j++) {
+nest::ConnectionManager::map_connections(thread tid) {
+	for (int i=0;i<kernel().model_manager.get_num_synapse_prototypes();i++) {
 			//size_t l = connections_[i][j]->size();
 			//connections_array_[i][j]= new ConnectorBase*[l];
 			//for (int k=0;k<l;k++) {
 			//if (j!=0) return;
 			//assert(connections_[i][j]);
-			connections_array_[i][j]=connections_[i][j];
+			connections_array_[tid][i]=connections_[tid][i];
 			//assert(connections_array_[i][j]);
 			//if (j==42 or j==72) {
-			if (connections_[i][j] != nullptr) {
+			if (connections_[tid][i] != nullptr) {
 				//std::cout << __PRETTY_FUNCTION__ << " connections_ " << connections_[i][j] << std::endl;
 				//std::cout << __PRETTY_FUNCTION__ << " connections_array_ " << connections_array_[i][j] << std::endl;
-				connections_array_[i][j]->map_in();
+				connections_array_[tid][i]->map_in();
 			}
-		}
 	}
 }
 

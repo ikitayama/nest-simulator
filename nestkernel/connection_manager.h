@@ -440,7 +440,7 @@ private:
    * of all local connections
    */
   const Time get_max_delay_time_() const;
-  void test();
+  void map_connections(thread);
   /**
    * Deletes all connections.
    */
