@@ -887,8 +887,9 @@ nest::SimulationManager::update_()
 
       } // of if(wfr_is_used)
       // end of preliminary update
-
+      
       const SparseNodeArray& thread_local_nodes = kernel().node_manager.get_local_nodes( tid );
+     std::cout << "number of thread local nodes " << thread_local_nodes.size() << std::endl; 
       for ( SparseNodeArray::const_iterator n = thread_local_nodes.begin(); n != thread_local_nodes.end(); ++n )
       {
         // We update in a parallel region. Therefore, we need to catch

@@ -72,7 +72,7 @@ EventDeliveryManager::send< SpikeEvent >( Node& source, SpikeEvent& e, const lon
   if ( source.has_proxies() )
   {
     local_spike_counter_[ tid ] += e.get_multiplicity();
-    std::cout << "xxxx " << local_spike_counter_[tid] << std::endl;
+
     e.set_stamp( kernel().simulation_manager.get_slice_origin() + Time::step( lag + 1 ) );
     e.set_sender( source );
 
