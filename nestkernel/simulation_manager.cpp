@@ -733,6 +733,7 @@ nest::SimulationManager::wfr_update_( Node* n )
 void
 nest::SimulationManager::update_()
 {
+  SCOREP_USER_FUNC_BEGIN()
   // to store done values of the different threads
   std::vector< bool > done;
   bool done_all = true;
@@ -981,6 +982,7 @@ nest::SimulationManager::update_()
       throw WrappedThreadException( *( exceptions_raised.at( tid ) ) );
     }
   }
+  SCOREP_USER_FUNC_END()
 }
 
 void
