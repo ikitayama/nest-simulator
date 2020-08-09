@@ -518,7 +518,7 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
   const unsigned int send_recv_count_spike_data_per_rank =
     kernel().mpi_manager.get_send_recv_count_spike_data_per_rank();
   const std::vector< ConnectorModel* >& cm = kernel().model_manager.get_synapse_prototypes( tid );
-
+  std::cout << "size of " << sizeof(SpikeDataT) << std::endl;
   bool are_others_completed = true;
 
   // deliver only at end of time slice
@@ -548,27 +548,32 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
       continue;
     }
 
+    // This loop is easily vectorized.
+    std::vector<double> ddd(1024);
+    for (int i=0;i<1024;i++) {
+	ddd[i] = 1.0;
+    }
+index xyz = 0;
     for ( unsigned int i = 0; i < send_recv_count_spike_data_per_rank; ++i )
     {
       const SpikeDataT& spike_data = recv_buffer[ rank * send_recv_count_spike_data_per_rank + i ];
-
       if ( spike_data.get_tid() == tid )
       {
-        se.set_stamp( prepared_timestamps[ spike_data.get_lag() ] );
-        se.set_offset( spike_data.get_offset() );
+        //se.set_stamp( prepared_timestamps[ spike_data.get_lag() ] );
+        //se.set_offset( spike_data.get_offset() );
+	ddd[i] = spike_data.get_syn_id();
+        //const index syn_id = spike_data.get_syn_id();
+        //const index lcid = spike_data.get_lcid();
+        //const index source_node_id = 1;//kernel().connection_manager.get_source_node_id( tid, syn_id, lcid );
+        //se.set_sender_node_id( source_node_id );
 
-        const index syn_id = spike_data.get_syn_id();
-        const index lcid = spike_data.get_lcid();
-        const index source_node_id = kernel().connection_manager.get_source_node_id( tid, syn_id, lcid );
-        se.set_sender_node_id( source_node_id );
-
-        kernel().connection_manager.send( tid, syn_id, lcid, cm, se );
+        //kernel().connection_manager.send( tid, syn_id, lcid, cm, se );
       }
 
       // break if this was the last valid entry from this rank
       if ( spike_data.is_end_marker() )
       {
-        break;
+        //break;
       }
     }
   }

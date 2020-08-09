@@ -886,23 +886,17 @@ nest::SimulationManager::update_()
       // end of preliminary update
 
       const SparseNodeArray& thread_local_nodes = kernel().node_manager.get_local_nodes( tid );
+      std::vector<Node*> tmp(thread_local_nodes.size());
+       int i=0, len=0;
       for ( SparseNodeArray::const_iterator n = thread_local_nodes.begin(); n != thread_local_nodes.end(); ++n )
       {
-        // We update in a parallel region. Therefore, we need to catch
-        // exceptions here and then handle them after the parallel region.
-        try
-        {
-          Node* node = n->get_node();
-          if ( not( node )->is_frozen() )
-          {
-            ( node )->update( clock_, from_step_, to_step_ );
-          }
-        }
-        catch ( std::exception& e )
-        {
-          // so throw the exception after parallel region
-          exceptions_raised.at( tid ) = std::shared_ptr< WrappedThreadException >( new WrappedThreadException( e ) );
-        }
+	tmp[i] = n->get_node();
+        len++;
+      }
+      std::vector<unsigned int> dddd;	
+      for (int i=0;i<len;i++) {
+	tmp[i]->update( clock_, from_step_, to_step_ );
+	//dddd[i] = tmp[i]->get_node_id();
       }
 
 // parallel section ends, wait until all threads are done -> synchronize
