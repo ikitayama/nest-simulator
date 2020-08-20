@@ -554,7 +554,6 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
   SpikeDataT recv_buffer_a[recv_buffer_size];
   for (int i=0;i<recv_buffer_size;i++)
 	recv_buffer_a[i] = recv_buffer[i];
-  int nranks= kernel().mpi_manager.get_num_processes();
 
   std::vector<Node*> thread_local_nodes;// = kernel().node_manager.get_nodes_on_thread(tid);
   int nnodes = thread_local_nodes.size();
@@ -580,7 +579,7 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
   std::cout << "cmarray address " << cmarray << std::endl;
   std::cout << "my thread id " << tid << std::endl;
 
-  for ( thread rank = 0; rank < nranks;++rank )
+  for ( thread rank = 0; rank < kernel().mpi_manager.get_num_processes(); ++rank )
   {  
     // check last entry for completed marker; needs to be done before
     // checking invalid marker to assure that this is always read
@@ -604,7 +603,7 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
 	    }
     }
 
-#pragma omp target teams distribute parallel for map(to: recv_buffer_a[0:recv_buffer_size], se, prepared_timestamps[0:min_delay], myp[0:1], myp2[0:1], myp73[0:1], cmarray[0:cm.size()], spike_data, valid_ents, rank, send_recv_count_spike_data_per_rank) thread_limit(1024)
+//#pragma omp target teams distribute parallel for map(to: recv_buffer_a[0:recv_buffer_size], se, prepared_timestamps[0:min_delay], myp[0:1], myp2[0:1], myp73[0:1], cmarray[0:cm.size()], spike_data, valid_ents, rank, send_recv_count_spike_data_per_rank) thread_limit(1024)
     for ( unsigned int i = 0; i < valid_ents ; ++i )
     {
       spike_data = recv_buffer_a[ rank * send_recv_count_spike_data_per_rank + i ];
@@ -616,11 +615,11 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
 	//printf("get_lag %u get_offset %f\n", spike_data.get_lag(), spike_data.get_offset());
         const index syn_id = spike_data.get_syn_id();
         const index lcid = spike_data.get_lcid();
-        //const index source_gid = kernel().connection_manager.get_source_node_id( tid, syn_id, lcid );
-        const index source_gid = p->get_source_node_id_device( tid, syn_id, lcid);
+        const index source_gid = kernel().connection_manager.get_source_node_id( tid, syn_id, lcid );
+        //const index source_gid = p->get_source_node_id_device( tid, syn_id, lcid);
         //printf("Target: syn_id %lu lcid %lu source_gid %lu\n", syn_id, lcid, source_gid);
         se.set_sender_node_id( source_gid );
-        //kernel().connection_manager.send( tid, syn_id, lcid, cm, se );
+        kernel().connection_manager.send( tid, syn_id, lcid, cm, se );
 	int *wr_e;
         if (syn_id == 72) {
 		//myp->f(tid, lcid, cmarray, se, wr_e);

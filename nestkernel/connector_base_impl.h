@@ -30,7 +30,7 @@
 
 namespace nest
 {
-/*
+
 template < typename ConnectionT >
 void
 Connector< ConnectionT >::send_weight_event( const thread tid,
@@ -60,7 +60,7 @@ Connector< ConnectionT >::send_weight_event( const thread tid,
     wr_e();
   }
 }
-*/
+
 template < typename ConnectionT >
 void
 Connector< ConnectionT >::send_weight_event_non_virtual( const thread tid,

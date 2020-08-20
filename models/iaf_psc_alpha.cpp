@@ -354,7 +354,6 @@ iaf_psc_alpha::update( Time const& origin, const long from, const long to )
     V_.weighted_spikes_in_ = B_.in_spikes_.get_value( lag );
     S_.dI_in_ += V_.IPSCInitialValue_ * V_.weighted_spikes_in_;
 
-    std::cout << "y3_ Theta_ " << S_.y3_ << " " << P_.Theta_ << std::endl;
     // threshold crossing
     if ( S_.y3_ >= P_.Theta_ )
     {

@@ -157,8 +157,8 @@ public:
    */
   virtual index send( const thread tid, const index lcid, const std::vector< ConnectorModel* >& cm, Event& e ) = 0;
 
-  //virtual void
-  //send_weight_event( const thread tid, const unsigned int lcid, Event& e, const CommonSynapseProperties& cp ) = 0;
+  virtual void
+  send_weight_event( const thread tid, const unsigned int lcid, Event& e, const CommonSynapseProperties& cp ) = 0;
 
   /**
    * Update weights of dopamine modulated STDP connections.
@@ -411,7 +411,6 @@ public:
         e, tid, static_cast< GenericConnectorModel< ConnectionT >* >( cm[ syn_id_ ] )->get_common_properties() );
     }
   }
-  synindex my() { return syn_id_; }
 
   //inline index f(const thread tid, const index lcid, ConnectorModel **cm, Event& e, typename ConnectionT::CommonPropertiesType const& cp, int *wr_e)//WeightRecorderEvent* wr_e) 
   inline index f(const thread tid, const index lcid, ConnectorModel **cm, Event& e, int *wr_e)//WeightRecorderEvent* wr_e) 
@@ -463,7 +462,7 @@ public:
 
     while ( true )
     {
-      ConnectionT& conn = C_[ lcid + lcid_offset ];
+      ConnectionT& conn = C_1[ lcid + lcid_offset ];
       const bool is_disabled = conn.is_disabled();
       const bool source_has_more_targets = conn.source_has_more_targets();
 
@@ -471,7 +470,7 @@ public:
       if ( not is_disabled )
       {
         conn.send( e, tid, cp );
-        //send_weight_event( tid, lcid + lcid_offset, e, cp );
+        send_weight_event( tid, lcid + lcid_offset, e, cp );
       }
       if ( not source_has_more_targets )
       {
@@ -528,7 +527,7 @@ public:
   }
   
   // Implemented in connector_base_impl.h
-  //void send_weight_event( const thread tid, const unsigned int lcid, Event& e, const CommonSynapseProperties& cp );
+  void send_weight_event( const thread tid, const unsigned int lcid, Event& e, const CommonSynapseProperties& cp );
 
   void send_weight_event_non_virtual( const thread tid,
     const unsigned int lcid,
