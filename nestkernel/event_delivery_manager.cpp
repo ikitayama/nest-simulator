@@ -599,12 +599,14 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
     for (int i=0;i<send_recv_count_spike_data_per_rank;i++) {
 	    if (recv_buffer_a[ rank * send_recv_count_spike_data_per_rank + i ] .is_end_marker()) {
 		    printf("the i %d\n", i);
-		    valid_ents =i;
+		    valid_ents = i;
+		    break;
 	    }
     }
 
 //#pragma omp target teams distribute parallel for map(to: recv_buffer_a[0:recv_buffer_size], se, prepared_timestamps[0:min_delay], myp[0:1], myp2[0:1], myp73[0:1], cmarray[0:cm.size()], spike_data, valid_ents, rank, send_recv_count_spike_data_per_rank) thread_limit(1024)
-    for ( unsigned int i = 0; i < valid_ents ; ++i )
+    for ( unsigned int i = 0; i < valid_ents; ++i )
+    //for ( unsigned int i = 0; i < send_recv_count_spike_data_per_rank; ++i )
     {
       spike_data = recv_buffer_a[ rank * send_recv_count_spike_data_per_rank + i ];
       if ( spike_data.get_tid() == tid )
@@ -615,8 +617,8 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
 	//printf("get_lag %u get_offset %f\n", spike_data.get_lag(), spike_data.get_offset());
         const index syn_id = spike_data.get_syn_id();
         const index lcid = spike_data.get_lcid();
-        const index source_gid = kernel().connection_manager.get_source_node_id( tid, syn_id, lcid );
-        //const index source_gid = p->get_source_node_id_device( tid, syn_id, lcid);
+        //const index source_gid = kernel().connection_manager.get_source_node_id( tid, syn_id, lcid );
+        const index source_gid = p->get_source_node_id_device( tid, syn_id, lcid);
         //printf("Target: syn_id %lu lcid %lu source_gid %lu\n", syn_id, lcid, source_gid);
         se.set_sender_node_id( source_gid );
         kernel().connection_manager.send( tid, syn_id, lcid, cm, se );
