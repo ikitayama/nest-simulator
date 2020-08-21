@@ -1,4 +1,6 @@
-# examples/MyModule/cmake/ProcessDependencies.cmake
+# -*- coding: utf-8 -*-
+#
+# __init__.py
 #
 # This file is part of NEST.
 #
@@ -17,11 +19,5 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-function( CHECK_HAVE_SFML_AUDIO )
-  set( HAVE_SFML_AUDIO OFF PARENT_SCOPE )
-  find_package( SFMLAUDIO )
-  if ( SFMLAUDIO_FOUND )
-    set( HAVE_SFML_AUDIO ON PARENT_SCOPE )
-  endif ()
-endfunction()
 
+from .NESTServerClient import *
