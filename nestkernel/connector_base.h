@@ -454,7 +454,6 @@ public:
   index
   send( const thread tid, const index lcid, const std::vector< ConnectorModel* >& cm, Event& e )
   {
-	  std::cout << __func__ << std::endl;
     typename ConnectionT::CommonPropertiesType const& cp =
       static_cast< GenericConnectorModel< ConnectionT >* >( cm[ syn_id_ ] )->get_common_properties();
 
@@ -462,7 +461,7 @@ public:
 
     while ( true )
     {
-      ConnectionT& conn = C_1[ lcid + lcid_offset ];
+      ConnectionT& conn = C_[ lcid + lcid_offset ];
       const bool is_disabled = conn.is_disabled();
       const bool source_has_more_targets = conn.source_has_more_targets();
 
