@@ -579,6 +579,12 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
   std::cout << "cmarray address " << cmarray << std::endl;
   std::cout << "my thread id " << tid << std::endl;
 
+  int xyz[1024*1024];
+#pragma omp target parallel for
+  for (int i=0;i<1024*1024;i++) {
+	xyz[i] = i;
+  }
+
   for ( thread rank = 0; rank < kernel().mpi_manager.get_num_processes(); ++rank )
   {  
     // check last entry for completed marker; needs to be done before
