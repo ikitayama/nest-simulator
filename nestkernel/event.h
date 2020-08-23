@@ -706,6 +706,7 @@ public:
 
   //! Construct with reference to data and time stamps to transmit
   DataLoggingReply( const Container& );
+
   void operator()();
 
   //! Access referenced data
@@ -1145,6 +1146,7 @@ public:
   InstantaneousRateConnectionEvent()
   {
   }
+
   void operator()();
   InstantaneousRateConnectionEvent* clone() const;
 };
@@ -1160,6 +1162,7 @@ public:
   DelayedRateConnectionEvent()
   {
   }
+
   void operator()();
   DelayedRateConnectionEvent* clone() const;
 };
@@ -1180,6 +1183,7 @@ public:
   DiffusionConnectionEvent()
   {
   }
+
   void operator()();
   DiffusionConnectionEvent* clone() const;
 
@@ -1297,6 +1301,7 @@ Event::get_receiver( void ) const
 {
   return *receiver_;
 }
+
 inline Node&
 Event::get_sender( void ) const
 {
