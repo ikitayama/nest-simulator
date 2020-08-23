@@ -69,6 +69,7 @@ EventDeliveryManager::send< SpikeEvent >( Node& source, SpikeEvent& e, const lon
   const thread tid = source.get_thread();
   const index source_node_id = source.get_node_id();
   e.set_sender_node_id( source_node_id );
+  assert(source.has_proxies());
   if ( source.has_proxies() )
   {
     local_spike_counter_[ tid ] += e.get_multiplicity();

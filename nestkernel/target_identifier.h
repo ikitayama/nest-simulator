@@ -33,7 +33,7 @@
 
 namespace nest
 {
-class KernelManager;
+
 /**
  * Class providing classic target identified information with target pointer and
  * rport.

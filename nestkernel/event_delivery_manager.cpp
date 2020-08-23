@@ -528,9 +528,9 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
   const std::vector< ConnectorModel* >& cm = kernel().model_manager.get_synapse_prototypes( tid );
 
   ConnectorModel* cmarray[cm.size()];
-  for (int i=0;i<cm.size();i++) {
-     cmarray[i] = cm[i];
-
+  for ( int i=0; i < cm.size(); i++)
+  {
+    cmarray[i] = cm[i];
   }
 
   bool are_others_completed = true;
@@ -539,45 +539,40 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
   assert( kernel().simulation_manager.get_to_step() == kernel().connection_manager.get_min_delay() );
 
   SpikeEvent se;
-  std::cout << "se pointer " << &se << std::endl;
+  //std::cout << "se pointer " << &se << std::endl;
+
   // prepare Time objects for every possible time stamp within min_delay_
-  Time prepared_timestamps[kernel().connection_manager.get_min_delay()];
+  int min_delay = kernel().connection_manager.get_min_delay();
+  Time prepared_timestamps[min_delay];
   for ( size_t lag = 0; lag < ( size_t ) kernel().connection_manager.get_min_delay(); ++lag )
   {
     prepared_timestamps[ lag ] = kernel().simulation_manager.get_clock() + Time::step( lag + 1 );
   }
-  int min_delay = kernel().connection_manager.get_min_delay();
-  std::cout << "::value_type " << sizeof(typename std::vector<SpikeDataT>::value_type) << std::endl;
-  std::cout << "SpikeData ::value_type " << sizeof(std::vector<SpikeData>::value_type) << std::endl;
-  std::cout << "sizeof(SpikeData) " << sizeof(SpikeData) << std::endl;
+  //std::cout << "::value_type " << sizeof(typename std::vector<SpikeDataT>::value_type) << std::endl;
+  //std::cout << "SpikeData ::value_type " << sizeof(std::vector<SpikeData>::value_type) << std::endl;
+  //std::cout << "sizeof(SpikeData) " << sizeof(SpikeData) << std::endl;
   int recv_buffer_size = recv_buffer.size();
   SpikeDataT recv_buffer_a[recv_buffer_size];
-  for (int i=0;i<recv_buffer_size;i++)
-	recv_buffer_a[i] = recv_buffer[i];
-
-  std::vector<Node*> thread_local_nodes;// = kernel().node_manager.get_nodes_on_thread(tid);
-  int nnodes = thread_local_nodes.size();
-  Node *a1[nnodes];
-  for (int i=0;i<nnodes;i++)
-      a1[i] = thread_local_nodes[i];
-
-  SpikeDataT spike_data;
+  for ( int i=0; i < recv_buffer_size; i++ )
+  {
+    recv_buffer_a[i] = recv_buffer[i];
+  }
 
   WeightRecorderEvent *wr_e= new WeightRecorderEvent(); 
-  std::cout << "wr_e pointer " << wr_e << std::endl; 
+  //std::cout << "wr_e pointer " << wr_e << std::endl; 
   ConnectionManager *p = &kernel().connection_manager;
   auto *myp = static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(p->get_ptrConnectorBase(tid, 72));
   auto *myp73 = static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(p->get_ptrConnectorBase(tid, 73));
   auto *myp2 = static_cast<Connector<STDPPLConnectionHom<TargetIdentifierPtrRport>> *>(p->get_ptrConnectorBase(tid, 42));
-  std::cout << "pointer " << p->get_ptrConnectorBase(tid, 72) << std::endl;
+  //std::cout << "pointer " << p->get_ptrConnectorBase(tid, 72) << std::endl;
   StaticConnection<TargetIdentifierPtrRport>::CommonPropertiesType *tmp1[100];
 
-  std::cout << "recv_buffer_a ptr " << recv_buffer_a << std::endl;
-  std::cout << "SpikeDataT size " << sizeof(SpikeDataT) << std::endl;
-  std::cout << "The size " << sizeof(recv_buffer_a[0]) * recv_buffer_size << std::endl;
-  std::cout << "recv_buffer size " << recv_buffer_size << std::endl;
-  std::cout << "cmarray address " << cmarray << std::endl;
-  std::cout << "my thread id " << tid << std::endl;
+  //std::cout << "recv_buffer_a ptr " << recv_buffer_a << std::endl;
+  //std::cout << "SpikeDataT size " << sizeof(SpikeDataT) << std::endl;
+  //std::cout << "The size " << sizeof(recv_buffer_a[0]) * recv_buffer_size << std::endl;
+  //std::cout << "recv_buffer size " << recv_buffer_size << std::endl;
+  //std::cout << "cmarray address " << cmarray << std::endl;
+  //std::cout << "my thread id " << tid << std::endl;
 
   int xyz[1024*1024];
 #pragma omp target parallel for
@@ -589,13 +584,13 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
   {  
     // check last entry for completed marker; needs to be done before
     // checking invalid marker to assure that this is always read
-    if ( not recv_buffer_a[ ( rank + 1 ) * send_recv_count_spike_data_per_rank - 1 ].is_complete_marker() )
+    if ( not recv_buffer[ ( rank + 1 ) * send_recv_count_spike_data_per_rank - 1 ].is_complete_marker() )
     {
       are_others_completed = false;
     }
     
     // continue with next rank if no spikes were sent by this rank
-    if ( recv_buffer_a[ rank * send_recv_count_spike_data_per_rank ].is_invalid_marker() )
+    if ( recv_buffer[ rank * send_recv_count_spike_data_per_rank ].is_invalid_marker() )
     {
       continue;
     }
@@ -604,17 +599,17 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
     unsigned int valid_ents = 0;
     for (int i=0;i<send_recv_count_spike_data_per_rank;i++) {
 	    if (recv_buffer_a[ rank * send_recv_count_spike_data_per_rank + i ] .is_end_marker()) {
-		    printf("the i %d\n", i);
+		    //printf("the i %d\n", i);
 		    valid_ents = i;
 		    break;
 	    }
     }
 
 //#pragma omp target teams distribute parallel for map(to: recv_buffer_a[0:recv_buffer_size], se, prepared_timestamps[0:min_delay], myp[0:1], myp2[0:1], myp73[0:1], cmarray[0:cm.size()], spike_data, valid_ents, rank, send_recv_count_spike_data_per_rank) thread_limit(1024)
-    for ( unsigned int i = 0; i < valid_ents; ++i )
-    //for ( unsigned int i = 0; i < send_recv_count_spike_data_per_rank; ++i )
+    //for ( unsigned int i = 0; i < valid_ents; ++i )
+    for ( unsigned int i = 0; i < send_recv_count_spike_data_per_rank; ++i )
     {
-      spike_data = recv_buffer_a[ rank * send_recv_count_spike_data_per_rank + i ];
+      const SpikeDataT& spike_data = recv_buffer[ rank * send_recv_count_spike_data_per_rank + i ];
 
       if ( spike_data.get_tid() == tid )
       {
@@ -624,10 +619,10 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
 	//printf("get_lag %u get_offset %f\n", spike_data.get_lag(), spike_data.get_offset());
         const index syn_id = spike_data.get_syn_id();
         const index lcid = spike_data.get_lcid();
-        const index source_gid = kernel().connection_manager.get_source_node_id( tid, syn_id, lcid );
-        //const index source_gid = p->get_source_node_id_device( tid, syn_id, lcid);
+        const index source_node_gid = kernel().connection_manager.get_source_node_id( tid, syn_id, lcid );
+        //const index source_node_gid = p->get_source_node_id_device( tid, syn_id, lcid);
         //printf("Target: syn_id %lu lcid %lu source_gid %lu\n", syn_id, lcid, source_gid);
-        se.set_sender_node_id( source_gid );
+        se.set_sender_node_id( source_node_gid );
 
         kernel().connection_manager.send( tid, syn_id, lcid, cm, se );
 	int *wr_e;
@@ -638,6 +633,10 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
 	} else if (syn_id == 42) {
 		//myp2->f(tid, lcid, cmarray, se, wr_e);
 	}
+      }
+      if ( spike_data.is_end_marker() )
+      {
+	      break;
       }
     }
   }
