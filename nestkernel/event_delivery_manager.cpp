@@ -579,7 +579,7 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
   for (int i=0;i<1024*1024;i++) {
 	xyz[i] = i;
   }
-
+  int counter1 = 0;
   for ( thread rank = 0; rank < kernel().mpi_manager.get_num_processes(); ++rank )
   {  
     // check last entry for completed marker; needs to be done before
@@ -597,12 +597,12 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
 
     // determine the loop count until end marker
     unsigned int valid_ents = 0;
-    for (int i=0;i<send_recv_count_spike_data_per_rank;i++) {
-	    if (recv_buffer_a[ rank * send_recv_count_spike_data_per_rank + i ] .is_end_marker()) {
-		    //printf("the i %d\n", i);
-		    valid_ents = i;
-		    break;
-	    }
+    for ( unsigned int i = 0; i < send_recv_count_spike_data_per_rank; i++)
+    {
+      if (recv_buffer_a[ rank * send_recv_count_spike_data_per_rank + i ].is_end_marker()) {
+                 valid_ents = i;
+                   break;
+      }
     }
 
 //#pragma omp target teams distribute parallel for map(to: recv_buffer_a[0:recv_buffer_size], se, prepared_timestamps[0:min_delay], myp[0:1], myp2[0:1], myp73[0:1], cmarray[0:cm.size()], spike_data, valid_ents, rank, send_recv_count_spike_data_per_rank) thread_limit(1024)
@@ -623,7 +623,7 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
         //const index source_node_gid = p->get_source_node_id_device( tid, syn_id, lcid);
         //printf("Target: syn_id %lu lcid %lu source_gid %lu\n", syn_id, lcid, source_gid);
         se.set_sender_node_id( source_node_gid );
-
+        counter1++;
         kernel().connection_manager.send( tid, syn_id, lcid, cm, se );
 	int *wr_e;
         if (syn_id == 72) {
@@ -640,7 +640,7 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
       }
     }
   }
-
+  std::cout << "Counter " << counter1 << std::endl;
   return are_others_completed;
 
 }
