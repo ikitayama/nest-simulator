@@ -53,7 +53,6 @@
 
 namespace nest
 {
-//class StaticConnection;
 EventDeliveryManager::EventDeliveryManager()
   : off_grid_spiking_( false )
   , moduli_()
@@ -542,8 +541,9 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
   //std::cout << "se pointer " << &se << std::endl;
 
   // prepare Time objects for every possible time stamp within min_delay_
-  int min_delay = kernel().connection_manager.get_min_delay();
-  Time prepared_timestamps[min_delay];
+  std::vector< Time > prepared_timestamps( kernel().connection_manager.get_min_delay() );
+  //int min_delay = kernel().connection_manager.get_min_delay();
+  //Time prepared_timestamps[min_delay];
   for ( size_t lag = 0; lag < ( size_t ) kernel().connection_manager.get_min_delay(); ++lag )
   {
     prepared_timestamps[ lag ] = kernel().simulation_manager.get_clock() + Time::step( lag + 1 );
@@ -558,8 +558,8 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
     recv_buffer_a[i] = recv_buffer[i];
   }
 
-  WeightRecorderEvent *wr_e= new WeightRecorderEvent(); 
-  //std::cout << "wr_e pointer " << wr_e << std::endl; 
+  WeightRecorderEvent *wr_e= new WeightRecorderEvent();
+  //std::cout << "wr_e pointer " << wr_e << std::endl;
   ConnectionManager *p = &kernel().connection_manager;
   auto *myp = static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(p->get_ptrConnectorBase(tid, 72));
   auto *myp73 = static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(p->get_ptrConnectorBase(tid, 73));
@@ -579,16 +579,16 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
   for (int i=0;i<1024*1024;i++) {
 	xyz[i] = i;
   }
-  int counter1 = 0;
+  int counter = 0;
   for ( thread rank = 0; rank < kernel().mpi_manager.get_num_processes(); ++rank )
-  {  
+  {
     // check last entry for completed marker; needs to be done before
     // checking invalid marker to assure that this is always read
     if ( not recv_buffer[ ( rank + 1 ) * send_recv_count_spike_data_per_rank - 1 ].is_complete_marker() )
     {
       are_others_completed = false;
     }
-    
+
     // continue with next rank if no spikes were sent by this rank
     if ( recv_buffer[ rank * send_recv_count_spike_data_per_rank ].is_invalid_marker() )
     {
@@ -613,7 +613,7 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
 
       if ( spike_data.get_tid() == tid )
       {
-	//printf("prepared_timestamps %p\n", prepared_timestamps);      
+	//printf("prepared_timestamps %p\n", prepared_timestamps);
         se.set_stamp( prepared_timestamps[ spike_data.get_lag() ] );
         se.set_offset( spike_data.get_offset() );
 	//printf("get_lag %u get_offset %f\n", spike_data.get_lag(), spike_data.get_offset());
@@ -623,26 +623,27 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
         //const index source_node_gid = p->get_source_node_id_device( tid, syn_id, lcid);
         //printf("Target: syn_id %lu lcid %lu source_gid %lu\n", syn_id, lcid, source_gid);
         se.set_sender_node_id( source_node_gid );
-        counter1++;
+        counter++;
         kernel().connection_manager.send( tid, syn_id, lcid, cm, se );
 	int *wr_e;
         if (syn_id == 72) {
 		//myp->f(tid, lcid, cmarray, se, wr_e);
 	} else if (syn_id == 73) {
-		//myp73->f(tid, lcid, cmarray, se, wr_e);	
+		//myp73->f(tid, lcid, cmarray, se, wr_e);
 	} else if (syn_id == 42) {
 		//myp2->f(tid, lcid, cmarray, se, wr_e);
 	}
       }
+
+      // break if this was the last valid entry from this rank
       if ( spike_data.is_end_marker() )
       {
-	      break;
+        break;
       }
     }
   }
-  std::cout << "Counter " << counter1 << std::endl;
+  std::cout << "Counter " << counter << std::endl;
   return are_others_completed;
-
 }
 
 void
