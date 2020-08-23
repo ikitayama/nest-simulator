@@ -41,9 +41,6 @@ ConnectorModel::ConnectorModel( const std::string name,
   , requires_clopath_archiving_( requires_clopath_archiving )
   , requires_urbanczik_archiving_( requires_urbanczik_archiving )
 {
-	//std::cout << "About to map this whose type is " << typeid(*this).name() << std::endl;
-		
-//#pragma omp target enter data map(to: static_cast<GenericConnectorModel<this[0:1])
 }
 
 ConnectorModel::ConnectorModel( const ConnectorModel& cm, const std::string name )
