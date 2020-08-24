@@ -534,8 +534,6 @@ public:
     const CommonSynapseProperties& cp,
     index *, int*); //WeightRecorderEvent* wr_e);
 
-  void test(WeightRecorderEvent* wr_e) {
-  }
   void
   trigger_update_weight( const long vt_node_id,
     const thread tid,
