@@ -30,7 +30,7 @@
 #include <cmath>
 #define __PURE_CNAME
 #ifdef __NVPTX__
-#define M_E 2.7
+//#define M_E 2.7
 #endif
 #else
 #include <cmath>
@@ -39,7 +39,7 @@
 #else
 #define M_E_OK
 #include <cmath>
-#define M_E 2.7
+//#define M_E 2.7
 #endif
 
 
@@ -52,16 +52,16 @@
 #else
 #define M_PI_OK
 #ifdef __NVPTX__
-#define M_PI 3.14
+//#define M_PI 3.14
 #endif
 #endif
 
 #if defined( HAVE_STD_NAN )
 #include <cmath>
-#define NAN (0.0f/ 0.0f)
+//#define NAN (0.0f/ 0.0f)
 #elif defined( HAVE_NAN )
 #include <math.h>
-#define NAN (0.0f/ 0.0f)
+//#define NAN (0.0f/ 0.0f)
 #endif
 
 //
@@ -76,13 +76,13 @@ const double numerics::pi = M_PI;
 #else
 
 #ifdef M_E_OK
-const double numerics::e = 2.7;
+const double numerics::e = M_E;
 #else
 const double numerics::e = 2.71828182845904523536028747135;
 #endif
 
 #ifdef M_PI_OK
-const double numerics::pi = 3.14;
+const double numerics::pi = M_PI;
 #else
 const double numerics::pi = 3.14159265358979323846264338328;
 #endif
