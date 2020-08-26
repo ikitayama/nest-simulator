@@ -66,6 +66,7 @@ template <>
 inline void
 EventDeliveryManager::send< SpikeEvent >( Node& source, SpikeEvent& e, const long lag )
 {
+  std::cout << __PRETTY_FUNCTION__ << std::endl;
   const thread tid = source.get_thread();
   const index source_node_id = source.get_node_id();
   e.set_sender_node_id( source_node_id );
