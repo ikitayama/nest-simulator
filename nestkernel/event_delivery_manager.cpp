@@ -562,7 +562,8 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
     {
       continue;
     }
-
+    SCOREP_USER_REGION_DEFINE( my_handle )
+    SCOREP_USER_REGION_BEGIN( my_handle, "foo", SCOREP_USER_REGION_TYPE_LOOP)
     for ( unsigned int i = 0; i < send_recv_count_spike_data_per_rank; ++i )
     {
       const SpikeDataT& spike_data = recv_buffer[ rank * send_recv_count_spike_data_per_rank + i ];
@@ -586,6 +587,7 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
         break;
       }
     }
+    SCOREP_USER_REGION_END( my_handle )
   }
   //SCOREP_USER_REGION_END( handle )
   return are_others_completed;
