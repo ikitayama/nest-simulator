@@ -380,6 +380,7 @@ iaf_psc_alpha::update( Time const& origin, const long from, const long to )
 void
 iaf_psc_alpha::handle( SpikeEvent& e )
 {
+
   assert( e.get_delay_steps() > 0 );
 
   const double s = e.get_weight() * e.get_multiplicity();
