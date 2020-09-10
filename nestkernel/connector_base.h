@@ -433,8 +433,8 @@ typename ConnectionT::CommonPropertiesType const& cp =
       e.set_port( lcid + lcid_offset );
       if ( not is_disabled )
       {
-        conn.send( e, tid, cp );
-        //conn.send_non_virtual( e, tid ); // CommonProperties is not used in this function
+        //conn.send( e, tid, cp );
+        conn.send_non_virtual( e, tid ); // CommonProperties is not used in this function
 	//WeightRecorderEvent wr_e;
 	//index *p;
 	//int *wr_e;
