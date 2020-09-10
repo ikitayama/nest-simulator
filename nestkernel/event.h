@@ -366,6 +366,7 @@ public:
 
   void set_multiplicity( int );
   int get_multiplicity() const;
+  void h1();
 
 protected:
   int multiplicity_;
@@ -393,7 +394,6 @@ SpikeEvent::get_multiplicity() const
 {
   return multiplicity_;
 }
-
 
 /**
  * Event for recording the weight of a spike.

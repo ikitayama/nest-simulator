@@ -56,6 +56,11 @@ void SpikeEvent::operator()()
   receiver_->handle( *this );
 }
 
+void SpikeEvent::h1()
+{
+  receiver_->handle( *this);
+}
+
 void WeightRecorderEvent::operator()()
 {
   receiver_->handle( *this );

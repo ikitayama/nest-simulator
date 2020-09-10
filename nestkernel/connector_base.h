@@ -415,9 +415,9 @@ public:
   //inline index f(const thread tid, const index lcid, ConnectorModel **cm, Event& e, typename ConnectionT::CommonPropertiesType const& cp, int *wr_e)//WeightRecorderEvent* wr_e) 
   inline index f(const thread tid, const index lcid, ConnectorModel **cm, Event& e, int *wr_e)//WeightRecorderEvent* wr_e) 
   {
-//typename ConnectionT::CommonPropertiesType const& cp = 
+typename ConnectionT::CommonPropertiesType const& cp = 
      
-      //static_cast< GenericConnectorModel< ConnectionT >* >( cm[syn_id_] )->get_common_properties();
+      static_cast< GenericConnectorModel< ConnectionT >* >( cm[syn_id_] )->get_common_properties();
   	  //printf("%s\n", __PRETTY_FUNCTION__);
 	  //printf("this pointer address in target %p\n", this);
 	  //printf("syn_id_ is %d\n", this->syn_id_);
@@ -433,11 +433,11 @@ public:
       e.set_port( lcid + lcid_offset );
       if ( not is_disabled )
       {
-        //conn.send( e, tid, cp );
-        conn.send_non_virtual( e, tid ); // CommonProperties is not used in this function
+        conn.send( e, tid, cp );
+        //conn.send_non_virtual( e, tid ); // CommonProperties is not used in this function
 	//WeightRecorderEvent wr_e;
-	index *p;
-	int *wr_e;
+	//index *p;
+	//int *wr_e;
         //send_weight_event_non_virtual( tid, lcid + lcid_offset, e, cp, p, wr_e );
       }
       if ( not source_has_more_targets )
