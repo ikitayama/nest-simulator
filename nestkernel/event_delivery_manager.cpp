@@ -610,13 +610,13 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
     // Don't forget the condition be checked with the =< operator,
     // when valid_ents is used.
     // DO NOT REMOVE
-   
-//#pragma omp target teams distribute parallel for map(to: recv_buffer_a[0:recv_buffer_size], se, prepared_timestamps[0:min_delay], myp[0:1], myp2[0:1], myp73[0:1], cmarray[0:cm.size()], spike_data, valid_ents, rank, send_recv_count_spike_data_per_rank) thread_limit(1024)
+
+#pragma omp target teams distribute parallel for map(to: myp[0:1], myp73[0:1], p[0:1], recv_buffer_a[0:recv_buffer_size], se, prepared_timestamps[0:min_delay], cmarray[0:cm.size()], spike_data, valid_ents, send_recv_count_spike_data_per_rank) thread_limit(1024)
     for ( unsigned int i = 0; i <= valid_ents; i++ )
     //for ( unsigned int i = 0; i < send_recv_count_spike_data_per_rank; ++i )
     {
       spike_data = recv_buffer_a[ rank * send_recv_count_spike_data_per_rank + i ];
-
+      //printf("dddddd %p\n", &spike_data);
       if ( spike_data.get_tid() == tid )
       {
 	//printf("prepared_timestamps %p\n", prepared_timestamps);
@@ -630,11 +630,11 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
         //printf("Target: syn_id %lu lcid %lu source_gid %lu\n", syn_id, lcid, source_gid);
         se.set_sender_node_id( source_node_gid );
         //kernel().connection_manager.send( tid, syn_id, lcid, cm, se );
-	int *wr_e;
+	//int *wr_e = nullptr;
         if (syn_id == 72) {
-		myp->f(tid, lcid, cmarray, se, wr_e);
+		myp->f(tid, lcid, cmarray, se);
 	} else if (syn_id == 73) {
-		myp73->f(tid, lcid, cmarray, se, wr_e);
+		myp73->f(tid, lcid, cmarray, se);
 	} else if (syn_id == 42) {
 		//myp2->f(tid, lcid, cmarray, se, wr_e);
 	}
