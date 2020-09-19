@@ -415,9 +415,10 @@ public:
   //inline index f(const thread tid, const index lcid, ConnectorModel **cm, Event& e, typename ConnectionT::CommonPropertiesType const& cp, int *wr_e)//WeightRecorderEvent* wr_e) 
   inline index f(const thread tid, const index lcid, ConnectorModel **cm, Event& e )//WeightRecorderEvent* wr_e) 
   {
-typename ConnectionT::CommonPropertiesType const& cp = 
-     
-      static_cast< GenericConnectorModel< ConnectionT >* >( cm[syn_id_] )->get_common_properties();
+#if defined(__CUDA__) && !defined(__CUDA_ARCH__)
+     typename ConnectionT::CommonPropertiesType const& cp = 
+       static_cast< GenericConnectorModel< ConnectionT >* >( cm[syn_id_] )->get_common_properties();
+#endif
   	  //printf("%s\n", __PRETTY_FUNCTION__);
 	  //printf("this pointer address in target %p\n", this);
 	  //printf("syn_id_ is %d\n", this->syn_id_);
