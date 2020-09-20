@@ -161,7 +161,7 @@ public:
   }
 
   void
-  send_non_virtual( SpikeEvent& e, const thread tid )
+  send_non_virtual( Event& e, const thread tid )
   {
     e.set_weight( weight_ );
     e.set_delay_steps( get_delay_steps() );
