@@ -482,50 +482,6 @@ public:
     return 1 + lcid_offset; // event was delivered to at least one target
   }
   
-  index
-  ff( const thread tid,
-    const index lcid,
-    //ConnectorModel* cmarray[100],
-    typename ConnectionT::CommonPropertiesType const &cp,
-    //StaticConnection<TargetIdentifierPtrRport>::CommonPropertiesType const &cp,
-    Event& e , index* a, WeightRecorderEvent& wr_e)
-    //Event& e , index* a, WeightRecorderEvent& wr_e)
-  {/*
-    //typename ConnectionT::CommonPropertiesType const &cp =
-    //  static_cast<GenericConnectorModel< ConnectionT >* >( cmarray[ syn_id_ ])->GenericConnectorModel< ConnectionT >::get_common_properties();
-    //GenericConnectorModel< ConnectionT > * p = static_cast<GenericConnectorModel< ConnectionT >* >( cmarray[ syn_id_ ]);
-    //typename ConnectionT::CommonPropertiesType const &cp = p->GenericConnectorModel< ConnectionT >::get_common_properties();
-    // check if we can call CommonSynapseProperties::get_vt_gid(), which always returns -1.
-    long tmp1 = cp.get_vt_gid();
-    printf("get_vt_gid() returns %d\n", tmp1); 
-    */
-     
-    index lcid_offset = 0; 
-    while ( true )
-    { 
-      ConnectionT& conn = C_1[ lcid + lcid_offset ]; 
-      const bool is_disabled = false;//conn.is_disabled();
-      const bool source_has_more_targets = false;//conn.source_has_more_targets();
-
-      e.set_port( lcid + lcid_offset );
-      if ( not is_disabled )
-      {
-        //conn.send( e, tid, cp );
-	conn.send_non_virtual( e, tid);
-	unsigned long* p;
-	int *wr_e;
-        send_weight_event_non_virtual( tid, lcid + lcid_offset, e, cp, p, wr_e);
-      }
-      if ( not source_has_more_targets )
-      {
-        break;
-      }
-      ++lcid_offset;
-    }
-
-    return 1 + lcid_offset; // event was delivered to at least one target 
-  }
-  
   // Implemented in connector_base_impl.h
   void send_weight_event( const thread tid, const unsigned int lcid, Event& e, const CommonSynapseProperties& cp );
 

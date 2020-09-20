@@ -53,7 +53,9 @@ Event::Event()
 
 void SpikeEvent::operator()()
 {
-  receiver_->handle( *this );
+  //printf("the ptr %p\n", receiver_);
+  //printf("%d\n", receiver_->get_node_id());
+  //receiver_->handle( *this );
 }
 
 void SpikeEvent::h1()

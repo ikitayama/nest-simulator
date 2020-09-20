@@ -239,6 +239,8 @@ public:
   Node*
   get_target( const thread tid ) const
   {
+	  Node* p = target_.get_target_ptr( tid);
+//#pragma omp target enter data map(to: p[0:1])
     return target_.get_target_ptr( tid );
   }
   rport
