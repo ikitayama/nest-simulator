@@ -47,7 +47,7 @@
 #include "dict.h"
 #include "dictdatum.h"
 
-#include "target_identifier.h"
+//#include "target_identifier.h"
 //#include "static_connection.h"
 namespace nest
 {

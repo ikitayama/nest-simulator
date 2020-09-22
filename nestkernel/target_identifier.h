@@ -28,7 +28,7 @@
  * @file Provide classes to be used as template arguments to Connection<T>.
  */
 
-//#include "kernel_manager.h"
+#include "kernel_manager.h"
 #include "compose.hpp"
 
 namespace nest
@@ -143,7 +143,7 @@ public:
   get_target_ptr( const thread tid ) const
   {
     assert( target_ != invalid_targetindex );
-    //return kernel().node_manager.thread_lid_to_node( tid, target_ );
+    return kernel().node_manager.thread_lid_to_node( tid, target_ );
   }
 
   rport
@@ -173,7 +173,7 @@ private:
 inline void
 TargetIdentifierIndex::set_target( Node* target )
 {
-  //kernel().node_manager.ensure_valid_thread_local_ids();
+  kernel().node_manager.ensure_valid_thread_local_ids();
 
   index target_lid = target->get_thread_lid();
   if ( target_lid > max_targetindex )
