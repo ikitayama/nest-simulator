@@ -128,6 +128,9 @@ public:
     : target_()
     , syn_id_delay_( 1.0 )
   {
+	 // targetidentifierT *p = &target_;
+//#pragma omp target enter data map(to: &target_
+	  //std::cout << __PRETTY_FUNCTION__ << std::endl;
   }
 
   Connection( const Connection< targetidentifierT >& rhs )
