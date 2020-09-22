@@ -136,6 +136,7 @@ public:
 private:
   //! Buffered data
   std::vector< double > buffer_;
+
   /**
    * Obtain buffer index.
    * @param delay delivery delay for event
