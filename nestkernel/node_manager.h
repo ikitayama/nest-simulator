@@ -105,7 +105,7 @@ public:
    * @see Node::init_state()
    */
   void init_state( index );
-
+  void m2();
   /**
    * Return total number of network nodes.
    */
@@ -319,7 +319,15 @@ private:
   //! Store exceptions raised in thread-parallel sections for later handling
   std::vector< std::shared_ptr< WrappedThreadException > > exceptions_raised_;
 };
-
+/*
+void
+NodeManager::m2() 
+{
+int l = local_nodes_.size();
+SparseNodeArray *p = &local_nodes_[0];
+#pragma omp target enter data map(to: p[0:l])
+}
+*/
 inline index
 NodeManager::size() const
 {

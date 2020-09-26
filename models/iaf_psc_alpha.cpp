@@ -318,7 +318,8 @@ iaf_psc_alpha::update( Time const& origin, const long from, const long to )
 {
   assert( to >= 0 && ( delay ) from < kernel().connection_manager.get_min_delay() );
   assert( from < to );
-
+//continue; 
+  printf("XXXXXXXX %lu\n", from);
   for ( long lag = from; lag < to; ++lag )
   {
     if ( S_.r_ == 0 )

@@ -106,6 +106,17 @@ EventDeliveryManager::initialize()
       std::vector< std::vector< OffGridTarget > >( kernel().connection_manager.get_min_delay(),
                                               std::vector< OffGridTarget >() ) );
   } // of omp parallel
+
+#pragma omp target enter data map(to: this[0:1])
+
+}
+
+void
+EventDeliveryManager::map_1()
+{
+	int len = moduli_.size();
+	nest::delay *p = &moduli_[0];	
+#pragma omp target enter data map(to: p[0:len])
 }
 
 void

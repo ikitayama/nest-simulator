@@ -60,6 +60,7 @@ public:
   virtual ~EventDeliveryManager();
 
   virtual void initialize();
+  void map_1();
   virtual void finalize();
 
   virtual void set_status( const DictionaryDatum& );

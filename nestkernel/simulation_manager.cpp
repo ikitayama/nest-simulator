@@ -734,6 +734,8 @@ nest::SimulationManager::update_()
 
     kernel().connection_manager.copy_to(tid);
     kernel().connection_manager.map_connections(tid);
+    kernel().event_delivery_manager.map_1();
+    kernel().node_manager.m2();
     do
     {
       if ( print_time_ )
