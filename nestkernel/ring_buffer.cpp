@@ -25,6 +25,9 @@
 nest::RingBuffer::RingBuffer()
   : buffer_( kernel().connection_manager.get_min_delay() + kernel().connection_manager.get_max_delay(), 0.0 )
 {
+#pragma omp target enter data map(to: this[0:1])
+  double *p = &buffer_[0];
+#pragma omp target enter data map(to: p[0:buffer_.size()])
 }
 
 void
