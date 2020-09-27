@@ -68,7 +68,7 @@ NodeManager::m2()
 {
 	int len = local_nodes_.size();
 	SparseNodeArray *p = &local_nodes_[0];
-#pragma omp target enter data map(to: p[0:len])
+//#pragma omp target enter data map(to: p[0:len])
 }
 
 void
@@ -80,6 +80,7 @@ NodeManager::initialize()
   num_thread_local_devices_.resize( kernel().vp_manager.get_num_threads(), 0 );
   ensure_valid_thread_local_ids();
 
+  std::cout << __PRETTY_FUNCTION__ << " Map this pointer " << this << std::endl;
 #pragma omp target enter data map(to: this[0:1])
 }
 

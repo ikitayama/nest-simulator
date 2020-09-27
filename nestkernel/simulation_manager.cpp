@@ -72,7 +72,7 @@ nest::SimulationManager::initialize()
   simulated_ = false;
   inconsistent_state_ = false;
 
-std::cout << __PRETTY_FUNCTION__ << " Map this ptr " << this << std::endl;
+  std::cout << __PRETTY_FUNCTION__ << " Map this pointer " << this << std::endl;
 #pragma omp target enter data map(to: this[0:1])
 
 }
