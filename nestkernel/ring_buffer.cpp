@@ -25,9 +25,18 @@
 nest::RingBuffer::RingBuffer()
   : buffer_( kernel().connection_manager.get_min_delay() + kernel().connection_manager.get_max_delay(), 0.0 )
 {
-#pragma omp target enter data map(to: this[0:1])
-  double *p = &buffer_[0];
-#pragma omp target enter data map(to: p[0:buffer_.size()])
+  //buffer_1 = new double[buffer_.size()];
+  //for (int i=0;i<buffer_.size();i++) {
+//	  buffer_1[i] = 0;
+  //}
+//#pragma omp target enter data map(to: this[0:1])
+//  std::cout << "pointer " << buffer_1 << std::endl;
+//#pragma omp target enter data map(to: buffer_1[0:100])
+}
+
+nest::RingBuffer::~RingBuffer()
+{
+	//delete[] buffer_1;
 }
 
 void

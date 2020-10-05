@@ -82,13 +82,14 @@ class RingBuffer
 {
 public:
   RingBuffer();
-
+  ~RingBuffer();
   /**
    * Add a value to the ring buffer.
    * @param  offs     Arrival time relative to beginning of slice.
    * @param  double Value to add.
    */
   void add_value( const long offs, const double );
+  void add_value_special( const long offs, const double );
 
   /**
    * Set a ring buffer entry to a given value.
@@ -136,7 +137,7 @@ public:
 private:
   //! Buffered data
   std::vector< double > buffer_;
-
+  //double *buffer_1;
   /**
    * Obtain buffer index.
    * @param delay delivery delay for event
@@ -148,6 +149,12 @@ private:
 
 inline void
 RingBuffer::add_value( const long offs, const double v )
+{
+  buffer_[ get_index_( offs ) ] += v;
+}
+
+inline void
+RingBuffer::add_value_special( const long offs, const double v )
 {
   buffer_[ get_index_( offs ) ] += v;
 }
@@ -199,7 +206,7 @@ class MultRBuffer
 {
 public:
   MultRBuffer();
-
+  
   /**
    * Add a value to the ring buffer.
    * @param  offs     Arrival time relative to beginning of slice.
