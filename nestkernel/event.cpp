@@ -31,7 +31,7 @@
 
 // Includes from nestkernel:
 #include "node.h"
-
+#include "iaf_psc_alpha.h"
 namespace nest
 {
 Event::Event()
@@ -53,7 +53,14 @@ Event::Event()
 
 void SpikeEvent::operator()()
 {
-  receiver_->handle( *this );
+  //receiver_->handle( *this );
+  iaf_psc_alpha tmp;
+	std::cout << typeid(*receiver_).name() << std::endl;
+	//if (typeid(*receiver_) != typeid(tmp)) {
+
+//		dynamic_cast<iaf_psc_alpha*>(receiver_)->handle_non_virtual( *this );
+	//}
+  //receiver_->handle_non_virtual( *this );
 }
 
 void WeightRecorderEvent::operator()()

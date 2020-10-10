@@ -258,7 +258,7 @@ public:
   ~Connector()
   {
     C_.clear();
-    //delete C_1;
+    delete C_1;
   }
 
   synindex

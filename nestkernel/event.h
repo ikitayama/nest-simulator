@@ -38,6 +38,7 @@
 // Includes from sli:
 #include "name.h"
 
+//#include "iaf_psc_alpha.h"
 namespace nest
 {
 
@@ -278,7 +279,7 @@ public:
    * was created.
    */
   void set_stamp( Time const& );
-
+  
 protected:
   index sender_node_id_; //!< node ID of sender or -1.
                          /*
@@ -366,7 +367,8 @@ public:
 
   void set_multiplicity( int );
   int get_multiplicity() const;
-
+  Node* node() { return receiver_; }
+  friend class Event;
 protected:
   int multiplicity_;
 };

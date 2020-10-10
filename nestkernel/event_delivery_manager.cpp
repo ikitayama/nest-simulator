@@ -617,7 +617,9 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
     // when valid_ents is used.
     // DO NOT REMOVE
 
-#pragma omp target teams distribute parallel for map(to: myp[0:1], myp73[0:1], p[0:1], recv_buffer_a[0:recv_buffer_size], se, prepared_timestamps[0:min_delay], cmarray[0:cm.size()], spike_data, valid_ents, send_recv_count_spike_data_per_rank) thread_limit(1024)
+    SpikeEvent *pse = &se;
+    Node* ppp = pse->node();
+#pragma omp target teams distribute parallel for map(to: myp[0:1], myp73[0:1], p[0:1], recv_buffer_a[0:recv_buffer_size], se, prepared_timestamps[0:min_delay], cmarray[0:cm.size()], spike_data, valid_ents, send_recv_count_spike_data_per_rank) map(to: ppp[0:1]) thread_limit(1024)
     for ( unsigned int i = 0; i <= valid_ents; i++ )
     //for ( unsigned int i = 0; i < send_recv_count_spike_data_per_rank; ++i )
     {

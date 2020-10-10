@@ -325,7 +325,7 @@ iaf_psc_alpha::update( Time const& origin, const long from, const long to )
 {
   assert( to >= 0 && ( delay ) from < kernel().connection_manager.get_min_delay() );
   assert( from < to );
-  
+
   for ( long lag = from; lag < to; ++lag )
   {
     if ( S_.r_ == 0 )
@@ -393,12 +393,33 @@ iaf_psc_alpha::handle( SpikeEvent& e )
 
   if ( e.get_weight() > 0.0 )
   {
-    B_.ex_spikes_.add_value_special( e.get_rel_delivery_steps( kernel().simulation_manager.get_slice_origin() ), s );
+    B_.ex_spikes_.add_value( e.get_rel_delivery_steps( kernel().simulation_manager.get_slice_origin() ), s );
   }
   else
   {
-    B_.in_spikes_.add_value_special( e.get_rel_delivery_steps( kernel().simulation_manager.get_slice_origin() ), s );
+    B_.in_spikes_.add_value( e.get_rel_delivery_steps( kernel().simulation_manager.get_slice_origin() ), s );
   }
+}
+
+void
+iaf_psc_alpha::handle_non_virtual( SpikeEvent& e )
+{
+	  assert( e.get_delay_steps() > 0 );
+
+	    const double s = e.get_weight() * e.get_multiplicity();
+/*
+	      if ( e.get_weight() > 0.0 )
+		        {
+				          printf("%s %f\n", __PRETTY_FUNCTION__, kernel().simulation_manager.get_slice_origin());
+					      B_.ex_spikes_.add_value_special( e.get_rel_delivery_steps( kernel().simulation_manager.get_slice_origin() ), s );
+					        }
+	        else
+			  {
+				      B_.in_spikes_.add_value_special( e.get_rel_delivery_steps( kernel().simulation_manager.get_slice_origin() ), s );
+				        }
+
+					
+					*/
 }
 
 void
