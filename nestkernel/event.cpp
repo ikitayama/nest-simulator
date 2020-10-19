@@ -54,13 +54,14 @@ Event::Event()
 void SpikeEvent::operator()()
 {
   //receiver_->handle( *this );
-  iaf_psc_alpha tmp;
+  //iaf_psc_alpha tmp;
 	std::cout << typeid(*receiver_).name() << std::endl;
 	//if (typeid(*receiver_) != typeid(tmp)) {
 
 //		dynamic_cast<iaf_psc_alpha*>(receiver_)->handle_non_virtual( *this );
 	//}
   //receiver_->handle_non_virtual( *this );
+  p3->iaf_psc_alpha::handle(*this);
 }
 
 void WeightRecorderEvent::operator()()

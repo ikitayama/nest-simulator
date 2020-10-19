@@ -43,7 +43,7 @@ namespace nest
 {
 
 class Node;
-
+class iaf_psc_alpha;
 /**
  * Encapsulates information which is sent between Nodes.
  *
@@ -368,7 +368,7 @@ public:
   void set_multiplicity( int );
   int get_multiplicity() const;
   Node* node() { return receiver_; }
-  friend class Event;
+  iaf_psc_alpha *p3;  
 protected:
   int multiplicity_;
 };
