@@ -59,7 +59,7 @@ simulation kernel is written in C++ to obtain the highest possible performance
 for the simulation.
 
 You can use PyNEST interactively from the Python prompt or from within
-ipython. This is very helpful when you are exploring PyNEST, trying to
+IPython/Jupyter. This is very helpful when you are exploring PyNEST, trying to
 learn a new functionality or debugging a routine. Once out of the
 exploratory mode, you will find it saves a lot of time to write your
 simulations in text files. These can in turn be run from the command
@@ -91,7 +91,7 @@ prompted for.
 
     dir(nest)
 
-One such command is ``nest.Models()`` or in ipython ``nest.Models?``, which will return a list of all
+One such command is ``nest.Models()``, which will return a list of all
 the available models you can use. If you want to obtain more information
 about a particular command, you may use Python’s standard help system.
 
@@ -115,7 +115,7 @@ desired node type, and optionally the number of nodes to be created and
 the initialising parameters. The function returns a ``NodeCollection`` of handles to
 the new nodes, which you can assign to a variable for later use. A ``NodeCollection`` is a compact
 representation of the node handles, which are integer numbers, called *ids*. Many PyNEST functions expect
-or return a ``NodeCollectoin`` (see `command overview`_). Thus, it is
+or return a ``NodeCollection`` (see `command overview`_). Thus, it is
 easy to apply functions to large sets of nodes with a single function
 call.
 
