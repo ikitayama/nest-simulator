@@ -255,9 +255,9 @@ iaf_psc_alpha::init_buffers_()
  
 #pragma omp target enter data map(to: this[0:1]) 
 #pragma omp target enter data map(to: B_.ex_spikes_)
-  std::cout << __PRETTY_FUNCTION__ << "mapping an excitatory spikes RingBuffer object pointed by ptr " << &B_.ex_spikes_ << std::endl;
-  std::cout << __PRETTY_FUNCTION__ << "mapping an inhibitory spikes RingBuffer object pointed by ptr " << &B_.in_spikes_ << std::endl;
+  std::cout << __PRETTY_FUNCTION__ << " mapping an excitatory spikes RingBuffer object pointed by ptr " << &B_.ex_spikes_ << std::endl;
 #pragma omp target enter data map(to: B_.in_spikes_)
+  std::cout << __PRETTY_FUNCTION__ << " mapping an inhibitory spikes RingBuffer object pointed by ptr " << &B_.in_spikes_ << std::endl;
 //#pragma omp target enter data map(to: B_.currents_)
 }
 
@@ -407,7 +407,7 @@ iaf_psc_alpha::handle_non_virtual( SpikeEvent& e )
 	  assert( e.get_delay_steps() > 0 );
 
 	    const double s = e.get_weight() * e.get_multiplicity();
-/*
+
 	      if ( e.get_weight() > 0.0 )
 		        {
 				          printf("%s %f\n", __PRETTY_FUNCTION__, kernel().simulation_manager.get_slice_origin());
@@ -419,7 +419,7 @@ iaf_psc_alpha::handle_non_virtual( SpikeEvent& e )
 				        }
 
 					
-					*/
+
 }
 
 void
