@@ -174,7 +174,7 @@ nest::ConnectionManager::map_connections(thread tid) {
 			if (connections_[tid][i] != nullptr) {
 				//std::cout << __PRETTY_FUNCTION__ << " connections_ " << connections_[i][j] << std::endl;
 				//std::cout << __PRETTY_FUNCTION__ << " connections_array_ " << connections_array_[i][j] << std::endl;
-				connections_array_[tid][i]->map_in();
+				if (i==72 or i==73) connections_array_[tid][i]->map_in();
 			}
 	}
 }

@@ -72,7 +72,7 @@ nest::SimulationManager::initialize()
   simulated_ = false;
   inconsistent_state_ = false;
 
-  std::cout << __PRETTY_FUNCTION__ << " Map this pointer " << this << std::endl;
+  std::cout << __PRETTY_FUNCTION__ << " Map this pointer at " << this << std::endl;
 #pragma omp target enter data map(to: this[0:1])
 
 }
@@ -734,8 +734,8 @@ nest::SimulationManager::update_()
 
     kernel().connection_manager.copy_to(tid);
     kernel().connection_manager.map_connections(tid);
-    //kernel().event_delivery_manager.map_1();
-    //kernel().node_manager.m2();
+    kernel().event_delivery_manager.map_1();
+    kernel().node_manager.m2();
     do
     {
       if ( print_time_ )
