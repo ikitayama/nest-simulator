@@ -255,9 +255,9 @@ iaf_psc_alpha::init_buffers_()
  
 #pragma omp target enter data map(to: this[0:1]) 
 #pragma omp target enter data map(to: B_.ex_spikes_)
-  std::cout << __PRETTY_FUNCTION__ << " mapping an excitatory spikes RingBuffer object pointed by ptr " << &B_.ex_spikes_ << std::endl;
+  //std::cout << __PRETTY_FUNCTION__ << " mapping an excitatory spikes RingBuffer object pointed by ptr " << &B_.ex_spikes_ << std::endl;
 #pragma omp target enter data map(to: B_.in_spikes_)
-  std::cout << __PRETTY_FUNCTION__ << " mapping an inhibitory spikes RingBuffer object pointed by ptr " << &B_.in_spikes_ << std::endl;
+  //std::cout << __PRETTY_FUNCTION__ << " mapping an inhibitory spikes RingBuffer object pointed by ptr " << &B_.in_spikes_ << std::endl;
 //#pragma omp target enter data map(to: B_.currents_)
 }
 
@@ -373,7 +373,7 @@ iaf_psc_alpha::update( Time const& origin, const long from, const long to )
 
       set_spiketime( Time::step( origin.get_steps() + lag + 1 ) );
       SpikeEvent se;
-      kernel().event_delivery_manager.send( *this, se, lag );
+      //kernel().event_delivery_manager.send( *this, se, lag );
     }
 
     // set new input current
