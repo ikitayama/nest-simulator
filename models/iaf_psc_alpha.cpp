@@ -317,6 +317,7 @@ iaf_psc_alpha::calibrate()
 void
 iaf_psc_alpha::update( Time const& origin, const long from, const long to )
 {
+  SCOREP_USER_FUNC_BEGIN();
   assert( to >= 0 && ( delay ) from < kernel().connection_manager.get_min_delay() );
   assert( from < to );
 
@@ -376,6 +377,7 @@ iaf_psc_alpha::update( Time const& origin, const long from, const long to )
     // log state data
     B_.logger_.record_data( origin.get_steps() + lag );
   }
+  SCOREP_USER_FUNC_END();
 }
 
 void
