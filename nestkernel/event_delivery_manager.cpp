@@ -621,7 +621,7 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
     auto *p22 = dynamic_cast<iaf_psc_alpha*>(pse->node());
     //assert(p22);
     //Node* ppp = pse->node();
-    //se.p3 = p22;
+    se.p3 = p22;
 
 #pragma omp target teams distribute parallel for map(to: recv_buffer_a[0:recv_buffer_size]) map(to: myp72[0:1], myp73[0:1], p[0:1], se, prepared_timestamps[0:min_delay], valid_ents, send_recv_count_spike_data_per_rank) thread_limit(1024)  //map(to: cmarray[0:cm.size()]) // se.p3[0:1]
     for ( unsigned int i = 0; i <= valid_ents; i++ )
@@ -646,6 +646,7 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
         //kernel().connection_manager.send( tid, syn_id, lcid, cm, se );
 	//int *wr_e = nullptr;
         if (syn_id == 72) {
+                printf("ddd");
 		myp72->f(tid, lcid, cmarray, se);
 	} else if (syn_id == 73) {
 		myp73->f(tid, lcid, cmarray, se);

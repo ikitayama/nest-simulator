@@ -251,7 +251,7 @@ iaf_psc_alpha::init_buffers_()
 
   B_.logger_.reset();
 
-  Archiving_Node::clear_history();
+  ArchivingNode::clear_history();
  
 #pragma omp target enter data map(to: this[0:1]) 
 #pragma omp target enter data map(to: B_.ex_spikes_)
@@ -325,7 +325,8 @@ iaf_psc_alpha::update( Time const& origin, const long from, const long to )
 {
   assert( to >= 0 && ( delay ) from < kernel().connection_manager.get_min_delay() );
   assert( from < to );
-
+  // This print statement slows down a lot
+  //std::cout << __PRETTY_FUNCTION__ << std::endl;
   for ( long lag = from; lag < to; ++lag )
   {
     if ( S_.r_ == 0 )
