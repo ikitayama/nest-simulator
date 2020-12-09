@@ -76,10 +76,28 @@ Printing
 .. _indexing:
 
 Indexing
-    Indexing returns a new NodeCollection with a single node
+   Indexing returns a new NodeCollection with a single node
 
    >>>  print(nrns[3])
         NodeCollection(metadata=None, model=iaf_psc_alpha, size=1, first=3)
+
+   NodeCollections support array indexing. Array indexing is done by passing a list or tuple of
+   indices when indexing. A NodeCollection with the node IDs at the chosen indices is then returned.
+   Note that all indices must be strictly ascending and unique because all node IDs in a NodeCollection must be unique.
+
+   >>>  print(nrns[[1, 2, 5, 6]])
+        NodeCollection(metadata=None,
+                       model=iaf_psc_alpha, size=2, first=2, last=3;
+                       model=iaf_psc_alpha, size=2, first=6, last=7)
+
+
+   One may also pass a list or tuple of Booleans, where the returned NodeCollection contains the `True` elements
+   of the list or tuple. The length of the list of tuple of Booleans must be equal to the length of the NodeCollection.
+
+   >>>  print(nrns[[True, True, True, True, False, False, True, True, True, True]])
+        NodeCollection(metadata=None,
+                       model=iaf_psc_alpha, size=4, first=1, last=4;
+                       model=iaf_psc_alpha, size=4, first=7, last=10)
 
 .. _iterating:
 
@@ -343,7 +361,7 @@ New functionality for connecting arrays of node IDs
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 While you should aim to use NodeCollections to create connections whenever possible,
-there may be cases where you have a predefined set of pairs of pre- and post-synaptic nodes.
+there may be cases where you have a predefined set of pairs of pre- and postsynaptic nodes.
 In those cases, it may be inefficient to convert the individual IDs in the pair to NodeCollections
 to be passed to the ``Connect()`` function, especially if there are thousands or millions of
 pairs to connect.
@@ -394,19 +412,24 @@ as NodeCollections.
 
 .. seealso::
 
-    You can find a :doc:`full example <../examples/SynapseCollection>` in our example network page
+    You can find a :doc:`full example <../../auto_examples/synapsecollection>` in our example network page.
 
 Printing
-    Printing a SynapseCollection produces a table of source and target node IDs
+    Printing a SynapseCollection produces a table source and target node IDs, synapse model, weight and delay.
+    If your SynapseCollection has more than 36 elements, only the first and last 15 connections are displayed.
+    To print all, first set ``print_all = True`` on your SynapseCollection.
 
     >>>  nest.Connect(nodes[:2], nodes[:2])
     >>>  synColl = nest.GetConnections()
     >>>  print(synColl)
-         *--------*-------------*
-         | source | 1, 1, 2, 2, |
-         *--------*-------------*
-         | target | 1, 2, 1, 2, |
-         *--------*-------------*
+          source   target   synapse model   weight   delay
+         -------- -------- --------------- -------- -------
+               1        1  static_synapse    1.000   1.000
+               1        2  static_synapse    1.000   1.000
+               2        1  static_synapse    1.000   1.000
+               2        2  static_synapse    1.000   1.000
+
+    >>> synColl.print_all = True
 
 .. _conn_indexing:
 
@@ -415,11 +438,9 @@ Indexing
     Indexing returns a single connection SynapseCollection.
 
     >>>  print(synColl[1])
-         *--------*----*
-         | source | 1, |
-         *--------*----*
-         | target | 9, |
-         *--------*----*
+          source   target   synapse model   weight   delay
+         -------- -------- --------------- -------- -------
+               1        2  static_synapse    1.000   1.000
 
 .. _conn_iterating:
 
@@ -440,11 +461,10 @@ Slicing
     A SynapseCollection can be sliced with ``start:stop:step`` inside brackets
 
     >>>  print(synColl[0:3:2])
-         *--------*-------*
-         | source | 1, 2, |
-         *--------*-------*
-         | target | 1, 1, |
-         *--------*-------*
+         source   target   synapse model   weight   delay
+        -------- -------- --------------- -------- -------
+              1        1  static_synapse    1.000   1.000
+              2        1  static_synapse    1.000   1.000
 
 .. _conn_size:
 
@@ -1468,8 +1488,6 @@ All details about the new infrastructure can be found in the guide on
 What's removed?
 ---------------
 
-.. subnet_rm::
-
 Subnets
 ~~~~~~~
 
@@ -1502,8 +1520,6 @@ prints ID ranges and model names of the nodes in the network.
   |                                              |                                       |
   +----------------------------------------------+---------------------------------------+
 
-.. model_rm::
-
 Models
 ~~~~~~
 
@@ -1526,8 +1542,6 @@ be used instead.
 
 Furthermore, the model `iaf_tum_2000` has been renamed to `iaf_psc_exp_htum`. iaf_psc_exp_htum is
 the exact same model as iaf_tum_2000, it has just been renamed to match NEST's naming conventions.
-
-.. function_rm::
 
 Functions
 ~~~~~~~~~
