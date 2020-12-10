@@ -552,9 +552,9 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
   //std::cout << "se pointer " << &se << std::endl;
 
   // prepare Time objects for every possible time stamp within min_delay_
-  std::vector< Time > prepared_timestamps( kernel().connection_manager.get_min_delay() );
+  //std::vector< Time > prepared_timestamps( kernel().connection_manager.get_min_delay() );
   int min_delay = kernel().connection_manager.get_min_delay();
-  //Time prepared_timestamps[min_delay];
+  Time prepared_timestamps[min_delay];
   for ( size_t lag = 0; lag < ( size_t ) kernel().connection_manager.get_min_delay(); ++lag )
   {
     prepared_timestamps[ lag ] = kernel().simulation_manager.get_clock() + Time::step( lag + 1 );
@@ -600,14 +600,6 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
       continue;
     }
 
-    // debug
-    for ( unsigned int i = 0; i < send_recv_count_spike_data_per_rank; ++i )
-    {
-      if (recv_buffer[ rank * send_recv_count_spike_data_per_rank + i ].is_invalid_marker()) {
-                 std::cout << "no " << i << std::endl;   
-      }
-    }
-
     // determine the loop count until end marker
     unsigned int valid_ents = 0;
     for ( unsigned int i = 0; i < send_recv_count_spike_data_per_rank; i++)
@@ -631,12 +623,11 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
     //Node* ppp = pse->node();
     se.p3 = p22;
 
-//#pragma omp target teams distribute parallel for map(to: recv_buffer_a[0:recv_buffer_size]) map(to: myp72[0:1], myp73[0:1], p[0:1], se, prepared_timestamps[0:min_delay], valid_ents, send_recv_count_spike_data_per_rank) thread_limit(1024)  //map(to: cmarray[0:cm.size()]) // se.p3[0:1]
-    //for ( unsigned int i = 0; i <= valid_ents; i++ )
-    for ( unsigned int i = 0; i < send_recv_count_spike_data_per_rank; ++i )
+#pragma omp target teams distribute parallel for map(to: recv_buffer_a[0:recv_buffer_size]) map(to: myp72[0:1], myp73[0:1], p[0:1], se, prepared_timestamps[0:min_delay], valid_ents, send_recv_count_spike_data_per_rank) thread_limit(1024)  //map(to: cmarray[0:cm.size()]) // se.p3[0:1]
+    for ( unsigned int i = 0; i <= valid_ents; i++ )
+    //for ( unsigned int i = 0; i < send_recv_count_spike_data_per_rank; ++i )
     {
       spike_data = recv_buffer_a[ rank * send_recv_count_spike_data_per_rank + i ];
-      //printf("dddddd %p\n", &spike_data);
       if ( spike_data.get_tid() == tid )
       {
 	//printf("prepared_timestamps %p\n", prepared_timestamps);
@@ -645,18 +636,18 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
 	//printf("get_lag %u get_offset %f\n", spike_data.get_lag(), spike_data.get_offset());
         const index syn_id = spike_data.get_syn_id();
         const index lcid = spike_data.get_lcid();
-        const index source_node_gid = kernel().connection_manager.get_source_node_id( tid, syn_id, lcid );
-        //const index source_node_gid = p->get_source_node_id_device( tid, syn_id, lcid);
+        //const index source_node_gid = kernel().connection_manager.get_source_node_id( tid, syn_id, lcid );
+        const index source_node_gid = p->get_source_node_id_device( tid, syn_id, lcid);
         //const index source_node_gid = 1;
 
         //printf("Target: syn_id %lu lcid %lu source_gid %lu\n", syn_id, lcid, source_gid);
         se.set_sender_node_id( source_node_gid );
-        kernel().connection_manager.send( tid, syn_id, lcid, cm, se );
+        //kernel().connection_manager.send( tid, syn_id, lcid, cm, se );
 	//int *wr_e = nullptr;
         if (syn_id == 72) {
-		//myp72->f(tid, lcid, cmarray, se);
+		myp72->f(tid, lcid, cmarray, se);
 	} else if (syn_id == 73) {
-		//myp73->f(tid, lcid, cmarray, se);
+		myp73->f(tid, lcid, cmarray, se);
 	} else if (syn_id == 42) {
 		//myp2->f(tid, lcid, cmarray, se, wr_e);
 	}
