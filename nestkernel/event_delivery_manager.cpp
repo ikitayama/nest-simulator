@@ -597,7 +597,15 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
     // continue with next rank if no spikes were sent by this rank
     if ( recv_buffer[ rank * send_recv_count_spike_data_per_rank ].is_invalid_marker() )
     {
-      continue;
+      //continue;
+    }
+
+    // debug
+    for ( unsigned int i = 0; i < send_recv_count_spike_data_per_rank; i++)
+    {
+      if (recv_buffer[ rank * send_recv_count_spike_data_per_rank + i ].is_invalid_marker()) {
+                 std::cout << "no " << i << std::endl;   
+      }
     }
 
     // determine the loop count until end marker
