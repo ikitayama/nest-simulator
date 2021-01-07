@@ -430,12 +430,12 @@ public:
       ConnectionT& conn = C_1[ lcid + lcid_offset ];
       const bool is_disabled = conn.is_disabled();
       const bool source_has_more_targets = conn.source_has_more_targets();
-
+      printf(" is %d\n", is_disabled);
       e.set_port( lcid + lcid_offset );
       if ( not is_disabled )
       {
         //conn.send( e, tid, cp );
-        // conn.send_non_virtual( e, tid ); // CommonProperties is not used in this function
+        conn.send_non_virtual( e, tid ); // CommonProperties is not used in this function
 	//WeightRecorderEvent wr_e;
 	//index *p;
 	//int *wr_e;

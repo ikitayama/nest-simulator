@@ -610,7 +610,7 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
       }
     }
     SpikeDataT spike_data;
-    std::cout << "valid_ents " << valid_ents << std::endl;
+    //std::cout << "valid_ents " << valid_ents << std::endl;
 
     // DO NOT REMOVE
     // Don't forget the condition be checked with the =< operator,
