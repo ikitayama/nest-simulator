@@ -573,7 +573,9 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
   //std::cout << "wr_e pointer " << wr_e << std::endl;
   ConnectionManager *p = &kernel().connection_manager;
   auto *myp72 = static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(p->get_ptrConnectorBase(tid, 72));
+  assert(myp72);
   auto *myp73 = static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(p->get_ptrConnectorBase(tid, 73));
+  assert(myp73);
   auto *myp2 = static_cast<Connector<STDPPLConnectionHom<TargetIdentifierPtrRport>> *>(p->get_ptrConnectorBase(tid, 42));
   //std::cout << "pointer " << p->get_ptrConnectorBase(tid, 72) << std::endl;
   StaticConnection<TargetIdentifierPtrRport>::CommonPropertiesType *tmp1[100];
@@ -622,14 +624,9 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
     //assert(p22);
     //Node* ppp = pse->node();
     //se.p3 = p22;
-    int a[1024];
-//#pragma omp target parallel for
-    for (int i=0;i<1024;i++) {
-	a[i] =1;
 
-    }
-
-#pragma omp target teams distribute parallel for map(to: recv_buffer_a[0:recv_buffer_size]) map(to: myp72[0:1], myp73[0:1], p[0:1], se, prepared_timestamps[0:min_delay], valid_ents, send_recv_count_spike_data_per_rank) thread_limit(1024)  //map(to: cmarray[0:cm.size()]) // se.p3[0:1]
+//#pragma omp target teams distribute parallel for map(to: recv_buffer_a[0:recv_buffer_size]) map(to: p[0:1]) map(to: myp72[0:1], myp73[0:1], se, prepared_timestamps[0:min_delay], valid_ents, send_recv_count_spike_data_per_rank) thread_limit(1024)
+#pragma omp target teams distribute parallel for map(to: recv_buffer_a[0:recv_buffer_size]) map(to: p[0:1]) map(to: myp72[0:1], myp73[0:1], se, prepared_timestamps[0:min_delay], valid_ents, send_recv_count_spike_data_per_rank) thread_limit(1024)
     for ( unsigned int i = 0; i <= valid_ents; i++ )
     //for ( unsigned int i = 0; i < send_recv_count_spike_data_per_rank; ++i )
     {
