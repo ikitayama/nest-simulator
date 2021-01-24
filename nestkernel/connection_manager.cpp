@@ -178,7 +178,7 @@ nest::ConnectionManager::map_connections(thread tid) {
 			if (connections_[tid][i] != nullptr) {
 				//std::cout << __PRETTY_FUNCTION__ << " connections_ " << connections_[i][j] << std::endl;
 				//std::cout << __PRETTY_FUNCTION__ << " connections_array_ " << connections_array_[i][j] << std::endl;
-				if (i==72 or i==73) connections_array_[tid][i]->map_in();
+				connections_array_[tid][i]->map_in();
 			}
 	}
 }
@@ -1233,33 +1233,35 @@ nest::ConnectionManager::compute_target_data_buffer_size()
 
 void
 nest::ConnectionManager::copy_to(const thread tid) {
-       std::vector< BlockVector< Source > > v = source_table_.get_thread_local_sources(tid);
-	int n_threads = kernel().vp_manager.get_num_threads();
-       source_array_ = new Source**[n_threads];
-       for (int i=0;i< n_threads; i++) {
-	source_array_[i] = new Source*[v.size()];	
-	for (int j=0;j<v.size();j++) {
-	BlockVector< Source >::iterator iter = v[j].begin();
-	int k=0;
-	//std::cout << "i " << i << " total sources " << v[i].size() << std::endl; 
-	//if (v[i].size() == 0) continue;
-		source_array_[i][j] = new Source[v[j].size()];
-	//std::cout << "Synapsetype " << i << " elements " << v[i].size() << std::endl;
-		for (; iter != v[j].end();iter++) {
-		source_array_[i][j][k] = *iter;
-		//std::cout << "i " << i << " gid " << v[i][k].get_gid() << std::endl;
-		k++;
-		}
-	}
-       }
-#pragma omp target enter data map(to: this->source_array_[0:100])
 
-for (int i=0;i<n_threads;i++) {
-#pragma omp target enter data map(to: this->source_array_[i][0:v.size()])
-	for (int j=0;j<v.size();j++) {
-#pragma omp target enter data map(to: this->source_array_[i][j][0:v[j].size()])
-	}
-}
+  int n_threads = kernel().vp_manager.get_num_threads();
+  sources_array_ = new Source**[n_threads];
+       
+  for ( thread tid = 0; tid < n_threads; tid++) {
+    std::vector< BlockVector< Source > > v = source_table_.get_thread_local_sources(tid);
+    sources_array_[tid] = new Source*[v.size()];	
+	
+    for ( int j = 0; j < v.size(); ++j) {
+      if (v[j].size() == 0) continue;
+      BlockVector< Source > blv = v[j];
+      //std::cout << "i " << i << " total sources " << v[i].size() << std::endl; 
+      sources_array_[tid][j] = new Source[v[j].size()];
+      //std::cout << "Synapsetype " << i << " elements " << v[i].size() << std::endl;
+      for ( int k = 0; k < v[j].size(); ++k ) {
+	sources_array_[tid][j][k] = blv[k];
+	//std::cout << "i " << i << " gid " << v[i][k].get_gid() << std::endl;
+      }
+    }
+  }
+
+  for ( thread tid = 0; tid < n_threads; tid++ ) {
+    std::vector< BlockVector< Source > > v = source_table_.get_thread_local_sources(tid);
+    for ( int j = 0; j < v.size(); ++j ) { // loop through synapse types
+      if (v[j].size() == 0) continue;
+#pragma omp target enter data map(to: this->sources_array_[tid][j])
+#pragma omp target enter data map(to: this->sources_array_[tid][j][0:v[j].size()])
+    }
+  }
 }
 
 void

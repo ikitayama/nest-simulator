@@ -253,7 +253,7 @@ iaf_psc_alpha::init_buffers_()
 
   ArchivingNode::clear_history();
  
-#pragma omp target enter data map(to: this[0:1]) 
+//#pragma omp target enter data map(to: this[0:1]) 
 //#pragma omp target enter data map(to: B_.ex_spikes_)
   //std::cout << __PRETTY_FUNCTION__ << " mapping an excitatory spikes RingBuffer object pointed by ptr " << &B_.ex_spikes_ << std::endl;
 //#pragma omp target enter data map(to: B_.in_spikes_)

@@ -325,7 +325,7 @@ NodeManager::m2()
 {
 int l = local_nodes_.size();
 SparseNodeArray *p = &local_nodes_[0];
-#pragma omp target enter data map(to: p[0:l])
+//#pragma omp target enter data map(to: p[0:l])
 }
 */
 inline index

@@ -549,9 +549,8 @@ private:
    * Internally arranged in a 3d structure: threads|synapses|node IDs
    */
   SourceTable source_table_;
-  Source ***source_array_;
-  index tmp1[10];
-  index xyz=1;
+  Source ***sources_array_; // Note that source_ is a 3-D std::vector
+
   /**
    * Stores absolute position in receive buffer of secondary events.
    * structure: threads|synapses|position
@@ -775,7 +774,7 @@ ConnectionManager::get_source_node_id( const thread tid, const synindex syn_inde
 inline index
 ConnectionManager::get_source_node_id_device( const thread tid, const synindex syn_index, const index lcid )
 {
-  return source_array_[tid][syn_index][lcid].get_node_id();
+  return sources_array_[tid][syn_index][lcid].get_node_id();
 }
 
 inline bool

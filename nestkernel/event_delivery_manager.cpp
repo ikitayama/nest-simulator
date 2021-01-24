@@ -549,7 +549,7 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
   assert( kernel().simulation_manager.get_to_step() == kernel().connection_manager.get_min_delay() );
 
   SpikeEvent se;
-  //std::cout << "se pointer " << &se << std::endl;
+  std::cout << "sizeof() SpikeEvent " << sizeof(se) << std::endl;
 
   // prepare Time objects for every possible time stamp within min_delay_
   //std::vector< Time > prepared_timestamps( kernel().connection_manager.get_min_delay() );
@@ -572,10 +572,10 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
   WeightRecorderEvent *wr_e= new WeightRecorderEvent();
   //std::cout << "wr_e pointer " << wr_e << std::endl;
   ConnectionManager *p = &kernel().connection_manager;
-  auto *myp72 = static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(p->get_ptrConnectorBase(tid, 72));
-  assert(myp72);
-  auto *myp73 = static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(p->get_ptrConnectorBase(tid, 73));
-  assert(myp73);
+  auto *myp75 = static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(p->get_ptrConnectorBase(tid, 75));
+  assert(myp75);
+  auto *myp76 = static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(p->get_ptrConnectorBase(tid, 76));
+  assert(myp76);
   auto *myp2 = static_cast<Connector<STDPPLConnectionHom<TargetIdentifierPtrRport>> *>(p->get_ptrConnectorBase(tid, 42));
   //std::cout << "pointer " << p->get_ptrConnectorBase(tid, 72) << std::endl;
   StaticConnection<TargetIdentifierPtrRport>::CommonPropertiesType *tmp1[100];
@@ -619,14 +619,14 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
     // when valid_ents is used.
     // DO NOT REMOVE
 
-    SpikeEvent *pse = &se;
-    auto *p22 = dynamic_cast<iaf_psc_alpha*>(pse->node());
+    //SpikeEvent *pse = &se;
+    //auto *p22 = dynamic_cast<iaf_psc_alpha*>(pse->node());
     //assert(p22);
     //Node* ppp = pse->node();
     //se.p3 = p22;
 
-//#pragma omp target teams distribute parallel for map(to: recv_buffer_a[0:recv_buffer_size]) map(to: p[0:1]) map(to: myp72[0:1], myp73[0:1], se, prepared_timestamps[0:min_delay], valid_ents, send_recv_count_spike_data_per_rank) thread_limit(1024)
-#pragma omp target teams distribute parallel for map(to: recv_buffer_a[0:recv_buffer_size]) map(to: p[0:1]) map(to: myp72[0:1], myp73[0:1], se, prepared_timestamps[0:min_delay], valid_ents, send_recv_count_spike_data_per_rank) thread_limit(1024)
+//#pragma omp target teams distribute parallel for map(to: recv_buffer_a[0:recv_buffer_size]) map(to: p[0:1]) map(to: myp75[0:1], myp76[0:1], se, prepared_timestamps[0:min_delay], valid_ents, send_recv_count_spike_data_per_rank) thread_limit(1024)
+#pragma omp target teams distribute parallel for map(to: recv_buffer_a[0:recv_buffer_size]) map(to: p[0:1]) map(to: myp75[0:1], se, prepared_timestamps[0:min_delay], valid_ents, send_recv_count_spike_data_per_rank, spike_data) thread_limit(1024)
     for ( unsigned int i = 0; i <= valid_ents; i++ )
     //for ( unsigned int i = 0; i < send_recv_count_spike_data_per_rank; ++i )
     {
@@ -641,15 +641,16 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
         const index lcid = spike_data.get_lcid();
         //const index source_node_gid = kernel().connection_manager.get_source_node_id( tid, syn_id, lcid );
         const index source_node_gid = p->get_source_node_id_device( tid, syn_id, lcid);
+        //const index source_node_gid = 1;//p->get_source_node_id_device( tid, syn_id, lcid);
 
         //printf("Target: syn_id %lu lcid %lu source_gid %lu\n", syn_id, lcid, source_gid);
         se.set_sender_node_id( source_node_gid );
         //kernel().connection_manager.send( tid, syn_id, lcid, cm, se );
 	//int *wr_e = nullptr;
-        if (syn_id == 72) {
-		myp72->f(tid, lcid, cmarray, se);
-	} else if (syn_id == 73) {
-		//myp73->f(tid, lcid, cmarray, se);
+        if (syn_id == 75) {
+		//myp75->f(tid, lcid, cmarray, se);
+	} else if (syn_id == 76) {
+		//myp76->f(tid, lcid, cmarray, se);
 	} else if (syn_id == 42) {
 		//myp2->f(tid, lcid, cmarray, se, wr_e);
 	}
