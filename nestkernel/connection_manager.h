@@ -549,7 +549,7 @@ private:
    * Internally arranged in a 3d structure: threads|synapses|node IDs
    */
   SourceTable source_table_;
-  Source ***sources_array_; // Note that source_ is a 3-D std::vector
+  Source ***sources_array_; // Note that sources_ defined in source_table.h is a 3-D std::vector
 
   /**
    * Stores absolute position in receive buffer of secondary events.
