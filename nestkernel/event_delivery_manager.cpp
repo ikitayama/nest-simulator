@@ -611,7 +611,7 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
                    break;
       }
     }
-    SpikeDataT spike_data;
+    SpikeData spike_data;
     //std::cout << "valid_ents " << valid_ents << std::endl;
 
     // DO NOT REMOVE
@@ -619,17 +619,12 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
     // when valid_ents is used.
     // DO NOT REMOVE
 
-    //SpikeEvent *pse = &se;
-    //auto *p22 = dynamic_cast<iaf_psc_alpha*>(pse->node());
-    //assert(p22);
-    //Node* ppp = pse->node();
-    //se.p3 = p22;
-
 //#pragma omp target teams distribute parallel for map(to: recv_buffer_a[0:recv_buffer_size]) map(to: p[0:1]) map(to: myp75[0:1], myp76[0:1], se, prepared_timestamps[0:min_delay], valid_ents, send_recv_count_spike_data_per_rank) thread_limit(1024)
-#pragma omp target teams distribute parallel for map(to: recv_buffer_a[0:recv_buffer_size]) map(to: p[0:1]) map(to: myp75[0:1], se, prepared_timestamps[0:min_delay], valid_ents, send_recv_count_spike_data_per_rank, spike_data) thread_limit(1024)
+#pragma omp target teams distribute parallel for map(to: recv_buffer_a[0:recv_buffer_size]) map(to: p[0:1]) map(to: se, prepared_timestamps[0:min_delay], valid_ents, send_recv_count_spike_data_per_rank, spike_data, rank) thread_limit(1024)
     for ( unsigned int i = 0; i <= valid_ents; i++ )
     //for ( unsigned int i = 0; i < send_recv_count_spike_data_per_rank; ++i )
     {
+      continue;
       spike_data = recv_buffer_a[ rank * send_recv_count_spike_data_per_rank + i ];
       if ( spike_data.get_tid() == tid )
       {
