@@ -139,6 +139,8 @@ nest::ConnectionManager::initialize()
   // this change in delays.
   min_delay_ = max_delay_ = 1;
 
+  sources_array_ = new Source**[num_threads];
+
   std::cout << __PRETTY_FUNCTION__ << " Map this ptr " << this << std::endl;
 #pragma omp target enter data map(to: this[0:1])
   std::cout << __PRETTY_FUNCTION__ << " Map " << "connections_array_ " << this->connections_array_ << std::endl;
@@ -1234,34 +1236,24 @@ nest::ConnectionManager::compute_target_data_buffer_size()
 void
 nest::ConnectionManager::copy_to(const thread tid) {
 
-  int n_threads = kernel().vp_manager.get_num_threads();
-  sources_array_ = new Source**[n_threads];
-       
-  for ( thread tid = 0; tid < n_threads; tid++) {
-    std::vector< BlockVector< Source > > v = source_table_.get_thread_local_sources(tid);
-    sources_array_[tid] = new Source*[v.size()];	
+  std::vector< BlockVector< Source > > v = source_table_.get_thread_local_sources(tid);
+  sources_array_[tid] = new Source*[v.size()];	
 	
-    for ( int j = 0; j < v.size(); ++j) {
-      if (v[j].size() == 0) continue;
-      BlockVector< Source > blv = v[j];
-      //std::cout << "i " << i << " total sources " << v[i].size() << std::endl; 
-      sources_array_[tid][j] = new Source[v[j].size()];
-      //std::cout << "Synapsetype " << i << " elements " << v[i].size() << std::endl;
-      for ( int k = 0; k < v[j].size(); ++k ) {
-	sources_array_[tid][j][k] = blv[k];
-	//std::cout << "i " << i << " gid " << v[i][k].get_gid() << std::endl;
-      }
+  for ( int j = 0; j < v.size(); ++j) {
+    if (v[j].size() == 0) continue;
+    BlockVector< Source > blv = v[j];
+    sources_array_[tid][j] = new Source[blv.size()];
+    for ( int k = 0; k < blv.size(); ++k ) {
+      sources_array_[tid][j][k] = blv[k];
     }
   }
 
-  for ( thread tid = 0; tid < n_threads; tid++ ) {
-    std::vector< BlockVector< Source > > v = source_table_.get_thread_local_sources(tid);
-    for ( int j = 0; j < v.size(); ++j ) { // loop through synapse types
-      if (v[j].size() == 0) continue;
+  for ( int j = 0; j < v.size(); ++j ) { // loop through synapse types
+    if (v[j].size() == 0) continue;
 #pragma omp target enter data map(to: this->sources_array_[tid][j])
 #pragma omp target enter data map(to: this->sources_array_[tid][j][0:v[j].size()])
-    }
   }
+
 }
 
 void
