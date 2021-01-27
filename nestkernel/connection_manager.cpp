@@ -143,6 +143,8 @@ nest::ConnectionManager::initialize()
 
   std::cout << __PRETTY_FUNCTION__ << " Map this ptr " << this << std::endl;
 #pragma omp target enter data map(to: this[0:1])
+  std::cout << __PRETTY_FUNCTION__ << " Map sources_array_ outer most " << std::endl;
+#pragma omp target enter data map(to: this->sources_array_[0:num_threads])
   std::cout << __PRETTY_FUNCTION__ << " Map " << "connections_array_ " << this->connections_array_ << std::endl;
 #pragma omp target enter data map(to: connections_array_[0:num_threads])
 for(int i=0;i<num_threads;i++) {
@@ -1248,9 +1250,9 @@ nest::ConnectionManager::copy_to(const thread tid) {
     }
   }
 
+#pragma omp target enter data map(to: this->sources_array_[tid][0:v.size()])
   for ( int j = 0; j < v.size(); ++j ) { // loop through synapse types
     if (v[j].size() == 0) continue;
-#pragma omp target enter data map(to: this->sources_array_[tid][j])
 #pragma omp target enter data map(to: this->sources_array_[tid][j][0:v[j].size()])
   }
 

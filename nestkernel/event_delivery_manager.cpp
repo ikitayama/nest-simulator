@@ -549,7 +549,7 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
   assert( kernel().simulation_manager.get_to_step() == kernel().connection_manager.get_min_delay() );
 
   SpikeEvent se;
-  std::cout << "sizeof() SpikeEvent " << sizeof(se) << std::endl;
+  //std::cout << "sizeof() SpikeEvent " << sizeof(se) << std::endl;
 
   // prepare Time objects for every possible time stamp within min_delay_
   //std::vector< Time > prepared_timestamps( kernel().connection_manager.get_min_delay() );
@@ -624,7 +624,6 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
     for ( unsigned int i = 0; i <= valid_ents; i++ )
     //for ( unsigned int i = 0; i < send_recv_count_spike_data_per_rank; ++i )
     {
-      continue;
       spike_data = recv_buffer_a[ rank * send_recv_count_spike_data_per_rank + i ];
       if ( spike_data.get_tid() == tid )
       {
@@ -638,7 +637,7 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
         const index source_node_gid = p->get_source_node_id_device( tid, syn_id, lcid);
         //const index source_node_gid = 1;//p->get_source_node_id_device( tid, syn_id, lcid);
 
-        //printf("Target: syn_id %lu lcid %lu source_gid %lu\n", syn_id, lcid, source_gid);
+        printf("Target: syn_id %lu lcid %lu source_gid %lu\n", syn_id, lcid, source_node_gid);
         se.set_sender_node_id( source_node_gid );
         //kernel().connection_manager.send( tid, syn_id, lcid, cm, se );
 	//int *wr_e = nullptr;
