@@ -55,8 +55,14 @@ void SpikeEvent::operator()()
 {
   //receiver_->handle( *this );
   printf("%s\n", __PRETTY_FUNCTION__);
-  p3->iaf_psc_alpha::handle_non_virtual(*this);
+  //p3->iaf_psc_alpha::handle_non_virtual(*this);
 }
+
+//void SpikeEvent::op1()
+//{
+//printf("op1\n");
+//receiver_->handle( *this );
+//}
 
 void WeightRecorderEvent::operator()()
 {

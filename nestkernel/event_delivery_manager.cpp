@@ -50,6 +50,7 @@
 //#include "connector_base.h"
 //#include "libnestutil/block_vector.h"
 #include "event.h"
+#include "event2.h"
 #include "iaf_psc_alpha.h"
 namespace nest
 {
@@ -618,15 +619,18 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
     // Don't forget the condition be checked with the =< operator,
     // when valid_ents is used.
     // DO NOT REMOVE
+    
 
-//#pragma omp target teams distribute parallel for map(to: recv_buffer_a[0:recv_buffer_size]) map(to: p[0:1]) map(to: myp75[0:1], myp76[0:1], se, prepared_timestamps[0:min_delay], valid_ents, send_recv_count_spike_data_per_rank) thread_limit(1024)
-#pragma omp target teams distribute parallel for map(to: recv_buffer_a[0:recv_buffer_size]) map(to: p[0:1]) map(to: se, prepared_timestamps[0:min_delay], valid_ents, send_recv_count_spike_data_per_rank, spike_data, rank) thread_limit(1024)
+#pragma omp target teams distribute parallel for map(to: recv_buffer_a[0:recv_buffer_size]) map(to: p[0:1]) map(to: myp75[0:1], myp76[0:1], prepared_timestamps[0:min_delay], valid_ents, send_recv_count_spike_data_per_rank) thread_limit(1024)
+//#pragma omp target teams distribute parallel for map(to: recv_buffer_a[0:recv_buffer_size]) map(to: p[0:1]) map(to: se, prepared_timestamps[0:min_delay], valid_ents, send_recv_count_spike_data_per_rank, spike_data, rank) thread_limit(1024)
     for ( unsigned int i = 0; i <= valid_ents; i++ )
     //for ( unsigned int i = 0; i < send_recv_count_spike_data_per_rank; ++i )
     {
+      Event2<SpikeEvent2> se;
       spike_data = recv_buffer_a[ rank * send_recv_count_spike_data_per_rank + i ];
       if ( spike_data.get_tid() == tid )
       {
+        //SpikeEvent tmp1;
 	//printf("prepared_timestamps %p\n", prepared_timestamps);
         se.set_stamp( prepared_timestamps[ spike_data.get_lag() ] );
         se.set_offset( spike_data.get_offset() );
@@ -642,7 +646,7 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
         //kernel().connection_manager.send( tid, syn_id, lcid, cm, se );
 	//int *wr_e = nullptr;
         if (syn_id == 75) {
-		//myp75->f(tid, lcid, cmarray, se);
+		myp75->f(tid, lcid, cmarray, se);
 	} else if (syn_id == 76) {
 		//myp76->f(tid, lcid, cmarray, se);
 	} else if (syn_id == 42) {

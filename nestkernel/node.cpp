@@ -496,7 +496,7 @@ nest::Node::get_tau_syn_in( int )
 void
 Node::event_hook( DSSpikeEvent& e )
 {
-  e.get_receiver().handle( e );
+  //e.get_receiver().handle( e );
 }
 
 void

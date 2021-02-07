@@ -104,6 +104,7 @@ public:
    * Sends a spike event to all targets of the source neuron.
    */
   void send_to_device( const thread tid, const index s_node_id, Event& e, const std::vector< ConnectorModel* >& cm );
+  void send_to_device( const thread tid, const index s_node_id, SpikeEvent& se, const std::vector< ConnectorModel* >& cm );
   void send_to_device( const thread tid,
     const index s_node_id,
     SecondaryEvent& e,
@@ -113,6 +114,8 @@ public:
    * Sends a spike event to all targets of the source device.
    */
   void send_from_device( const thread tid, const index ldid, Event& e, const std::vector< ConnectorModel* >& cm );
+
+  void send_from_device( const thread tid, const index ldid, SpikeEvent& se, const std::vector< ConnectorModel* >& cm );
 
   /**
    * Resizes vectors according to number of local nodes.
@@ -241,6 +244,22 @@ TargetTableDevices::send_from_device( const thread tid,
   }
 }
 
+inline void
+TargetTableDevices::send_from_device( const thread tid,
+  const index ldid,
+  SpikeEvent& e,
+  const std::vector< ConnectorModel* >& cm )
+{
+  for ( std::vector< ConnectorBase* >::iterator it = target_from_devices_[ tid ][ ldid ].begin();
+        it != target_from_devices_[ tid ][ ldid ].end();
+        ++it )
+  {
+    if ( *it != NULL )
+    {
+      ( *it )->send_to_all( tid, cm, e );
+    }
+  }
+}
 } // namespace nest
 
 #endif

@@ -40,6 +40,7 @@
 #include "connection_label.h"
 #include "connector_model.h"
 #include "event.h"
+#include "event2.h"
 #include "nest_datums.h"
 #include "nest_names.h"
 #include "node.h"
@@ -149,6 +150,11 @@ public:
    * Send the event e to all connections of this Connector.
    */
   virtual void send_to_all( const thread tid, const std::vector< ConnectorModel* >& cm, Event& e ) = 0;
+  
+   /**
+    * Send SpikeEvent se to all connections of this Connector.
+    */
+   virtual void send_to_all( const thread tid, const std::vector< ConnectorModel* >& cm, SpikeEvent& se ) = 0;
 
   /**
    * Send the event e to the connection at position lcid. Return bool
@@ -157,8 +163,13 @@ public:
    */
   virtual index send( const thread tid, const index lcid, const std::vector< ConnectorModel* >& cm, Event& e ) = 0;
 
+  virtual index send( const thread tid, const index lcid, const std::vector< ConnectorModel* >& cm, SpikeEvent& e ) = 0;
+
   virtual void
   send_weight_event( const thread tid, const unsigned int lcid, Event& e, const CommonSynapseProperties& cp ) = 0;
+
+  virtual void
+  send_weight_event( const thread tid, const unsigned int lcid, SpikeEvent& e, const CommonSynapseProperties& cp ) = 0;
 
   /**
    * Update weights of dopamine modulated STDP connections.
@@ -258,7 +269,7 @@ public:
   ~Connector()
   {
     C_.clear();
-    //delete C_1;
+    delete[] C_1;
   }
 
   synindex
@@ -412,8 +423,20 @@ public:
     }
   }
 
+  void
+  send_to_all( const thread tid, const std::vector< ConnectorModel* >& cm, SpikeEvent& se )
+  {
+    for ( size_t lcid = 0; lcid < C_.size(); ++lcid )
+    {
+      se.set_port( lcid );
+      assert( not C_[ lcid ].is_disabled() );
+      C_[ lcid ].send(
+        se, tid, static_cast< GenericConnectorModel< ConnectionT >* >( cm[ syn_id_ ] )->get_common_properties() );
+    }
+  }
+
   //inline index f(const thread tid, const index lcid, ConnectorModel **cm, Event& e, typename ConnectionT::CommonPropertiesType const& cp, int *wr_e)//WeightRecorderEvent* wr_e) 
-  inline index f(const thread tid, const index lcid, ConnectorModel **cm, Event& e )//WeightRecorderEvent* wr_e) 
+  inline index f(const thread tid, const index lcid, ConnectorModel **cm, Event2<SpikeEvent2>& e )//WeightRecorderEvent* wr_e) 
   {
 #if defined(__CUDA__) && !defined(__CUDA_ARCH__)
      typename ConnectionT::CommonPropertiesType const& cp = 
@@ -430,7 +453,7 @@ public:
       ConnectionT& conn = C_1[ lcid + lcid_offset ];
       const bool is_disabled = conn.is_disabled();
       const bool source_has_more_targets = conn.source_has_more_targets();
-      printf(" is %d\n", is_disabled);
+      //printf(" is %d\n", is_disabled);
       e.set_port( lcid + lcid_offset );
       if ( not is_disabled )
       {
@@ -481,9 +504,41 @@ public:
 
     return 1 + lcid_offset; // event was delivered to at least one target
   }
-  
+
+  index
+  send( const thread tid, const index lcid, const std::vector< ConnectorModel* >& cm, SpikeEvent& e )
+  {
+    typename ConnectionT::CommonPropertiesType const& cp =
+      static_cast< GenericConnectorModel< ConnectionT >* >( cm[ syn_id_ ] )->get_common_properties();
+
+    index lcid_offset = 0;
+
+    while ( true )
+    {
+      ConnectionT& conn = C_[ lcid + lcid_offset ];
+      const bool is_disabled = conn.is_disabled();
+      const bool source_has_more_targets = conn.source_has_more_targets();
+
+      e.set_port( lcid + lcid_offset );
+      if ( not is_disabled )
+      {
+        conn.send( e, tid, cp );
+        send_weight_event( tid, lcid + lcid_offset, e, cp );
+      }
+      if ( not source_has_more_targets )
+      {
+        break;
+      }
+      ++lcid_offset;
+    }
+
+    return 1 + lcid_offset; // event was delivered to at least one target
+  }
+ 
   // Implemented in connector_base_impl.h
   void send_weight_event( const thread tid, const unsigned int lcid, Event& e, const CommonSynapseProperties& cp );
+
+  void send_weight_event( const thread tid, const unsigned int lcid, SpikeEvent& e, const CommonSynapseProperties& cp );
 
   void send_weight_event_non_virtual( const thread tid,
     const unsigned int lcid,

@@ -27,6 +27,7 @@
 #include "archiving_node.h"
 #include "connection.h"
 #include "event.h"
+#include "event2.h"
 #include "nest_types.h"
 #include "recordables_map.h"
 #include "ring_buffer.h"
@@ -165,7 +166,7 @@ public:
   port send_test_event( Node&, rport, synindex, bool );
 
   void handle( SpikeEvent& );
-  void handle_non_virtual( SpikeEvent& );
+  void handle_non_virtual( Event2<SpikeEvent2>& );
   void handle( CurrentEvent& );
   void handle( DataLoggingRequest& );
 

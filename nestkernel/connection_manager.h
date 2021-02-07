@@ -260,12 +260,14 @@ public:
    * Send event e to all device targets of source source_node_id
    */
   void send_to_devices( const thread tid, const index source_node_id, Event& e );
+  void send_to_devices( const thread tid, const index source_node_id, SpikeEvent& se );
   void send_to_devices( const thread tid, const index source_node_id, SecondaryEvent& e );
 
   /**
    * Send event e to all targets of source device ldid (local device id)
    */
   void send_from_device( const thread tid, const index ldid, Event& e );
+  void send_from_device( const thread tid, const index ldid, SpikeEvent& se );
 
   /**
    * Send event e to all targets of node source on thread t

@@ -403,7 +403,7 @@ iaf_psc_alpha::handle( SpikeEvent& e )
 }
 
 void
-iaf_psc_alpha::handle_non_virtual( SpikeEvent& e )
+iaf_psc_alpha::handle_non_virtual( Event2<SpikeEvent2>& e )
 {
 	  assert( e.get_delay_steps() > 0 );
 
