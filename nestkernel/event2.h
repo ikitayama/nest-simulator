@@ -1,6 +1,20 @@
 #ifndef EVENT2_H
 #define EVENT2_H
 
+// C++ includes:
+#include <cassert>
+#include <cstring>
+#include <algorithm>
+#include <vector>
+
+// Includes from nestkernel:
+#include "exceptions.h"
+#include "nest_time.h"
+#include "nest_types.h"
+#include "vp_manager.h"
+
+// Includes from sli:
+#include "name.h"
 
 
 namespace nest {
