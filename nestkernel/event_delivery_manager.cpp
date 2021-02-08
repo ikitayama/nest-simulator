@@ -51,7 +51,7 @@
 //#include "libnestutil/block_vector.h"
 #include "event.h"
 #include "event2.h"
-#include "iaf_psc_alpha.h"
+//#include "iaf_psc_alpha.h"
 namespace nest
 {
 EventDeliveryManager::EventDeliveryManager()
