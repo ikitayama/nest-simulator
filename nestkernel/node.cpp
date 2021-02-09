@@ -238,6 +238,16 @@ Node::handle( SpikeEvent& )
   throw UnexpectedEvent( "The target node does not handle spike input." );
 }
 
+void
+Node::handle( Event2<SpikeEvent2>&)
+{
+
+}
+
+void
+Node::handle( SpikeEvent3& )
+{}
+
 port
 Node::handles_test_event( SpikeEvent&, rport )
 {
@@ -474,13 +484,9 @@ nest::Node::get_tau_L( int )
 {
   throw UnexpectedEvent();
 }
-
 double
-nest::Node::get_tau_s( int )
-{
-  throw UnexpectedEvent();
-}
-
+nest::Node::get_tau_s( int)
+{}
 double
 nest::Node::get_tau_syn_ex( int )
 {

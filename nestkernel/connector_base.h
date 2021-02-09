@@ -41,6 +41,7 @@
 #include "connector_model.h"
 #include "event.h"
 #include "event2.h"
+#include "spikeevent3.h"
 #include "nest_datums.h"
 #include "nest_names.h"
 #include "node.h"
@@ -436,7 +437,7 @@ public:
   }
 
   //inline index f(const thread tid, const index lcid, ConnectorModel **cm, Event& e, typename ConnectionT::CommonPropertiesType const& cp, int *wr_e)//WeightRecorderEvent* wr_e) 
-  inline index f(const thread tid, const index lcid, ConnectorModel **cm, Event2<SpikeEvent2>& e )//WeightRecorderEvent* wr_e) 
+  inline index f(const thread tid, const index lcid, ConnectorModel **cm, SpikeEvent3& e )//WeightRecorderEvent* wr_e) 
   {
 #if defined(__CUDA__) && !defined(__CUDA_ARCH__)
      typename ConnectionT::CommonPropertiesType const& cp = 

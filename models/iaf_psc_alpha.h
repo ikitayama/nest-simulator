@@ -166,6 +166,7 @@ public:
   port send_test_event( Node&, rport, synindex, bool );
 
   void handle( SpikeEvent& );
+  void handle( Event2<SpikeEvent2>& );
   void handle_non_virtual( Event2<SpikeEvent2>& );
   void handle( CurrentEvent& );
   void handle( DataLoggingRequest& );

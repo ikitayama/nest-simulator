@@ -35,7 +35,7 @@ set ( nestkernel_sources
       device.h device.cpp
       device_node.h
       dynamicloader.h dynamicloader.cpp
-      event.h event.cpp event2.h event2.cpp
+      event.h event.cpp event2.h event2.cpp spikeevent3.h spikeevent3.cpp
       exceptions.h exceptions.cpp
       genericmodel.h genericmodel_impl.h
       node_collection.h node_collection.cpp

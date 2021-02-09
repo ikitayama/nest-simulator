@@ -157,6 +157,16 @@ public:
   }
 
   void
+  send( SpikeEvent3& e, const thread tid, const CommonSynapseProperties& )
+  {
+    e.set_weight( weight_ );
+    e.set_delay_steps( get_delay_steps() );
+    e.set_receiver( *get_target( tid ) );
+    e.set_rport( get_rport() );
+    e();
+  }
+ 
+  void
   send_non_virtual( Event2<SpikeEvent2>& e, const thread tid )
   {
     e.set_weight( weight_ );
@@ -167,6 +177,18 @@ public:
     e();
     //e.op123();
   }
+
+  void
+  send_non_virtual( SpikeEvent3& e, const thread tid )
+  {
+    e.set_weight( weight_ );
+    e.set_delay_steps( get_delay_steps() );
+    e.set_receiver( *get_target( tid ) );
+    e.set_rport( get_rport() );
+    //printf("weight %d\n", e.get_weight());
+    e();
+  }
+
   void get_status( DictionaryDatum& d ) const;
 
   void set_status( const DictionaryDatum& d, ConnectorModel& cm );

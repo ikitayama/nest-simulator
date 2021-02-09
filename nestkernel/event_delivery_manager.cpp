@@ -51,6 +51,8 @@
 //#include "libnestutil/block_vector.h"
 #include "event.h"
 #include "event2.h"
+#include "spikeevent3.h"
+
 //#include "iaf_psc_alpha.h"
 namespace nest
 {
@@ -626,7 +628,8 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
     for ( unsigned int i = 0; i <= valid_ents; i++ )
     //for ( unsigned int i = 0; i < send_recv_count_spike_data_per_rank; ++i )
     {
-      Event2<SpikeEvent2> se;
+      //Event2<SpikeEvent2> se;
+      SpikeEvent3 se;
       spike_data = recv_buffer_a[ rank * send_recv_count_spike_data_per_rank + i ];
       if ( spike_data.get_tid() == tid )
       {
@@ -648,7 +651,7 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
         if (syn_id == 75) {
 		myp75->f(tid, lcid, cmarray, se);
 	} else if (syn_id == 76) {
-		//myp76->f(tid, lcid, cmarray, se);
+		myp76->f(tid, lcid, cmarray, se);
 	} else if (syn_id == 42) {
 		//myp2->f(tid, lcid, cmarray, se, wr_e);
 	}

@@ -1,5 +1,5 @@
-#ifndef EVENT2_H
-#define EVENT2_H
+#ifndef SPIKEEVENT3_H
+#define SPIKEEVENT3_H
 
 // C++ includes:
 #include <cassert>
@@ -13,29 +13,68 @@
 #include "nest_types.h"
 #include "vp_manager.h"
 
-//#include "node.h"
-
 // Includes from sli:
 #include "name.h"
 
-//#include "iaf_psc_alpha.h"
+namespace nest
+{
 
-namespace nest {
 class Node;
-//class Event;
-//extern nest::iaf_psc_alpha::handle(Event2&);
 
+/**
+ * Encapsulates information which is sent between Nodes.
+ *
+ * For each type of information there has to be a specialized event
+ * class.
+ *
+ * Events are used for two tasks. During connection, they are used as
+ * polymorphic connect objects. During simulation they are used to
+ * transport basic event information from one node to the other.
+ *
+ * A connection between two elements is physically established in two
+ * steps: First, create an event with the two envolved elements.
+ * Second, call the connect method of the event.
+ *
+ * An event object contains only administrative information which is
+ * needed to successfully deliver the event. Thus, event objects
+ * cannot direcly contain custom data: events are not messages. If a
+ * node receives an event, arbitrary abounts of data may be exchanged
+ * between the participating nodes.
 
-template<typename EventT>
-class Event2 : public EventT {
+ * With this restriction it is possible to implement a comparatively
+ * efficient event handling scheme. 5-6 function calls per event may
+ * seem a long time, but this is cheap if we consider that event
+ * handling makes update and communication succeptible to parallel
+ * execution.
+ *
+ * @see Node
+ * @see SpikeEvent
+ * @see RateEvent
+ * @see CurrentEvent
+ * @see CurrentEvent
+ * @see ConductanceEvent
+ * @see GapJunctionEvent
+ * @see InstantaneousRateConnectionEvent
+ * @see DelayedRateConnectionEvent
+ * @see DiffusionConnectionEvent
+ * @ingroup event_interface
+ */
+
+class SpikeEvent3
+{
 
 public:
-  //Event2();
+  SpikeEvent3();
+
+  ~SpikeEvent3()
+  {
+  }
 
   /**
    * Virtual copy constructor.
    */
-  //virtual Event2* clone() const = 0;
+  //virtual SpikeEvent3* clone() const = 0;
+  SpikeEvent3* clone() const;
 
   /**
    * Deliver the event to receiver.
@@ -43,6 +82,7 @@ public:
    * This operator calls the handler for the specific event type at
    * the receiver.
    */
+  //virtual void operator()() = 0;
   void operator()();
 
   /**
@@ -188,12 +228,12 @@ public:
   /**
    * Set drift_factor of the event (see DiffusionConnectionEvent).
    */
-  virtual void set_drift_factor( weight ){};
+  void set_drift_factor( weight ){};
 
   /**
    * Set diffusion_factor of the event (see DiffusionConnectionEvent).
    */
-  virtual void set_diffusion_factor( weight ){};
+  void set_diffusion_factor( weight ){};
 
   /**
    * Returns true if the pointer to the sender node is valid.
@@ -289,39 +329,39 @@ protected:
    * Weight of the connection.
    */
   weight w_;
-};
 
-class SpikeEvent2 {
-public:
-  SpikeEvent2();
-  SpikeEvent2* clone() const;
+
 
   void set_multiplicity( int );
   int get_multiplicity() const;
 
-protected:
   int multiplicity_;
 };
 
-inline SpikeEvent2::SpikeEvent2()
+
+
+
+inline SpikeEvent3::SpikeEvent3()
   : multiplicity_( 1 )
 {
 }
+/*
 
-inline SpikeEvent2*
-SpikeEvent2::clone() const
+inline SpikeEvent*
+SpikeEvent::clone() const
 {
-  return new SpikeEvent2( *this );
+  return new SpikeEvent( *this );
 }
+*/
 
 inline void
-SpikeEvent2::set_multiplicity( int multiplicity )
+SpikeEvent3::set_multiplicity( int multiplicity )
 {
   multiplicity_ = multiplicity;
 }
 
 inline int
-SpikeEvent2::get_multiplicity() const
+SpikeEvent3::get_multiplicity() const
 {
   return multiplicity_;
 }
@@ -329,100 +369,81 @@ SpikeEvent2::get_multiplicity() const
 //*************************************************************
 // Inline implementations.
 
-template <class EventT>
-inline void
-Event2<EventT>::operator()()
-{
-}
-
-template <class EventT>
 inline bool
-Event2<EventT>::sender_is_valid() const
+SpikeEvent3::sender_is_valid() const
 {
   return sender_ != nullptr;
 }
 
-template <class EventT>
 inline bool
-Event2<EventT>::receiver_is_valid() const
+SpikeEvent3::receiver_is_valid() const
 {
   return receiver_ != nullptr;
 }
 
-template <class EventT>
 inline bool
-Event2<EventT>::is_valid() const
+SpikeEvent3::is_valid() const
 {
   return ( sender_is_valid() and receiver_is_valid() and ( d_ > 0 ) );
 }
 
-template <class EventT>
 inline void
-Event2<EventT>::set_receiver( Node& r )
+SpikeEvent3::set_receiver( Node& r )
 {
   receiver_ = &r;
 }
 
-template <class EventT>
 inline void
-Event2<EventT>::set_sender( Node& s )
+SpikeEvent3::set_sender( Node& s )
 {
   sender_ = &s;
 }
 
-template <class EventT>
 inline void
-Event2<EventT>::set_sender_node_id( index node_id )
+SpikeEvent3::set_sender_node_id( index node_id )
 {
   sender_node_id_ = node_id;
 }
 
-template <class EventT>
 inline Node&
-Event2<EventT>::get_receiver( void ) const
+SpikeEvent3::get_receiver( void ) const
 {
   return *receiver_;
 }
 
-template <class EventT>
 inline Node&
-Event2<EventT>::get_sender( void ) const
+SpikeEvent3::get_sender( void ) const
 {
   return *sender_;
 }
 
-template <class EventT>
 inline index
-Event2<EventT>::get_sender_node_id( void ) const
+SpikeEvent3::get_sender_node_id( void ) const
 {
   assert( sender_node_id_ > 0 );
   return sender_node_id_;
 }
 
-template <class EventT>
 inline weight
-Event2<EventT>::get_weight() const
+SpikeEvent3::get_weight() const
 {
   return w_;
 }
 
-template <class EventT>
 inline void
-Event2<EventT>::set_weight( weight w )
+SpikeEvent3::set_weight( weight w )
 {
   w_ = w;
 }
 
-template <class EventT>
 inline Time const&
-Event2<EventT>::get_stamp() const
+SpikeEvent3::get_stamp() const
 {
   return stamp_;
 }
 
-template <class EventT>
 inline void
-Event2<EventT>::set_stamp( Time const& s )
+SpikeEvent3::set_stamp( Time const& s )
 {
   stamp_ = s;
   stamp_steps_ = 0; // setting stamp_steps to zero indicates
@@ -431,16 +452,14 @@ Event2<EventT>::set_stamp( Time const& s )
                     // get_rel_delivery_steps)
 }
 
-template <class EventT>
 inline delay
-Event2<EventT>::get_delay_steps() const
+SpikeEvent3::get_delay_steps() const
 {
   return d_;
 }
 
-template <class EventT>
 inline long
-Event2<EventT>::get_rel_delivery_steps( const Time& t ) const
+SpikeEvent3::get_rel_delivery_steps( const Time& t ) const
 {
   if ( stamp_steps_ == 0 )
   {
@@ -449,62 +468,47 @@ Event2<EventT>::get_rel_delivery_steps( const Time& t ) const
   return stamp_steps_ + d_ - 1 - t.get_steps();
 }
 
-template <class EventT>
 inline void
-Event2<EventT>::set_delay_steps( delay d )
+SpikeEvent3::set_delay_steps( delay d )
 {
   d_ = d;
 }
 
-template <class EventT>
 inline double
-Event2<EventT>::get_offset() const
+SpikeEvent3::get_offset() const
 {
   return offset_;
 }
 
-template <class EventT>
 inline void
-Event2<EventT>::set_offset( double t )
+SpikeEvent3::set_offset( double t )
 {
   offset_ = t;
 }
 
-template <class EventT>
 inline port
-Event2<EventT>::get_port() const
+SpikeEvent3::get_port() const
 {
   return p_;
 }
 
-template <class EventT>
 inline rport
-Event2<EventT>::get_rport() const
+SpikeEvent3::get_rport() const
 {
   return rp_;
 }
 
-template <class EventT>
 inline void
-Event2<EventT>::set_port( port p )
+SpikeEvent3::set_port( port p )
 {
   p_ = p;
 }
 
-template <class EventT>
 inline void
-Event2<EventT>::set_rport( rport rp )
+SpikeEvent3::set_rport( rport rp )
 {
   rp_ = rp;
 }
 }
 
-
-
-
-
-
-
-
-
-#endif // EVENT2_H
+#endif // EVENT_H
