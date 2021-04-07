@@ -443,7 +443,7 @@ public:
      typename ConnectionT::CommonPropertiesType const& cp = 
        static_cast< GenericConnectorModel< ConnectionT >* >( cm[syn_id_] )->get_common_properties();
 #endif
-  	  printf("%s\n", __PRETTY_FUNCTION__);
+  	  //printf("%s\n", __PRETTY_FUNCTION__);
 	  //printf("this pointer address in target %p\n", this);
 	  //printf("syn_id_ is %d\n", this->syn_id_);
 	  //printf("syn_id_ is %d\n", this->get_syn_id());

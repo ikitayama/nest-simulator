@@ -34,6 +34,7 @@
 
 // Includes from nestkernel:
 #include "event.h"
+#include "spikeevent3.h"
 #include "mpi_manager.h" // OffGridSpike
 #include "nest_time.h"
 #include "nest_types.h"

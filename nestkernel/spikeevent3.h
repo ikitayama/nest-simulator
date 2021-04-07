@@ -4,8 +4,8 @@
 // C++ includes:
 #include <cassert>
 #include <cstring>
-#include <algorithm>
-#include <vector>
+//#include <algorithm>
+//#include <vector>
 
 // Includes from nestkernel:
 #include "exceptions.h"
@@ -16,11 +16,13 @@
 // Includes from sli:
 #include "name.h"
 
+//#include "iaf_psc_alpha.h"
+
 namespace nest
 {
 
 class Node;
-
+//class iaf_psc_alpha;
 /**
  * Encapsulates information which is sent between Nodes.
  *
@@ -338,13 +340,6 @@ protected:
   int multiplicity_;
 };
 
-
-
-
-inline SpikeEvent3::SpikeEvent3()
-  : multiplicity_( 1 )
-{
-}
 /*
 
 inline SpikeEvent*
@@ -353,7 +348,14 @@ SpikeEvent::clone() const
   return new SpikeEvent( *this );
 }
 */
-
+/*
+inline void
+SpikeEvent3::operator()()
+{
+  //dynamic_cast<iaf_psc_alpha*>(receiver_)->handle(*this);
+  receiver_->handle(*this);
+}
+*/
 inline void
 SpikeEvent3::set_multiplicity( int multiplicity )
 {
@@ -511,4 +513,4 @@ SpikeEvent3::set_rport( rport rp )
 }
 }
 
-#endif // EVENT_H
+#endif // SPIKEEVENT3EVENT_H

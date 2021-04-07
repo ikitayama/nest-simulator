@@ -187,6 +187,7 @@ public:
     e.set_rport( get_rport() );
     //printf("weight %d\n", e.get_weight());
     e();
+    //e.get_stamp();
   }
 
   void get_status( DictionaryDatum& d ) const;

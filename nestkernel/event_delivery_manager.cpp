@@ -49,9 +49,6 @@
 #include "stdp_pl_connection_hom.h"
 //#include "connector_base.h"
 //#include "libnestutil/block_vector.h"
-#include "event.h"
-#include "event2.h"
-#include "spikeevent3.h"
 
 //#include "iaf_psc_alpha.h"
 namespace nest
@@ -551,7 +548,8 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
   // deliver only at end of time slice
   assert( kernel().simulation_manager.get_to_step() == kernel().connection_manager.get_min_delay() );
 
-  SpikeEvent se;
+  //SpikeEvent se;
+  SpikeEvent3 se;
   //std::cout << "sizeof() SpikeEvent " << sizeof(se) << std::endl;
 
   // prepare Time objects for every possible time stamp within min_delay_
@@ -623,17 +621,14 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
     // DO NOT REMOVE
     
 
-#pragma omp target teams distribute parallel for map(to: recv_buffer_a[0:recv_buffer_size]) map(to: p[0:1]) map(to: myp75[0:1], myp76[0:1], prepared_timestamps[0:min_delay], valid_ents, send_recv_count_spike_data_per_rank) thread_limit(1024)
+#pragma omp target teams distribute parallel for map(to: recv_buffer_a[0:recv_buffer_size]) map(to: p[0:1]) map(to: myp75[0:1], myp76[0:1], prepared_timestamps[0:min_delay], valid_ents, send_recv_count_spike_data_per_rank, se) thread_limit(1024)
 //#pragma omp target teams distribute parallel for map(to: recv_buffer_a[0:recv_buffer_size]) map(to: p[0:1]) map(to: se, prepared_timestamps[0:min_delay], valid_ents, send_recv_count_spike_data_per_rank, spike_data, rank) thread_limit(1024)
     for ( unsigned int i = 0; i <= valid_ents; i++ )
     //for ( unsigned int i = 0; i < send_recv_count_spike_data_per_rank; ++i )
     {
-      //Event2<SpikeEvent2> se;
-      SpikeEvent3 se;
       spike_data = recv_buffer_a[ rank * send_recv_count_spike_data_per_rank + i ];
       if ( spike_data.get_tid() == tid )
       {
-        //SpikeEvent tmp1;
 	//printf("prepared_timestamps %p\n", prepared_timestamps);
         se.set_stamp( prepared_timestamps[ spike_data.get_lag() ] );
         se.set_offset( spike_data.get_offset() );
@@ -644,7 +639,7 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
         const index source_node_gid = p->get_source_node_id_device( tid, syn_id, lcid);
         //const index source_node_gid = 1;//p->get_source_node_id_device( tid, syn_id, lcid);
 
-        printf("Target: syn_id %lu lcid %lu source_gid %lu\n", syn_id, lcid, source_node_gid);
+        //printf("Target: syn_id %lu lcid %lu source_gid %lu\n", syn_id, lcid, source_node_gid);
         se.set_sender_node_id( source_node_gid );
         //kernel().connection_manager.send( tid, syn_id, lcid, cm, se );
 	//int *wr_e = nullptr;
