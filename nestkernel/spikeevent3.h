@@ -261,7 +261,7 @@ public:
    */
   void set_stamp( Time const& );
 
-protected:
+//protected:
   index sender_node_id_; //!< node ID of sender or -1.
                          /*
                           * The original formulation used references to Nodes as

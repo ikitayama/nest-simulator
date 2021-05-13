@@ -111,6 +111,24 @@ nest::TargetTableDevices::send_to_device( const thread tid,
 inline void
 nest::TargetTableDevices::send_to_device( const thread tid,
   const index source_node_id,
+  SpikeEvent3& se,
+  const std::vector< ConnectorModel* >& cm )
+{
+  const index lid = kernel().vp_manager.node_id_to_lid( source_node_id );
+  for ( std::vector< ConnectorBase* >::iterator it = target_to_devices_[ tid ][ lid ].begin();
+        it != target_to_devices_[ tid ][ lid ].end();
+        ++it )
+  {
+    if ( *it != NULL )
+    {
+      ( *it )->send_to_all( tid, cm, se );
+    }
+  }
+}
+
+inline void
+nest::TargetTableDevices::send_to_device( const thread tid,
+  const index source_node_id,
   SecondaryEvent& e,
   const std::vector< ConnectorModel* >& cm )
 {

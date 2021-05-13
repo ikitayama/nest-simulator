@@ -107,6 +107,7 @@ public:
    * in a synchronised (single threaded) state.
    * @see send_to_targets()
    */
+  template<class SpikeEvent>
   void send_remote( thread tid, SpikeEvent&, const long lag = 0 );
 
   /**
@@ -127,6 +128,7 @@ public:
    * in a synchronised (single threaded) state.
    * @see send_to_targets()
    */
+  template< class SpikeEvent >
   void send_off_grid_remote( thread tid, SpikeEvent& e, const long lag = 0 );
 
   /**

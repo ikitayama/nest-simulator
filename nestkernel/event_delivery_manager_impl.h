@@ -96,12 +96,45 @@ EventDeliveryManager::send< SpikeEvent >( Node& source, SpikeEvent& e, const lon
 
 template <>
 inline void
+EventDeliveryManager::send< SpikeEvent3 >( Node& source, SpikeEvent3& e, const long lag )
+{
+  //std::cout << __PRETTY_FUNCTION__ << std::endl;
+  const thread tid = source.get_thread();
+  const index source_node_id = source.get_node_id();
+  e.set_sender_node_id( source_node_id );
+  assert(source.has_proxies());
+  if ( source.has_proxies() )
+  {
+    local_spike_counter_[ tid ] += e.get_multiplicity();
+
+    e.set_stamp( kernel().simulation_manager.get_slice_origin() + Time::step( lag + 1 ) );
+    e.set_sender( source );
+
+    if ( source.is_off_grid() )
+    {
+      send_off_grid_remote( tid, e, lag );
+    }
+    else
+    {
+      send_remote( tid, e, lag );
+    }
+    kernel().connection_manager.send_to_devices( tid, source_node_id, e );
+  }
+  else
+  {
+    send_local_( source, e, lag );
+  }
+}
+
+template <>
+inline void
 EventDeliveryManager::send< DSSpikeEvent >( Node& source, DSSpikeEvent& e, const long lag )
 {
   e.set_sender_node_id( source.get_node_id() );
   send_local_( source, e, lag );
 }
 
+template<class SpikeEvent>
 inline void
 EventDeliveryManager::send_remote( thread tid, SpikeEvent& e, const long lag )
 {
@@ -121,8 +154,9 @@ EventDeliveryManager::send_remote( thread tid, SpikeEvent& e, const long lag )
   }
 }
 
+template< class EventT >
 inline void
-EventDeliveryManager::send_off_grid_remote( thread tid, SpikeEvent& e, const long lag )
+EventDeliveryManager::send_off_grid_remote( thread tid, EventT& e, const long lag )
 {
   // Put the spike in a buffer for the remote machines
   const index lid = kernel().vp_manager.node_id_to_lid( e.get_sender().get_node_id() );

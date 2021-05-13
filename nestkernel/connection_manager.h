@@ -261,6 +261,7 @@ public:
    */
   void send_to_devices( const thread tid, const index source_node_id, Event& e );
   void send_to_devices( const thread tid, const index source_node_id, SpikeEvent& se );
+  void send_to_devices( const thread tid, const index source_node_id, SpikeEvent3& se );
   void send_to_devices( const thread tid, const index source_node_id, SecondaryEvent& e );
 
   /**
@@ -268,6 +269,7 @@ public:
    */
   void send_from_device( const thread tid, const index ldid, Event& e );
   void send_from_device( const thread tid, const index ldid, SpikeEvent& se );
+  void send_from_device( const thread tid, const index ldid, SpikeEvent3& se );
 
   /**
    * Send event e to all targets of node source on thread t

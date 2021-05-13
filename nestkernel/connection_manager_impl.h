@@ -57,6 +57,12 @@ ConnectionManager::send_to_devices( const thread tid, const index source_node_id
 }
 
 inline void
+ConnectionManager::send_to_devices( const thread tid, const index source_node_id, SpikeEvent3& se )
+{
+  target_table_devices_.send_to_device( tid, source_node_id, se, kernel().model_manager.get_synapse_prototypes( tid ) );
+}
+
+inline void
 ConnectionManager::send_to_devices( const thread tid, const index source_node_id, SecondaryEvent& e )
 {
   target_table_devices_.send_to_device( tid, source_node_id, e, kernel().model_manager.get_synapse_prototypes( tid ) );
@@ -70,6 +76,12 @@ ConnectionManager::send_from_device( const thread tid, const index ldid, Event& 
 
 inline void
 ConnectionManager::send_from_device( const thread tid, const index ldid, SpikeEvent& e )
+{
+  target_table_devices_.send_from_device( tid, ldid, e, kernel().model_manager.get_synapse_prototypes( tid ) );
+}
+
+inline void
+ConnectionManager::send_from_device( const thread tid, const index ldid, SpikeEvent3& e )
 {
   target_table_devices_.send_from_device( tid, ldid, e, kernel().model_manager.get_synapse_prototypes( tid ) );
 }

@@ -158,6 +158,11 @@ public:
    virtual void send_to_all( const thread tid, const std::vector< ConnectorModel* >& cm, SpikeEvent& se ) = 0;
 
   /**
+    * Send SpikeEvent3 se to all connections of this Connector.
+    */
+   virtual void send_to_all( const thread tid, const std::vector< ConnectorModel* >& cm, SpikeEvent3& se ) = 0;
+
+  /**
    * Send the event e to the connection at position lcid. Return bool
    * indicating whether the following connection belongs to the same
    * source.
@@ -433,6 +438,18 @@ public:
       assert( not C_[ lcid ].is_disabled() );
       C_[ lcid ].send(
         se, tid, static_cast< GenericConnectorModel< ConnectionT >* >( cm[ syn_id_ ] )->get_common_properties() );
+    }
+  }
+
+  void
+  send_to_all( const thread tid, const std::vector< ConnectorModel* >& cm, SpikeEvent3& se )
+  {
+    for ( size_t lcid = 0; lcid < C_.size(); ++lcid )
+    {
+      se.set_port( lcid );
+      assert( not C_[ lcid ].is_disabled() );
+      //C_[ lcid ].f(
+      //  se, tid, static_cast< GenericConnectorModel< ConnectionT >* >( cm[ syn_id_ ] )->get_common_properties() );
     }
   }
 
