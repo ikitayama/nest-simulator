@@ -53,8 +53,8 @@ Event::Event()
 
 void SpikeEvent::operator()()
 {
-  //receiver_->handle( *this );
-  printf("%s\n", __PRETTY_FUNCTION__);
+  receiver_->handle( *this );
+  //printf("%s\n", __PRETTY_FUNCTION__);
   //p3->iaf_psc_alpha::handle_non_virtual(*this);
 }
 
