@@ -207,7 +207,7 @@ class MultRBuffer
 {
 public:
   MultRBuffer();
-  
+
   /**
    * Add a value to the ring buffer.
    * @param  offs     Arrival time relative to beginning of slice.
