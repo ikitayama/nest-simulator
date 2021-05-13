@@ -224,7 +224,6 @@ GenericConnectorModel< ConnectionT >::add_connection( Node& src,
   if ( not numerics::is_nan( weight ) )
   {
     connection.set_weight( weight );
-    std::cout << "Set weight to " << weight << std::endl;
   }
 
   if ( not numerics::is_nan( delay ) )

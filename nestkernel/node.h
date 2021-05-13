@@ -34,7 +34,6 @@
 // Includes from nestkernel:
 #include "event.h"
 #include "event2.h"
-#include "spikeevent3.h"
 #include "histentry.h"
 #include "nest_names.h"
 #include "nest_time.h"
@@ -490,8 +489,6 @@ public:
   virtual void handle( SpikeEvent& e );
 
   virtual void handle( Event2<SpikeEvent2>& e);
-  
-  virtual void handle( SpikeEvent3& e);
 
   /**
    * Handle incoming weight recording events.
