@@ -685,7 +685,6 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
     // Don't forget the condition be checked with the =< operator,
     // when valid_ents is used.
     // DO NOT REMOVE
-    
 
 //#pragma omp target teams distribute parallel for map(to: recv_buffer_a[0:recv_buffer_size]) map(to: p[0:1]) map(to: myp75[0:1], myp76[0:1], prepared_timestamps[0:min_delay], valid_ents, send_recv_count_spike_data_per_rank, se) thread_limit(1024)
 //#pragma omp target teams distribute parallel for map(to: recv_buffer_a[0:recv_buffer_size]) map(to: p[0:1]) map(to: se, prepared_timestamps[0:min_delay], valid_ents, send_recv_count_spike_data_per_rank, spike_data, rank) thread_limit(1024)
@@ -697,7 +696,7 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
       const SpikeDataT& spike_data = recv_buffer_a[ rank * send_recv_count_spike_data_per_rank + i ];
       se.set_stamp( prepared_timestamps[ spike_data.get_lag() ] );
       se.set_offset( spike_data.get_offset() );
-      
+
       if ( not kernel().connection_manager.use_compressed_spikes() )
       {
         if ( spike_data.get_tid() == tid )
@@ -705,13 +704,13 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
 	  //printf("get_lag %u get_offset %f\n", spike_data.get_lag(), spike_data.get_offset());
           const index syn_id = spike_data.get_syn_id();
           const index lcid = spike_data.get_lcid();
-          const index source_node_gid = kernel().connection_manager.get_source_node_id( tid, syn_id, lcid );
+          const index source_node_id = kernel().connection_manager.get_source_node_id( tid, syn_id, lcid );
           //const index source_node_gid = p->get_source_node_id_device( tid, syn_id, lcid);
           //const index source_node_gid = 1;//p->get_source_node_id_device( tid, syn_id, lcid);
 
           //printf("Target: syn_id %lu lcid %lu source_gid %lu\n", syn_id, lcid, source_node_gid);
-          se.set_sender_node_id( source_node_gid );
-        
+          se.set_sender_node_id( source_node_id );
+
           kernel().connection_manager.send( tid, syn_id, lcid, cm, se );
 	  //int *wr_e = nullptr;
           if (syn_id == 75) {
