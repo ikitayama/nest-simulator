@@ -163,9 +163,7 @@ public:
     e.set_delay_steps( get_delay_steps() );
     e.set_receiver( *get_target( tid ) );
     e.set_rport( get_rport() );
-    //printf("weight %d\n", e.get_weight());
     e();
-    //e.op123();
   }
 
   void get_status( DictionaryDatum& d ) const;
