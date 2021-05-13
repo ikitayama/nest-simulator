@@ -681,7 +681,7 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
       }
     }
     SpikeData spike_data;
-    //std::cout << "valid_ents " << valid_ents << std::endl;
+    std::cout << "valid_ents " << valid_ents << std::endl;
 
     // DO NOT REMOVE
     // Don't forget the condition be checked with the =< operator,
@@ -694,32 +694,61 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
     //for ( unsigned int i = 0; i <= valid_ents; i++ )
     for ( unsigned int i = 0; i < send_recv_count_spike_data_per_rank; ++i )
     {
-      spike_data = recv_buffer_a[ rank * send_recv_count_spike_data_per_rank + i ];
-      if ( spike_data.get_tid() == tid )
-      {
-	//printf("prepared_timestamps %p\n", prepared_timestamps);
-        se.set_stamp( prepared_timestamps[ spike_data.get_lag() ] );
-        se.set_offset( spike_data.get_offset() );
-	//printf("get_lag %u get_offset %f\n", spike_data.get_lag(), spike_data.get_offset());
-        const index syn_id = spike_data.get_syn_id();
-        const index lcid = spike_data.get_lcid();
-        const index source_node_gid = kernel().connection_manager.get_source_node_id( tid, syn_id, lcid );
-        //const index source_node_gid = p->get_source_node_id_device( tid, syn_id, lcid);
-        //const index source_node_gid = 1;//p->get_source_node_id_device( tid, syn_id, lcid);
+      //spike_data = recv_buffer_a[ rank * send_recv_count_spike_data_per_rank + i ];
 
-        //printf("Target: syn_id %lu lcid %lu source_gid %lu\n", syn_id, lcid, source_node_gid);
-        se.set_sender_node_id( source_node_gid );
-        kernel().connection_manager.send( tid, syn_id, lcid, cm, se );
-	//int *wr_e = nullptr;
-        if (syn_id == 75) {
+      const SpikeDataT& spike_data = recv_buffer_a[ rank * send_recv_count_spike_data_per_rank + i ];
+      se.set_stamp( prepared_timestamps[ spike_data.get_lag() ] );
+      se.set_offset( spike_data.get_offset() );
+
+      if ( not kernel().connection_manager.use_compressed_spikes() )
+      {
+        if ( spike_data.get_tid() == tid )
+        {
+	  //printf("get_lag %u get_offset %f\n", spike_data.get_lag(), spike_data.get_offset());
+          const index syn_id = spike_data.get_syn_id();
+          const index lcid = spike_data.get_lcid();
+          const index source_node_gid = kernel().connection_manager.get_source_node_id( tid, syn_id, lcid );
+          //const index source_node_gid = p->get_source_node_id_device( tid, syn_id, lcid);
+          //const index source_node_gid = 1;//p->get_source_node_id_device( tid, syn_id, lcid);
+
+          //printf("Target: syn_id %lu lcid %lu source_gid %lu\n", syn_id, lcid, source_node_gid);
+          se.set_sender_node_id( source_node_gid );
+        
+          kernel().connection_manager.send( tid, syn_id, lcid, cm, se );
+	  //int *wr_e = nullptr;
+          if (syn_id == 75) {
 		//myp75->f(tid, lcid, cmarray, se);
-	} else if (syn_id == 76) {
+	  } else if (syn_id == 76) {
 		//myp76->f(tid, lcid, cmarray, se);
-	} else if (syn_id == 42) {
+	  }   else if (syn_id == 42) {
 		//myp2->f(tid, lcid, cmarray, se, wr_e);
-	}
+	  }
+        }
+        else
+        {
+          const index syn_id = spike_data.get_syn_id();
+          // for compressed spikes lcid holds the index in the
+          // compressed_spike_data structure
+          const index idx = spike_data.get_lcid();
+          const std::vector< SpikeData >& compressed_spike_data =
+            kernel().connection_manager.get_compressed_spike_data( syn_id, idx );
+          for ( auto it = compressed_spike_data.cbegin(); it != compressed_spike_data.cend(); ++it )
+          {
+            if ( it->get_tid() == tid )
+            {
+              const index lcid = it->get_lcid();
+              const index source_node_id = kernel().connection_manager.get_source_node_id( tid, syn_id, lcid );
+              se.set_sender_node_id( source_node_id );
+
+              kernel().connection_manager.send( tid, syn_id, lcid, cm, se );
+            }
+          }
+        }
+
+        // break if this was the last valid entry from this rank
         if ( spike_data.is_end_marker() )
         {
+          printf("i is %d\n", i); 
           break;
         }
       }
