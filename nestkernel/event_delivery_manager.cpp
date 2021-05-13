@@ -702,7 +702,7 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
       {
         if ( spike_data.get_tid() == tid )
         {
-	  printf("get_lag %u get_offset %f\n", spike_data.get_lag(), spike_data.get_offset());
+	  //printf("get_lag %u get_offset %f\n", spike_data.get_lag(), spike_data.get_offset());
           const index syn_id = spike_data.get_syn_id();
           const index lcid = spike_data.get_lcid();
           const index source_node_gid = kernel().connection_manager.get_source_node_id( tid, syn_id, lcid );

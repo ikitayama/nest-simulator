@@ -58,12 +58,6 @@ void SpikeEvent::operator()()
   //p3->iaf_psc_alpha::handle_non_virtual(*this);
 }
 
-//void SpikeEvent::op1()
-//{
-//printf("op1\n");
-//receiver_->handle( *this );
-//}
-
 void WeightRecorderEvent::operator()()
 {
   receiver_->handle( *this );
