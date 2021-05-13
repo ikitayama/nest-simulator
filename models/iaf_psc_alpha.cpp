@@ -423,27 +423,6 @@ iaf_psc_alpha::handle( Event2<SpikeEvent2>& e )
 }
 
 void
-iaf_psc_alpha::handle_non_virtual( Event2<SpikeEvent2>& e )
-{
-	  assert( e.get_delay_steps() > 0 );
-
-	    const double s = e.get_weight() * e.get_multiplicity();
-
-	      if ( e.get_weight() > 0.0 )
-		        {
-				          printf("%s %f\n", __PRETTY_FUNCTION__, kernel().simulation_manager.get_slice_origin());
-					      B_.ex_spikes_.add_value_special( e.get_rel_delivery_steps( kernel().simulation_manager.get_slice_origin() ), s );
-					        }
-	        else
-			  {
-				      B_.in_spikes_.add_value_special( e.get_rel_delivery_steps( kernel().simulation_manager.get_slice_origin() ), s );
-				        }
-
-					
-
-}
-
-void
 iaf_psc_alpha::handle( CurrentEvent& e )
 {
   assert( e.get_delay_steps() > 0 );
