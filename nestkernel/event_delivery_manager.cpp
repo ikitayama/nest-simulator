@@ -45,8 +45,8 @@
 #include "dictutils.h"
 
 #include "target_identifier.h"
-#include "static_connection.h"
-#include "stdp_pl_connection_hom.h"
+//#include "static_connection.h"
+//#include "stdp_pl_connection_hom.h"
 //#include "connector_base.h"
 //#include "libnestutil/block_vector.h"
 
@@ -61,8 +61,6 @@ EventDeliveryManager::EventDeliveryManager()
   , off_grid_spike_register_()
   , send_buffer_secondary_events_()
   , recv_buffer_secondary_events_()
-  , time_collocate_( 0.0 )
-  , time_communicate_( 0.0 )
   , local_spike_counter_()
   , send_buffer_spike_data_()
   , recv_buffer_spike_data_()
@@ -72,6 +70,7 @@ EventDeliveryManager::EventDeliveryManager()
   , recv_buffer_target_data_()
   , buffer_size_target_data_has_changed_( false )
   , buffer_size_spike_data_has_changed_( false )
+  , decrease_buffer_size_spike_data_( true )
   , gather_completed_checker_()
 {
 }
@@ -87,7 +86,9 @@ EventDeliveryManager::initialize()
 
   init_moduli();
   local_spike_counter_.resize( num_threads, 0 );
-  reset_timers_counters();
+  reset_counters();
+  reset_timers_for_preparation();
+  reset_timers_for_dynamics();
   spike_register_.resize( num_threads );
   off_grid_spike_register_.resize( num_threads );
   gather_completed_checker_.initialize( num_threads, false );
@@ -95,6 +96,7 @@ EventDeliveryManager::initialize()
   off_grid_spiking_ = false;
   buffer_size_target_data_has_changed_ = false;
   buffer_size_spike_data_has_changed_ = false;
+  decrease_buffer_size_spike_data_ = true;
 
 #pragma omp parallel
   {
@@ -144,10 +146,15 @@ void
 EventDeliveryManager::get_status( DictionaryDatum& dict )
 {
   def< bool >( dict, names::off_grid_spiking, off_grid_spiking_ );
-  def< double >( dict, names::time_collocate, time_collocate_ );
-  def< double >( dict, names::time_communicate, time_communicate_ );
   def< unsigned long >(
     dict, names::local_spike_counter, std::accumulate( local_spike_counter_.begin(), local_spike_counter_.end(), 0 ) );
+
+#ifdef TIMER_DETAILED
+  def< double >( dict, names::time_collocate_spike_data, sw_collocate_spike_data_.elapsed() );
+  def< double >( dict, names::time_communicate_spike_data, sw_communicate_spike_data_.elapsed() );
+  def< double >( dict, names::time_deliver_spike_data, sw_deliver_spike_data_.elapsed() );
+  def< double >( dict, names::time_communicate_target_data, sw_communicate_target_data_.elapsed() );
+#endif
 }
 
 void
@@ -161,10 +168,13 @@ EventDeliveryManager::resize_send_recv_buffers_target_data()
 void
 EventDeliveryManager::resize_send_recv_buffers_spike_data_()
 {
-  send_buffer_spike_data_.resize( kernel().mpi_manager.get_buffer_size_spike_data() );
-  recv_buffer_spike_data_.resize( kernel().mpi_manager.get_buffer_size_spike_data() );
-  send_buffer_off_grid_spike_data_.resize( kernel().mpi_manager.get_buffer_size_spike_data() );
-  recv_buffer_off_grid_spike_data_.resize( kernel().mpi_manager.get_buffer_size_spike_data() );
+  if ( kernel().mpi_manager.get_buffer_size_spike_data() > send_buffer_spike_data_.size() )
+  {
+    send_buffer_spike_data_.resize( kernel().mpi_manager.get_buffer_size_spike_data() );
+    recv_buffer_spike_data_.resize( kernel().mpi_manager.get_buffer_size_spike_data() );
+    send_buffer_off_grid_spike_data_.resize( kernel().mpi_manager.get_buffer_size_spike_data() );
+    recv_buffer_off_grid_spike_data_.resize( kernel().mpi_manager.get_buffer_size_spike_data() );
+  }
 }
 
 void
@@ -194,9 +204,9 @@ void
 EventDeliveryManager::configure_secondary_buffers()
 {
   send_buffer_secondary_events_.clear();
-  send_buffer_secondary_events_.resize( kernel().mpi_manager.get_buffer_size_secondary_events_in_int() );
+  send_buffer_secondary_events_.resize( kernel().mpi_manager.get_send_buffer_size_secondary_events_in_int() );
   recv_buffer_secondary_events_.clear();
-  recv_buffer_secondary_events_.resize( kernel().mpi_manager.get_buffer_size_secondary_events_in_int() );
+  recv_buffer_secondary_events_.resize( kernel().mpi_manager.get_recv_buffer_size_secondary_events_in_int() );
 }
 
 void
@@ -268,10 +278,8 @@ EventDeliveryManager::update_moduli()
 }
 
 void
-EventDeliveryManager::reset_timers_counters()
+EventDeliveryManager::reset_counters()
 {
-  time_collocate_ = 0.0;
-  time_communicate_ = 0.0;
   for ( std::vector< unsigned long >::iterator it = local_spike_counter_.begin(); it != local_spike_counter_.end();
         ++it )
   {
@@ -280,13 +288,31 @@ EventDeliveryManager::reset_timers_counters()
 }
 
 void
+EventDeliveryManager::reset_timers_for_preparation()
+{
+#ifdef TIMER_DETAILED
+  sw_communicate_target_data_.reset();
+#endif
+}
+
+void
+EventDeliveryManager::reset_timers_for_dynamics()
+{
+#ifdef TIMER_DETAILED
+  sw_collocate_spike_data_.reset();
+  sw_communicate_spike_data_.reset();
+  sw_deliver_spike_data_.reset();
+#endif
+}
+
+void
 EventDeliveryManager::write_done_marker_secondary_events_( const bool done )
 {
   // write done marker at last position in every chunk
-  const size_t chunk_size_in_int = kernel().mpi_manager.get_chunk_size_secondary_events_in_int();
   for ( thread rank = 0; rank < kernel().mpi_manager.get_num_processes(); ++rank )
   {
-    send_buffer_secondary_events_[ ( rank + 1 ) * chunk_size_in_int - 1 ] = done;
+    send_buffer_secondary_events_[ kernel().mpi_manager.get_done_marker_position_in_secondary_events_send_buffer(
+      rank ) ] = done;
   }
 }
 
@@ -294,7 +320,7 @@ void
 EventDeliveryManager::gather_secondary_events( const bool done )
 {
   write_done_marker_secondary_events_( done );
-  kernel().mpi_manager.communicate_secondary_events_Alltoall(
+  kernel().mpi_manager.communicate_secondary_events_Alltoallv(
     send_buffer_secondary_events_, recv_buffer_secondary_events_ );
 }
 
@@ -330,6 +356,9 @@ EventDeliveryManager::gather_spike_data_( const thread tid,
 
   const AssignedRanks assigned_ranks = kernel().vp_manager.get_assigned_ranks( tid );
 
+  // Assume a single gather round
+  decrease_buffer_size_spike_data_ = true;
+
   while ( gather_completed_checker_.any_false() )
   {
     // Assume this is the last gather round and change to false
@@ -344,6 +373,12 @@ EventDeliveryManager::gather_spike_data_( const thread tid,
         buffer_size_spike_data_has_changed_ = false;
       }
     } // of omp single; implicit barrier
+#ifdef TIMER_DETAILED
+    if ( tid == 0 )
+    {
+      sw_collocate_spike_data_.start();
+    }
+#endif
 
     // Need to get new positions in case buffer size has changed
     SendBufferPosition send_buffer_position(
@@ -376,6 +411,14 @@ EventDeliveryManager::gather_spike_data_( const thread tid,
 #pragma omp barrier
     }
 
+#ifdef TIMER_DETAILED
+    if ( tid == 0 )
+    {
+      sw_collocate_spike_data_.stop();
+      sw_communicate_spike_data_.start();
+    }
+#endif
+
 // Communicate spikes using a single thread.
 #pragma omp single
     {
@@ -389,6 +432,14 @@ EventDeliveryManager::gather_spike_data_( const thread tid,
       }
     } // of omp single; implicit barrier
 
+#ifdef TIMER_DETAILED
+    if ( tid == 0 )
+    {
+      sw_communicate_spike_data_.stop();
+      sw_deliver_spike_data_.start();
+    }
+#endif
+
     // Deliver spikes from receive buffer to ring buffers.
     const bool deliver_completed = deliver_events_( tid, recv_buffer );
     gather_completed_checker_[ tid ].logical_and( deliver_completed );
@@ -396,17 +447,34 @@ EventDeliveryManager::gather_spike_data_( const thread tid,
 // Exit gather loop if all local threads and remote processes are
 // done.
 #pragma omp barrier
+
+#ifdef TIMER_DETAILED
+    if ( tid == 0 )
+    {
+      sw_deliver_spike_data_.stop();
+    }
+#endif
+
     // Resize mpi buffers, if necessary and allowed.
     if ( gather_completed_checker_.any_false() and kernel().mpi_manager.adaptive_spike_buffers() )
     {
 #pragma omp single
       {
         buffer_size_spike_data_has_changed_ = kernel().mpi_manager.increase_buffer_size_spike_data();
+        decrease_buffer_size_spike_data_ = false;
       }
     }
 #pragma omp barrier
 
   } // of while
+
+#pragma omp single
+  {
+    if ( decrease_buffer_size_spike_data_ and kernel().mpi_manager.adaptive_spike_buffers() )
+    {
+      kernel().mpi_manager.decrease_buffer_size_spike_data();
+    }
+  } // of omp single; implicit barrier
 
   reset_spike_register_( tid );
 }
@@ -573,13 +641,13 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
   WeightRecorderEvent *wr_e= new WeightRecorderEvent();
   //std::cout << "wr_e pointer " << wr_e << std::endl;
   ConnectionManager *p = &kernel().connection_manager;
-  auto *myp75 = static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(p->get_ptrConnectorBase(tid, 75));
-  assert(myp75);
-  auto *myp76 = static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(p->get_ptrConnectorBase(tid, 76));
-  assert(myp76);
-  auto *myp2 = static_cast<Connector<STDPPLConnectionHom<TargetIdentifierPtrRport>> *>(p->get_ptrConnectorBase(tid, 42));
+  //auto *myp75 = static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(p->get_ptrConnectorBase(tid, 75));
+  //assert(myp75);
+  //auto *myp76 = static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>> *>(p->get_ptrConnectorBase(tid, 76));
+  //assert(myp76);
+  //auto *myp2 = static_cast<Connector<STDPPLConnectionHom<TargetIdentifierPtrRport>> *>(p->get_ptrConnectorBase(tid, 42));
   //std::cout << "pointer " << p->get_ptrConnectorBase(tid, 72) << std::endl;
-  StaticConnection<TargetIdentifierPtrRport>::CommonPropertiesType *tmp1[100];
+  //StaticConnection<TargetIdentifierPtrRport>::CommonPropertiesType *tmp1[100];
 
   //std::cout << "recv_buffer_a ptr " << recv_buffer_a << std::endl;
   //std::cout << "SpikeDataT size " << sizeof(SpikeDataT) << std::endl;
@@ -621,7 +689,7 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
     // DO NOT REMOVE
     
 
-#pragma omp target teams distribute parallel for map(to: recv_buffer_a[0:recv_buffer_size]) map(to: p[0:1]) map(to: myp75[0:1], myp76[0:1], prepared_timestamps[0:min_delay], valid_ents, send_recv_count_spike_data_per_rank, se) thread_limit(1024)
+//#pragma omp target teams distribute parallel for map(to: recv_buffer_a[0:recv_buffer_size]) map(to: p[0:1]) map(to: myp75[0:1], myp76[0:1], prepared_timestamps[0:min_delay], valid_ents, send_recv_count_spike_data_per_rank, se) thread_limit(1024)
 //#pragma omp target teams distribute parallel for map(to: recv_buffer_a[0:recv_buffer_size]) map(to: p[0:1]) map(to: se, prepared_timestamps[0:min_delay], valid_ents, send_recv_count_spike_data_per_rank, spike_data, rank) thread_limit(1024)
     for ( unsigned int i = 0; i <= valid_ents; i++ )
     //for ( unsigned int i = 0; i < send_recv_count_spike_data_per_rank; ++i )
@@ -644,9 +712,9 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
         //kernel().connection_manager.send( tid, syn_id, lcid, cm, se );
 	//int *wr_e = nullptr;
         if (syn_id == 75) {
-		myp75->f(tid, lcid, cmarray, se);
+		//myp75->f(tid, lcid, cmarray, se);
 	} else if (syn_id == 76) {
-		myp76->f(tid, lcid, cmarray, se);
+		//myp76->f(tid, lcid, cmarray, se);
 	} else if (syn_id == 42) {
 		//myp2->f(tid, lcid, cmarray, se, wr_e);
 	}
@@ -701,10 +769,18 @@ EventDeliveryManager::gather_target_data( const thread tid )
     kernel().connection_manager.save_source_table_entry_point( tid );
 #pragma omp barrier
     kernel().connection_manager.clean_source_table( tid );
+
 #pragma omp single
     {
+#ifdef TIMER_DETAILED
+      sw_communicate_target_data_.start();
+#endif
       kernel().mpi_manager.communicate_target_data_Alltoall( send_buffer_target_data_, recv_buffer_target_data_ );
-    } // of omp single
+#ifdef TIMER_DETAILED
+      sw_communicate_target_data_.stop();
+#endif
+    } // of omp single (implicit barrier)
+
 
     const bool distribute_completed = distribute_target_data_buffers_( tid );
     gather_completed_checker_[ tid ].logical_and( distribute_completed );
