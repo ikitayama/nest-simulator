@@ -244,10 +244,6 @@ Node::handle( Event2<SpikeEvent2>&)
 
 }
 
-void
-Node::handle( SpikeEvent3& )
-{}
-
 port
 Node::handles_test_event( SpikeEvent&, rport )
 {
