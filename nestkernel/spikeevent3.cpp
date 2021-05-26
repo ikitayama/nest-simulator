@@ -24,7 +24,7 @@ SpikeEvent3::SpikeEvent3()
 void
 SpikeEvent3::operator()()
 {
-	dynamic_cast<iaf_psc_alpha*>(receiver_)->handle(*this);
+	//dynamic_cast<iaf_psc_alpha*>(receiver_)->handle(*this);
 	//receiver_->handle(*this);
         //printf("ddd\n");
 }

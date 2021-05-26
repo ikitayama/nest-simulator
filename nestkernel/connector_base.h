@@ -454,7 +454,7 @@ public:
   }
 
   //inline index f(const thread tid, const index lcid, ConnectorModel **cm, Event& e, typename ConnectionT::CommonPropertiesType const& cp, int *wr_e)//WeightRecorderEvent* wr_e) 
-  inline index f(const thread tid, const index lcid, ConnectorModel **cm, SpikeEvent3& e )//WeightRecorderEvent* wr_e) 
+  inline index f(const thread tid, const index lcid, ConnectorModel **cm, SpikeEvent& e )//WeightRecorderEvent* wr_e) 
   {
 #if defined(__CUDA__) && !defined(__CUDA_ARCH__)
      typename ConnectionT::CommonPropertiesType const& cp = 
@@ -476,7 +476,7 @@ public:
       if ( not is_disabled )
       {
         //conn.send( e, tid, cp );
-        conn.send_non_virtual( e, tid ); // CommonProperties is not used in this function
+        conn.send( e, tid ); // CommonProperties is not used in this function
 	//WeightRecorderEvent wr_e;
 	//index *p;
 	//int *wr_e;

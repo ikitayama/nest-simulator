@@ -48,7 +48,7 @@ class NodeCollectionPrimitive;
 class NodeCollectionComposite;
 class NodeCollectionMetadata;
 
-using NodeCollectionPTR = std::shared_ptr< NodeCollection >;
+using NodeCollectionPTR = NodeCollection *;//std::shared_ptr< NodeCollection >;
 using NodeCollectionMetadataPTR = std::shared_ptr< NodeCollectionMetadata >;
 
 /**

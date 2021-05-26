@@ -157,6 +157,12 @@ public:
   }
 
   void
+  send( Event& e, const thread tid)
+  {
+    //e();
+  }
+
+  void
   send( Event2<SpikeEvent2>& e, const thread tid )
   {
     e.set_weight( weight_ );
