@@ -686,6 +686,10 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
     // when valid_ents is used.
     // DO NOT REMOVE
     const long min_delay = kernel().connection_manager.get_min_delay();
+
+#pragma omp target parallel for
+    for (int i=0;i<10;i++) {}
+
 //#pragma omp target teams distribute parallel for map(to: recv_buffer_a[0:recv_buffer_size]) map(to: p[0:1]) map(to: myp75[0:1], myp76[0:1], prepared_timestamps[0:min_delay], valid_ents, send_recv_count_spike_data_per_rank, se) thread_limit(1024)
 #pragma omp target teams distribute parallel for map(to: recv_buffer_a[0:recv_buffer_size]) map(to: p[0:1]) map(to: se, prepared_timestamps[0:min_delay], valid_ents, send_recv_count_spike_data_per_rank, spike_data, rank, myp75[0:1]) thread_limit(1024)
     for ( unsigned int i = 0; i <= valid_ents; i++ )

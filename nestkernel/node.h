@@ -942,8 +942,7 @@ private:
   bool node_uses_wfr_;       //!< node uses waveform relaxation method
   bool initialized_;         //!< set true once a node is fully initialized
 
-  //NodeCollectionPTR nc_ptr_;
-  NodeCollection* nc_ptr_;
+  NodeCollectionPTR nc_ptr_;
 };
 
 inline bool
