@@ -363,7 +363,7 @@ public:
   SpikeEvent();
   void operator()();
   SpikeEvent* clone() const;
-
+  //void o1();
   void set_multiplicity( int );
   int get_multiplicity() const;
 

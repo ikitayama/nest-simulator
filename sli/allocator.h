@@ -31,6 +31,10 @@
 #include <cstdlib>
 #include <string>
 
+extern "C" {
+void *llvm_omp_target_alloc_shared(size_t, int);
+}
+
 namespace sli
 {
 
@@ -73,8 +77,9 @@ class pool
     chunk( size_t s )
       : csize( s )
       , next( 0 )
-      , mem( new char[ csize ] )
+      //, mem( new char[ csize ] )
     {
+      mem = (char*)llvm_omp_target_alloc_shared(csize * sizeof(char), 0);
     }
 
     ~chunk()

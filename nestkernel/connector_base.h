@@ -54,7 +54,7 @@
 
 namespace nest
 {
-
+class iaf_psc_alpha;
 /**
  * Base class to allow storing Connectors for different synapse types
  * in vectors. We define the interface here to avoid casting.
@@ -259,6 +259,18 @@ public:
 	std::cout << __PRETTY_FUNCTION__ << " typeid() " << typeid(C_1[0]).name() << std::endl; 
 	//std::cout << __PRETTY_FUNCTION__ << " sizeof(C_1[0]) * array_size " << sizeof(C_1[0]) * array_size << std::endl; 
 #pragma omp target enter data map(to: C_1[0:array_size])
+ /* 
+  iaf_psc_alpha* p[array_size];
+  targetindex p1[array_size];
+  for (int i=0;i<array_size;i++) {
+    if (std::is_same<nest::Node*, decltype(C_1[i].target_.target_)>::value) {
+      p[i] = static_cast<iaf_psc_alpha*>(C_1[i].target_.target_); 
+    }
+    if (std::is_same<nest::targetindex, decltype(C_1[i].target_.target_)>::value) {
+      p1[i] = C_1[i].target_.target_;
+    }
+#pragma omp target enter data map(to: p[0:array_size])
+  }*/
   }
 
   virtual void map_out() {
@@ -454,7 +466,7 @@ public:
   }
 
   //inline index f(const thread tid, const index lcid, ConnectorModel **cm, Event& e, typename ConnectionT::CommonPropertiesType const& cp, int *wr_e)//WeightRecorderEvent* wr_e) 
-  inline index f(const thread tid, const index lcid, ConnectorModel **cm, SpikeEvent& e )//WeightRecorderEvent* wr_e) 
+  index f(const thread tid, const index lcid, ConnectorModel **cm, SpikeEvent& e )//WeightRecorderEvent* wr_e) 
   {
 #if defined(__CUDA__) && !defined(__CUDA_ARCH__)
      typename ConnectionT::CommonPropertiesType const& cp = 
@@ -476,7 +488,7 @@ public:
       if ( not is_disabled )
       {
         //conn.send( e, tid, cp );
-        conn.send( e, tid ); // CommonProperties is not used in this function
+        //conn.send( e, tid ); // CommonProperties is not used in this function
 	//WeightRecorderEvent wr_e;
 	//index *p;
 	//int *wr_e;

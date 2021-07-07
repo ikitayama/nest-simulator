@@ -130,7 +130,7 @@ public:
     , syn_id_delay_( 1.0 )
   {
 	 // targetidentifierT *p = &target_;
-//#pragma omp target enter data map(to: &target_
+#pragma omp target enter data map(to: target_)
 	  //std::cout << __PRETTY_FUNCTION__ << std::endl;
   }
 
@@ -292,7 +292,7 @@ public:
     return syn_id_delay_.is_disabled();
   }
 
-protected:
+//protected:
   /**
    * This function calls check_connection() on the sender to check if the
    * receiver

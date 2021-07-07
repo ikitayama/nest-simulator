@@ -122,10 +122,12 @@ nest::ConnectionManager::initialize()
 
   for (int i=0;i<num_threads;i++) {
 	for (int j=0;j<num_synapse_prototypes;j++) {
+                if (connections_[i][j]) {
 		connections_array_[i][j] = connections_[i][j];
 		//std::cout << "XX " << typeid(connections_array_[i][j]).name() << std::endl;
 		//std::cout << "XX " << typeid(connections_[i][j]).name() << std::endl;
 		//std::cout << "XX " << typeid(static_cast<Connector<StaticConnection<TargetIdentifierPtrRport>>*>(connections_[i][j])->f4()).name() << std::endl;
+		}
 	}
   }
 

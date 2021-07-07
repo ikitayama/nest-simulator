@@ -93,7 +93,7 @@ public:
     rport_ = rprt;
   }
 
-private:
+//private:
   Node* target_; //!< Target node
   rport rport_;  //!< Receiver port at the target node
 };
@@ -159,7 +159,7 @@ public:
     }
   }
 
-private:
+//private:
   targetindex target_; //!< Target node
 };
 

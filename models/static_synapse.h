@@ -157,13 +157,15 @@ public:
   }
 
   void
-  send( Event& e, const thread tid)
+  send( SpikeEvent& e, const thread tid)
   {
     e.set_weight( weight_ );
     e.set_delay_steps( get_delay_steps() );
     e.set_receiver( *get_target( tid ) );
     e.set_rport( get_rport() );
     //e();
+    //printf("%d\n", tid  );
+    //e.o1();
   }
 
   void
