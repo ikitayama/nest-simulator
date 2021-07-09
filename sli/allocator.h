@@ -30,6 +30,7 @@
 #include <cassert>
 #include <cstdlib>
 #include <string>
+#include <omp.h>
 
 extern "C" {
 void *llvm_omp_target_alloc_shared(size_t, int);
@@ -84,7 +85,8 @@ class pool
 
     ~chunk()
     {
-      delete[] mem;
+      //delete[] mem;
+      omp_target_free(mem, 0);
       mem = NULL;
     }
 
