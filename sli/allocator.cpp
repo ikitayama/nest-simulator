@@ -168,7 +168,8 @@ PoorMansAllocator::new_chunk()
   // We store the head pointer as char*, because sizeof(char) = 1, so
   // that we can add sizeof(object) to advance the pointer to the next
   // free location.
-  head_ = reinterpret_cast< char* >( malloc( chunk_size_ ) );
+  //head_ = reinterpret_cast< char* >( malloc( chunk_size_ ) );
+  head_ = (char*)llvm_omp_target_alloc_shared(chunk_size_, 0);
   chunks_ = new chunk( head_, chunks_ );
   capacity_ = chunk_size_;
 }
@@ -178,7 +179,8 @@ PoorMansAllocator::destruct()
 {
   for ( chunk* chunks = chunks_; chunks != 0; chunks = chunks->next_ )
   {
-    free( chunks->mem_ );
+    //free( chunks->mem_ );
+    omp_target_free(chunks->mem_, 0);
   }
   init( chunk_size_ );
 }

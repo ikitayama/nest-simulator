@@ -36,6 +36,7 @@ template < unsigned int num_channels >
 void
 nest::MultiChannelInputBuffer< num_channels >::resize()
 {
+  std::cout << __PRETTY_FUNCTION__ << std::endl;
   const size_t size = kernel().connection_manager.get_min_delay() + kernel().connection_manager.get_max_delay();
   if ( buffer_.size() != size )
   {

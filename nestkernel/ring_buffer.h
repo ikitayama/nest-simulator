@@ -399,7 +399,8 @@ template < unsigned int num_channels >
 inline void
 MultiChannelInputBuffer< num_channels >::add_value( const index slot, const index channel, const double value )
 {
-  buffer_[ slot ][ channel ] += value;
+  //buffer_[ slot ][ channel ] += value;
+  (buffer_.data()[slot]).data()[channel] += value;
 }
 
 template < unsigned int num_channels >

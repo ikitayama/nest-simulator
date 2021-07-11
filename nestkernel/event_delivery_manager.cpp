@@ -646,10 +646,10 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
        std::cout << " " << i << " " << typeid(tmp).name() << std::endl;
     }
   }
-  auto *myp31 = static_cast<Connector<static_synapse<TargetIdentifierPtrRport>> *>(p->get_ptrConnectorBase(tid, 31));
-  assert(myp31);
-  auto *myp32 = static_cast<Connector<static_synapse<TargetIdentifierPtrRport>> *>(p->get_ptrConnectorBase(tid, 32));
-  //assert(myp32);
+  auto *myp75 = static_cast<Connector<static_synapse<TargetIdentifierPtrRport>> *>(p->get_ptrConnectorBase(tid, 75));
+  assert(myp75);
+  auto *myp76 = static_cast<Connector<static_synapse<TargetIdentifierPtrRport>> *>(p->get_ptrConnectorBase(tid, 76));
+  assert(myp76);
   //auto *myp2 = static_cast<Connector<STDPPLConnectionHom<TargetIdentifierPtrRport>> *>(p->get_ptrConnectorBase(tid, 42));
   //std::cout << "pointer " << p->get_ptrConnectorBase(tid, 72) << std::endl;
   //StaticConnection<TargetIdentifierPtrRport>::CommonPropertiesType *tmp1[100];
@@ -698,7 +698,7 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
     for (int i=0;i<10;i++) {}
 
 //#pragma omp target teams distribute parallel for map(to: recv_buffer_a[0:recv_buffer_size]) map(to: p[0:1]) map(to: myp75[0:1], myp76[0:1], prepared_timestamps[0:min_delay], valid_ents, send_recv_count_spike_data_per_rank, se) thread_limit(1024)
-#pragma omp target teams distribute parallel for map(to: recv_buffer_a[0:recv_buffer_size]) map(to: p[0:1]) map(to: se, prepared_timestamps[0:min_delay], valid_ents, send_recv_count_spike_data_per_rank, spike_data, rank, myp31[0:1]) thread_limit(1024)
+#pragma omp target teams distribute parallel for map(to: recv_buffer_a[0:recv_buffer_size]) map(to: p[0:1]) map(to: se, prepared_timestamps[0:min_delay], valid_ents, send_recv_count_spike_data_per_rank, spike_data, rank, myp75[0:1]) thread_limit(1024)
     for ( unsigned int i = 0; i <= valid_ents; i++ )
     //for ( unsigned int i = 0; i < send_recv_count_spike_data_per_rank; ++i )
     {
@@ -725,8 +725,8 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
 
           //kernel().connection_manager.send( tid, syn_id, lcid, cm, se );
 	  //int *wr_e = nullptr;
-          if (syn_id == 31) {
-		myp31->f(tid, lcid, cmarray, se);
+          if (syn_id == 75) {
+		myp75->f(tid, lcid, cmarray, se);
 	  } else if (syn_id == 32) {
 		//myp32->f(tid, lcid, cmarray, se);
 	  } else if (syn_id == 42) {
