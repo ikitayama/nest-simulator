@@ -698,7 +698,7 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
     for (int i=0;i<10;i++) {}
 
 //#pragma omp target teams distribute parallel for map(to: recv_buffer_a[0:recv_buffer_size]) map(to: p[0:1]) map(to: myp75[0:1], myp76[0:1], prepared_timestamps[0:min_delay], valid_ents, send_recv_count_spike_data_per_rank, se) thread_limit(1024)
-#pragma omp target teams distribute parallel for map(to: recv_buffer_a[0:recv_buffer_size]) map(to: p[0:1]) map(to: se, prepared_timestamps[0:min_delay], valid_ents, send_recv_count_spike_data_per_rank, spike_data, rank, myp75[0:1]) thread_limit(1024)
+#pragma omp target teams distribute parallel for map(to: recv_buffer_a[0:recv_buffer_size]) map(to: p[0:1]) map(to: se, prepared_timestamps[0:min_delay], valid_ents, send_recv_count_spike_data_per_rank, spike_data, rank, myp75[0:1], myp76[0:1]) thread_limit(1024)
     for ( unsigned int i = 0; i <= valid_ents; i++ )
     //for ( unsigned int i = 0; i < send_recv_count_spike_data_per_rank; ++i )
     {
@@ -728,7 +728,7 @@ EventDeliveryManager::deliver_events_( const thread tid, const std::vector< Spik
           if (syn_id == 75) {
 		myp75->f(tid, lcid, cmarray, se);
 	  } else if (syn_id == 32) {
-		//myp32->f(tid, lcid, cmarray, se);
+		myp76->f(tid, lcid, cmarray, se);
 	  } else if (syn_id == 42) {
 		//myp2->f(tid, lcid, cmarray, se, wr_e);
 	  }
